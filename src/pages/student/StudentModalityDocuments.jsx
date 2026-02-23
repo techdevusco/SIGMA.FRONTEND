@@ -179,6 +179,9 @@ export default function StudentModalityDocuments({ studentModalityId }) {
       REJECTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW: "Rechazado por Comité",
       CORRECTIONS_REQUESTED_BY_PROGRAM_CURRICULUM_COMMITTEE: "Correcciones solicitadas por Comité",
       CORRECTION_RESUBMITTED: "Corrección reenviada",
+      ACCEPTED_FOR_EXAMINER_REVIEW: "Aceptado por Juez",
+      REJECTED_FOR_EXAMINER_REVIEW: "Rechazado por Juez",
+      CORRECTIONS_REQUESTED_BY_EXAMINER: "Correcciones solicitadas por Juez",
     };
     return labels[status] || status;
   };
@@ -196,6 +199,7 @@ export default function StudentModalityDocuments({ studentModalityId }) {
       "REJECTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW",
       "CORRECTIONS_REQUESTED_BY_PROGRAM_HEAD",
       "CORRECTIONS_REQUESTED_BY_PROGRAM_CURRICULUM_COMMITTEE",
+      "CORRECTIONS_REQUESTED_BY_EXAMINER",
     ];
     return reuploadableStatuses.includes(status);
   };

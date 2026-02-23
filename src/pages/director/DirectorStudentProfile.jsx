@@ -16,6 +16,7 @@ import {
   getStatusLabel,
   getStatusBadgeClass,
 } from "../../services/directorService";
+import ConfirmModal from "../../components/ConfirmModal";
 import "../../styles/director/directorStudentProfile.css";
 
 export default function DirectorStudentProfile() {
@@ -42,6 +43,7 @@ export default function DirectorStudentProfile() {
     defenseLocation: "",
   });
   const [rejectReason, setRejectReason] = useState("");
+  const [confirmAction, setConfirmAction] = useState(null); // { type, title, message, variant }
 
   useEffect(() => {
     fetchStudentDetail();
@@ -61,28 +63,12 @@ export default function DirectorStudentProfile() {
   };
 
   const handleNotifyExaminers = async () => {
-    if (!window.confirm("¿Confirmas que el estudiante ha entregado todos los documentos y quieres notificar a los jurados?")) return;
-    setNotifyingExaminers(true);
-    try {
-      const response = await notifyReadyForDefense(studentModalityId);
-      setMessage(response.message || "✅ Jurados notificados. Modalidad marcada como lista para defensa.");
-      fetchStudentDetail();
-      setTimeout(() => setMessage(""), 8000);
-    } catch (err) {
-      console.error("Error al notificar jurados:", err);
-      const data = err.response?.data;
-      const msg =
-        (typeof data === "string" && data) ||
-        data?.message ||
-        data?.error ||
-        (typeof data === "object" && Object.keys(data).length > 0 && JSON.stringify(data)) ||
-        err.message ||
-        "Error desconocido";
-      setMessage("❌ " + msg);
-      setTimeout(() => setMessage(""), 8000);
-    } finally {
-      setNotifyingExaminers(false);
-    }
+    setConfirmAction({
+      type: "notifyExaminers",
+      title: "Notificar a Jurados",
+      message: "¿Confirmas que el estudiante ha entregado todos los documentos y quieres notificar a los jurados?",
+      variant: "primary",
+    });
   };
 
   // ✅ NUEVA FUNCIÓN: Ver documento
@@ -178,19 +164,50 @@ export default function DirectorStudentProfile() {
   };
 
   const handleApproveCancellation = async () => {
-    if (!window.confirm("¿Estás seguro de aprobar esta solicitud de cancelación?")) {
-      return;
-    }
+    setConfirmAction({
+      type: "approveCancellation",
+      title: "Aprobar Cancelación",
+      message: "¿Estás seguro de aprobar esta solicitud de cancelación?",
+      variant: "danger",
+    });
+  };
 
-    try {
-      const response = await approveModalityCancellationByDirector(studentModalityId);
-      setMessage(response.message || "Cancelación aprobada. Será enviada al comité.");
-      fetchStudentDetail();
-     
-      setTimeout(() => setMessage(""), 5000);
-    } catch (err) {
-      console.error("Error approving cancellation:", err);
-      setMessage("Error al aprobar cancelación: " + getErrorMessage(err));
+  const executeConfirmAction = async () => {
+    const action = confirmAction;
+    setConfirmAction(null);
+
+    if (action.type === "notifyExaminers") {
+      setNotifyingExaminers(true);
+      try {
+        const response = await notifyReadyForDefense(studentModalityId);
+        setMessage(response.message || "✅ Jurados notificados. Modalidad marcada como lista para defensa.");
+        fetchStudentDetail();
+        setTimeout(() => setMessage(""), 8000);
+      } catch (err) {
+        console.error("Error al notificar jurados:", err);
+        const data = err.response?.data;
+        const msg =
+          (typeof data === "string" && data) ||
+          data?.message ||
+          data?.error ||
+          (typeof data === "object" && Object.keys(data).length > 0 && JSON.stringify(data)) ||
+          err.message ||
+          "Error desconocido";
+        setMessage("❌ " + msg);
+        setTimeout(() => setMessage(""), 8000);
+      } finally {
+        setNotifyingExaminers(false);
+      }
+    } else if (action.type === "approveCancellation") {
+      try {
+        const response = await approveModalityCancellationByDirector(studentModalityId);
+        setMessage(response.message || "Cancelación aprobada. Será enviada al comité.");
+        fetchStudentDetail();
+        setTimeout(() => setMessage(""), 5000);
+      } catch (err) {
+        console.error("Error approving cancellation:", err);
+        setMessage("Error al aprobar cancelación: " + getErrorMessage(err));
+      }
     }
   };
 
@@ -243,6 +260,9 @@ export default function DirectorStudentProfile() {
       REJECTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW: "Rechazado por Comité",
       CORRECTIONS_REQUESTED_BY_PROGRAM_CURRICULUM_COMMITTEE: "Correcciones solicitadas por Comité",
       CORRECTION_RESUBMITTED: "Corrección reenviada",
+      ACCEPTED_FOR_EXAMINER_REVIEW: "Aceptado por Juez",
+      REJECTED_FOR_EXAMINER_REVIEW: "Rechazado por Juez",
+      CORRECTIONS_REQUESTED_BY_EXAMINER: "Correcciones solicitadas por Juez",
     };
     return labels[status] || status;
   };
@@ -743,6 +763,17 @@ export default function DirectorStudentProfile() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={!!confirmAction}
+        title={confirmAction?.title || ""}
+        message={confirmAction?.message || ""}
+        confirmText="Sí, confirmar"
+        cancelText="Cancelar"
+        variant={confirmAction?.variant || "primary"}
+        onConfirm={executeConfirmAction}
+        onCancel={() => setConfirmAction(null)}
+      />
     </div>
   );
 }

@@ -6,6 +6,7 @@ import {
   getRequiredDocumentsByModalityAndStatus,
   deleteRequiredDocument,
 } from "../../services/adminService";
+import ConfirmModal from "../../components/ConfirmModal";
 import "../../styles/admin/Roles.css";
 
 const DOCUMENT_TYPES = ["MANDATORY", "SECONDARY", "CANCELLATION"];
@@ -19,6 +20,7 @@ export default function Documents() {
   const [message, setMessage] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editingDocument, setEditingDocument] = useState(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const [activeFilter, setActiveFilter] = useState("all");
 
   const [formData, setFormData] = useState({
@@ -104,11 +106,15 @@ export default function Documents() {
     setShowModal(true);
   };
 
-  const handleDelete = async (documentId) => {
-    if (!window.confirm("¿Estás seguro de desactivar este documento?")) return;
-    
+  const handleDelete = (documentId) => {
+    setConfirmDeleteId(documentId);
+  };
+
+  const executeDelete = async () => {
+    const docId = confirmDeleteId;
+    setConfirmDeleteId(null);
     try {
-      await deleteRequiredDocument(documentId);
+      await deleteRequiredDocument(docId);
       setMessage("Documento desactivado exitosamente");
       fetchDocuments();
     } catch (err) {
@@ -394,6 +400,17 @@ export default function Documents() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={!!confirmDeleteId}
+        title="Desactivar Documento"
+        message="¿Estás seguro de desactivar este documento?"
+        confirmText="Sí, desactivar"
+        cancelText="Cancelar"
+        variant="danger"
+        onConfirm={executeDelete}
+        onCancel={() => setConfirmDeleteId(null)}
+      />
     </div>
   );
 }

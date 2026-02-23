@@ -7,31 +7,48 @@ import "../../styles/programhead/studentpending.css";
    ESTADOS DISPONIBLES
    ========================= */
 const AVAILABLE_STATUSES = [
-  { value: "UNDER_REVIEW_PROGRAM_HEAD", label: "En Revisión (Jefe de Programa)" },
-  { value: "CORRECTIONS_REQUESTED_PROGRAM_HEAD", label: "Correcciones (Jefe de Programa)" },
+  { value: "UNDER_REVIEW_PROGRAM_HEAD", label: "En Revisión por Jefe de Programa" },
+  { value: "CORRECTIONS_REQUESTED_PROGRAM_HEAD", label: "Correcciones Solicitadas por Jefe" },
+  { value: "CORRECTIONS_SUBMITTED", label: "Correcciones Enviadas" },
+  { value: "CORRECTIONS_APPROVED", label: "Correcciones Aprobadas" },
+  { value: "CORRECTIONS_REJECTED_FINAL", label: "Correcciones Rechazadas (Final)" },
 
-  { value: "READY_FOR_PROGRAM_CURRICULUM_COMMITTEE", label: "Listo para comité de currículo de programa" },
-  { value: "UNDER_REVIEW_PROGRAM_CURRICULUM_COMMITTEE", label: "En Revisión (Comité de currículo de programa)" },
-  { value: "CORRECTIONS_REQUESTED_PROGRAM_CURRICULUM_COMMITTEE", label: "Correcciones (Comité de currículo de programa)" },
+  { value: "READY_FOR_PROGRAM_CURRICULUM_COMMITTEE", label: "Pendiente Comité de Currículo" },
+  { value: "UNDER_REVIEW_PROGRAM_CURRICULUM_COMMITTEE", label: "En Revisión por Comité de Currículo" },
+  { value: "CORRECTIONS_REQUESTED_PROGRAM_CURRICULUM_COMMITTEE", label: "Correcciones Solicitadas por Comité" },
 
   { value: "PROPOSAL_APPROVED", label: "Propuesta Aprobada" },
-
+  { value: "DEFENSE_REQUESTED_BY_PROJECT_DIRECTOR", label: "Sustentación Propuesta por Director" },
   { value: "DEFENSE_SCHEDULED", label: "Sustentación Programada" },
-  { value: "DEFENSE_COMPLETED", label: "Sustentación Realizada" },
+  { value: "EXAMINERS_ASSIGNED", label: "Jueces Asignados" },
+  { value: "READY_FOR_EXAMINERS", label: "Listo para Jueces" },
+  { value: "CORRECTIONS_REQUESTED_EXAMINERS", label: "Correcciones Solicitadas por Jueces" },
+  { value: "READY_FOR_DEFENSE", label: "Listo para Sustentación" },
+  { value: "FINAL_REVIEW_COMPLETED", label: "Revisión Final Completada" },
+  { value: "DEFENSE_COMPLETED", label: "Sustentación Completada" },
 
-  { value: "GRADED_APPROVED", label: "Aprobado con Nota" },
+  { value: "UNDER_EVALUATION_PRIMARY_EXAMINERS", label: "En Evaluación por Jueces Principales" },
+  { value: "DISAGREEMENT_REQUIRES_TIEBREAKER", label: "Desacuerdo - Requiere Tercer Juez" },
+  { value: "UNDER_EVALUATION_TIEBREAKER", label: "En Evaluación por Tercer Juez" },
+  { value: "EVALUATION_COMPLETED", label: "Evaluación Completada" },
+  { value: "GRADED_APPROVED", label: "Aprobado" },
   { value: "GRADED_FAILED", label: "Reprobado" },
 
   { value: "CANCELLATION_REQUESTED", label: "Cancelación Solicitada" },
+  { value: "CANCELLATION_APPROVED_BY_PROJECT_DIRECTOR", label: "Cancelación Aprobada por Director" },
+  { value: "CANCELLATION_REJECTED_BY_PROJECT_DIRECTOR", label: "Cancelación Rechazada por Director" },
+  { value: "CANCELLED_WITHOUT_REPROVAL", label: "Cancelada sin Calificación" },
   { value: "CANCELLATION_REJECTED", label: "Cancelación Rechazada" },
-  { value: "CANCELLED_WITHOUT_REPROVAL", label: "Cancelado sin Reprobación" },
+  { value: "CANCELLED_BY_CORRECTION_TIMEOUT", label: "Cancelada por Timeout de Correcciones" },
 
   { value: "MODALITY_CANCELLED", label: "Modalidad Cancelada" },
   { value: "MODALITY_CLOSED", label: "Modalidad Cerrada" },
+  { value: "SEMINAR_CANCELED", label: "Seminario Cancelado" },
 ];
 
 export default function StudentsPending() {
   const [students, setStudents] = useState([]);
+  const [filteredStudents, setFilteredStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
@@ -44,20 +61,21 @@ export default function StudentsPending() {
 
   useEffect(() => {
     fetchStudents();
-  }, [selectedStatuses, searchName]);
+  }, [selectedStatuses]);
+
+  useEffect(() => {
+    applyLocalFilter();
+  }, [students, searchName]);
 
   const fetchStudents = async () => {
     setLoading(true);
     try {
-      const res = await getStudentsPendingModalities(
-        selectedStatuses,
-        searchName
-      );
+      const res = await getStudentsPendingModalities(selectedStatuses);
       // Excluir estudiantes con estado MODALITY_SELECTED
-      const filteredStudents = res.filter(
+      const filtered = res.filter(
         (student) => student.currentStatus !== "MODALITY_SELECTED"
       );
-      setStudents(filteredStudents);
+      setStudents(filtered);
       setMessage("");
     } catch (err) {
       console.error(err);
@@ -68,6 +86,19 @@ export default function StudentsPending() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const applyLocalFilter = () => {
+    let result = [...students];
+    if (searchName.trim()) {
+      const searchLower = searchName.toLowerCase();
+      result = result.filter((s) => {
+        const fullName = (s.studentName || "").toLowerCase();
+        const email = (s.studentEmail || "").toLowerCase();
+        return fullName.includes(searchLower) || email.includes(searchLower);
+      });
+    }
+    setFilteredStudents(result);
   };
 
   /* =========================
@@ -169,13 +200,13 @@ export default function StudentsPending() {
       {/* FILTROS */}
       <div className="students-pending-filters">
         <div className="filter-section">
-          <label className="filter-label">Buscar por nombre</label>
+          <label className="filter-label">Buscar por nombre o email</label>
           <form onSubmit={handleSearchSubmit} className="search-form">
             <input
               type="text"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Nombre del estudiante..."
+              placeholder="Buscar estudiante..."
               className="search-input"
             />
             <button type="submit" className="search-button">
@@ -229,7 +260,7 @@ export default function StudentsPending() {
       )}
 
       {/* EMPTY / TABLE */}
-      {students.length === 0 ? (
+      {filteredStudents.length === 0 ? (
         <div className="students-pending-empty">
           <div className="students-pending-empty-icon">🔍</div>
           <p className="students-pending-empty-text">
@@ -242,8 +273,10 @@ export default function StudentsPending() {
       ) : (
         <div className="students-pending-table-container">
           <div className="results-count">
-            Mostrando {students.length} estudiante
-            {students.length !== 1 && "s"}
+            {filteredStudents.length === students.length
+              ? `Total: ${students.length} estudiante${students.length !== 1 ? "s" : ""}`
+              : `Mostrando ${filteredStudents.length} de ${students.length} estudiante${students.length !== 1 ? "s" : ""}`
+            }
           </div>
 
           <table className="students-pending-table">
@@ -258,7 +291,7 @@ export default function StudentsPending() {
               </tr>
             </thead>
             <tbody>
-              {students.map((s) => (
+              {filteredStudents.map((s) => (
                 <tr key={s.studentModalityId}>
                   <td data-label="Estudiante">
                     <span className="student-name">{s.studentName}</span>

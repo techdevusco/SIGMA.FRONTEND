@@ -7,6 +7,7 @@ import {
   updateModalityRequirement,
   deleteModalityRequirement,
 } from "../../services/adminService";
+import ConfirmModal from "../../components/ConfirmModal";
 import "../../styles/admin/Roles.css";
 
 const RULE_TYPES = ["NUMERIC", "BOOLEAN", "DOCUMENT", "TEXT", "CONDITION"];
@@ -23,6 +24,7 @@ export default function Requirements() {
   const [message, setMessage] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editingRequirement, setEditingRequirement] = useState(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
   const [formData, setFormData] = useState({
     requirementName: "",
@@ -114,11 +116,15 @@ export default function Requirements() {
     }
   };
 
-  const handleDelete = async (requirementId) => {
-    if (!window.confirm("¿Estás seguro de eliminar este requerimiento?")) return;
+  const handleDelete = (requirementId) => {
+    setConfirmDeleteId(requirementId);
+  };
 
+  const executeDelete = async () => {
+    const reqId = confirmDeleteId;
+    setConfirmDeleteId(null);
     try {
-      await deleteModalityRequirement(requirementId);
+      await deleteModalityRequirement(reqId);
       setMessage("Requerimiento eliminado exitosamente");
       await fetchRequirements();
     } catch (err) {
@@ -321,6 +327,17 @@ export default function Requirements() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={!!confirmDeleteId}
+        title="Eliminar Requerimiento"
+        message="¿Estás seguro de eliminar este requerimiento?"
+        confirmText="Sí, eliminar"
+        cancelText="Cancelar"
+        variant="danger"
+        onConfirm={executeDelete}
+        onCancel={() => setConfirmDeleteId(null)}
+      />
     </div>
   );
 }

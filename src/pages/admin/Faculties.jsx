@@ -6,6 +6,7 @@ import {
   updateFaculty,
   deactivateFaculty,
 } from "../../services/adminService";
+import ConfirmModal from "../../components/ConfirmModal";
 import "../../styles/admin/Roles.css";
 
 export default function Faculties() {
@@ -15,6 +16,7 @@ export default function Faculties() {
   const [message, setMessage] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editingFaculty, setEditingFaculty] = useState(null);
+  const [confirmDeactivateId, setConfirmDeactivateId] = useState(null);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -88,14 +90,17 @@ export default function Faculties() {
     }
   };
 
-  const handleDeactivate = async (facultyId) => {
-    if (!window.confirm("¿Estás seguro de desactivar esta facultad?")) return;
-    
+  const handleDeactivate = (facultyId) => {
+    setConfirmDeactivateId(facultyId);
+  };
+
+  const executeDeactivate = async () => {
+    const fId = confirmDeactivateId;
+    setConfirmDeactivateId(null);
     try {
-      await deactivateFaculty(facultyId);
+      await deactivateFaculty(fId);
       setMessage("Facultad desactivada exitosamente");
       fetchFaculties();
-      
       setTimeout(() => setMessage(""), 3000);
     } catch (err) {
       console.error("Error deactivating faculty:", err);
@@ -236,6 +241,17 @@ export default function Faculties() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={!!confirmDeactivateId}
+        title="Desactivar Facultad"
+        message="¿Estás seguro de desactivar esta facultad?"
+        confirmText="Sí, desactivar"
+        cancelText="Cancelar"
+        variant="danger"
+        onConfirm={executeDeactivate}
+        onCancel={() => setConfirmDeactivateId(null)}
+      />
     </div>
   );
 }

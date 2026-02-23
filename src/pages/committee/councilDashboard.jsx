@@ -21,6 +21,7 @@ const AVAILABLE_STATUSES = [
 
 export default function CommitteeDashboard() {
   const [students, setStudents] = useState([]);
+  const [filteredStudents, setFilteredStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   
@@ -31,15 +32,20 @@ export default function CommitteeDashboard() {
 
   const navigate = useNavigate();
 
-  // Cargar estudiantes cuando cambien los filtros
+  // Cargar estudiantes cuando cambien los estados
   useEffect(() => {
     fetchStudents();
-  }, [selectedStatuses, searchName]);
+  }, [selectedStatuses]);
+
+  // Filtro local por nombre y email
+  useEffect(() => {
+    applyLocalFilter();
+  }, [students, searchName]);
 
   const fetchStudents = async () => {
     setLoading(true);
     try {
-      const res = await getStudentsPendingModalities(selectedStatuses, searchName);
+      const res = await getStudentsPendingModalities(selectedStatuses);
       console.log("✅ Estudiantes obtenidos:", res);
       setStudents(res);
       setMessage("");
@@ -52,6 +58,19 @@ export default function CommitteeDashboard() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const applyLocalFilter = () => {
+    let result = [...students];
+    if (searchName.trim()) {
+      const searchLower = searchName.toLowerCase();
+      result = result.filter((s) => {
+        const fullName = (s.studentName || "").toLowerCase();
+        const email = (s.studentEmail || "").toLowerCase();
+        return fullName.includes(searchLower) || email.includes(searchLower);
+      });
+    }
+    setFilteredStudents(result);
   };
 
   // Manejar cambio de checkbox de estados
@@ -117,19 +136,39 @@ export default function CommitteeDashboard() {
 
   const getStatusLabel = (status) => {
     const statusMap = {
-      "READY_FOR_PROGRAM_CURRICULUM_COMMITTEE": "Listo para comité de currículo de programa",
-      "UNDER_REVIEW_PROGRAM_CURRICULUM_COMMITTEE": "En Revisión - Comité de currículo de programa",
-      "CORRECTIONS_REQUESTED_PROGRAM_CURRICULUM_COMMITTEE": "Correcciones Solicitadas",
+      "MODALITY_SELECTED": "Modalidad Seleccionada",
+      "UNDER_REVIEW_PROGRAM_HEAD": "En Revisión por Jefe de Programa",
+      "CORRECTIONS_REQUESTED_PROGRAM_HEAD": "Correcciones Solicitadas por Jefe",
+      "CORRECTIONS_SUBMITTED": "Correcciones Enviadas",
+      "CORRECTIONS_APPROVED": "Correcciones Aprobadas",
+      "CORRECTIONS_REJECTED_FINAL": "Correcciones Rechazadas (Final)",
+      "READY_FOR_PROGRAM_CURRICULUM_COMMITTEE": "Pendiente Comité de Currículo",
+      "UNDER_REVIEW_PROGRAM_CURRICULUM_COMMITTEE": "En Revisión por Comité de Currículo",
+      "CORRECTIONS_REQUESTED_PROGRAM_CURRICULUM_COMMITTEE": "Correcciones Solicitadas por Comité",
       "PROPOSAL_APPROVED": "Propuesta Aprobada",
+      "DEFENSE_REQUESTED_BY_PROJECT_DIRECTOR": "Sustentación Propuesta por Director",
       "DEFENSE_SCHEDULED": "Sustentación Programada",
+      "EXAMINERS_ASSIGNED": "Jueces Asignados",
+      "READY_FOR_EXAMINERS": "Listo para Jueces",
+      "CORRECTIONS_REQUESTED_EXAMINERS": "Correcciones Solicitadas por Jueces",
+      "READY_FOR_DEFENSE": "Listo para Sustentación",
+      "FINAL_REVIEW_COMPLETED": "Revisión Final Completada",
       "DEFENSE_COMPLETED": "Sustentación Completada",
+      "UNDER_EVALUATION_PRIMARY_EXAMINERS": "En Evaluación por Jueces Principales",
+      "DISAGREEMENT_REQUIRES_TIEBREAKER": "Desacuerdo - Requiere Tercer Juez",
+      "UNDER_EVALUATION_TIEBREAKER": "En Evaluación por Tercer Juez",
+      "EVALUATION_COMPLETED": "Evaluación Completada",
       "GRADED_APPROVED": "Aprobado",
       "GRADED_FAILED": "Reprobado",
+      "MODALITY_CLOSED": "Modalidad Cerrada",
+      "SEMINAR_CANCELED": "Seminario Cancelado",
+      "MODALITY_CANCELLED": "Modalidad Cancelada",
       "CANCELLATION_REQUESTED": "Cancelación Solicitada",
+      "CANCELLATION_APPROVED_BY_PROJECT_DIRECTOR": "Cancelación Aprobada por Director",
+      "CANCELLATION_REJECTED_BY_PROJECT_DIRECTOR": "Cancelación Rechazada por Director",
+      "CANCELLED_WITHOUT_REPROVAL": "Cancelada sin Calificación",
       "CANCELLATION_REJECTED": "Cancelación Rechazada",
-      "MODALITY_CANCELLED": "Cancelada",
-      "CANCELLED_WITHOUT_REPROVAL": "Cancelada Sin Reprobación",
-      "MODALITY_CLOSED": "Cerrada",
+      "CANCELLED_BY_CORRECTION_TIMEOUT": "Cancelada por Timeout de Correcciones",
     };
     return statusMap[status] || status;
   };
@@ -163,13 +202,13 @@ export default function CommitteeDashboard() {
       <div className="students-pending-filters">
         {/* Búsqueda por nombre */}
         <div className="filter-section">
-          <label className="filter-label">Buscar por nombre:</label>
+          <label className="filter-label">Buscar por nombre o email:</label>
           <form onSubmit={handleSearchSubmit} className="search-form">
             <input
               type="text"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Nombre del estudiante..."
+              placeholder="Buscar estudiante..."
               className="search-input"
             />
             <button type="submit" className="search-button">
@@ -218,7 +257,7 @@ export default function CommitteeDashboard() {
       )}
 
       {/* Empty State */}
-      {students.length === 0 ? (
+      {filteredStudents.length === 0 ? (
         <div className="students-pending-empty">
           <div className="students-pending-empty-icon">
             {selectedStatuses.length > 0 || searchName ? "🔍" : "🎓"}
@@ -238,7 +277,10 @@ export default function CommitteeDashboard() {
         /* Table */
         <div className="students-pending-table-container">
           <div className="results-count">
-            Mostrando {students.length} estudiante{students.length !== 1 ? "s" : ""}
+            {filteredStudents.length === students.length
+              ? `Total: ${students.length} estudiante${students.length !== 1 ? "s" : ""}`
+              : `Mostrando ${filteredStudents.length} de ${students.length} estudiante${students.length !== 1 ? "s" : ""}`
+            }
           </div>
           
           <table className="students-pending-table">
@@ -254,7 +296,7 @@ export default function CommitteeDashboard() {
             </thead>
 
             <tbody>
-              {students.map((s) => (
+              {filteredStudents.map((s) => (
                 <tr key={s.studentModalityId}>
                   <td data-label="Estudiante">
                     <span className="student-name">{s.studentName}</span>

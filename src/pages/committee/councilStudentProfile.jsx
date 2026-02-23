@@ -13,6 +13,7 @@ import AssignExaminersModal from "../../components/committee/AssignExaminerModal
 import ModalityDetailsModal from "../../components/committee/ModalityDetailsModal";
 import ChangeDirectorModal from "../../components/committee/ChangeDirectorModal";
 import FinalDecisionModal, { isFinalDecisionModality } from "../../components/committee/FinalDecisionModal";
+import ConfirmModal from "../../components/ConfirmModal";
 import "../../styles/council/studentprofile.css";
 
 export default function CommitteeStudentProfile() {
@@ -38,6 +39,7 @@ export default function CommitteeStudentProfile() {
   const [showFinalDecisionModal, setShowFinalDecisionModal] = useState(false);
   const [modalityDetails, setModalityDetails] = useState(null);
   const [closeReason, setCloseReason] = useState("");
+  const [showApproveConfirm, setShowApproveConfirm] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -114,7 +116,11 @@ export default function CommitteeStudentProfile() {
       setTimeout(() => setError(""), 5000);
       return;
     }
-    if (!window.confirm("¿Estás seguro de aprobar esta modalidad? Esta acción es definitiva.")) return;
+    setShowApproveConfirm(true);
+  };
+
+  const executeApproveModality = async () => {
+    setShowApproveConfirm(false);
     setSubmitting(true);
     try {
       await approveCommittee(studentModalityId);
@@ -191,6 +197,9 @@ export default function CommitteeStudentProfile() {
       "REJECTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW": "Rechazado por Comité",
       "CORRECTIONS_REQUESTED_BY_PROGRAM_CURRICULUM_COMMITTEE": "Correcciones solicitadas por Comité",
       "CORRECTION_RESUBMITTED": "Corrección reenviada",
+      "ACCEPTED_FOR_EXAMINER_REVIEW": "Aceptado por Juez",
+      "REJECTED_FOR_EXAMINER_REVIEW": "Rechazado por Juez",
+      "CORRECTIONS_REQUESTED_BY_EXAMINER": "Correcciones solicitadas por Juez",
     };
     return labels[status] || status;
   };
@@ -449,7 +458,6 @@ export default function CommitteeStudentProfile() {
                               >
                                 <option value="">Seleccionar estado</option>
                                 <option value="ACCEPTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW">✅ Aceptado</option>
-                                <option value="REJECTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW">❌ Rechazado</option>
                                 <option value="CORRECTIONS_REQUESTED_BY_PROGRAM_CURRICULUM_COMMITTEE">🔄 Requiere correcciones</option>
                               </select>
                             </div>
@@ -649,11 +657,10 @@ export default function CommitteeStudentProfile() {
       {showAssignExaminersModal && (
         <AssignExaminersModal
           studentModalityId={studentModalityId}
-          onClose={() => { setShowAssignExaminersModal(false); setTimeout(() => navigate("/comite"), 100); }}
+          onClose={() => setShowAssignExaminersModal(false)}
           onSuccess={() => {
             setShowAssignExaminersModal(false);
             handleModalSuccess("✅ Jueces asignados correctamente");
-            setTimeout(() => navigate("/comite"), 2000);
           }}
         />
       )}
@@ -723,6 +730,17 @@ export default function CommitteeStudentProfile() {
           }}
         />
       )}
+
+      <ConfirmModal
+        isOpen={showApproveConfirm}
+        title="Aprobar Modalidad"
+        message="¿Estás seguro de aprobar esta modalidad? Esta acción es definitiva."
+        confirmText="Sí, aprobar"
+        cancelText="Cancelar"
+        variant="warning"
+        onConfirm={executeApproveModality}
+        onCancel={() => setShowApproveConfirm(false)}
+      />
     </div>
   );
 }

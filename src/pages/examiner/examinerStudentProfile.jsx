@@ -16,6 +16,7 @@ import {
   isGradeConsistentWithDecision,
   getSuggestedDecision,
 } from "../../services/examinerService";
+import ConfirmModal from "../../components/ConfirmModal";
 import "../../styles/examiners/examinerstudentprofile.css";
 
 export default function ExaminerStudentProfile() {
@@ -41,6 +42,7 @@ export default function ExaminerStudentProfile() {
     observations: ""
   });
   const [submittingEvaluation, setSubmittingEvaluation] = useState(false);
+  const [confirmAction, setConfirmAction] = useState(null);
 
   useEffect(() => {
     fetchProfile();
@@ -88,11 +90,10 @@ export default function ExaminerStudentProfile() {
     }
 
     if (
-      (reviewData.status === EXAMINER_DOCUMENT_STATUS.REJECTED ||
-        reviewData.status === EXAMINER_DOCUMENT_STATUS.CORRECTIONS) &&
+      reviewData.status === EXAMINER_DOCUMENT_STATUS.CORRECTIONS &&
       !reviewData.notes.trim()
     ) {
-      setMessage("Debes proporcionar notas al rechazar o solicitar correcciones");
+      setMessage("Debes proporcionar notas al solicitar correcciones");
       setMessageType("error");
       return;
     }
@@ -201,28 +202,13 @@ export default function ExaminerStudentProfile() {
     return profile?.currentStatus === "EXAMINERS_ASSIGNED" && allMandatoryDocsApproved();
   };
 
-  const handleApproveModality = async () => {
-    if (!window.confirm("¿Estás seguro de aprobar esta modalidad? Todos los documentos obligatorios han sido revisados y aceptados.")) {
-      return;
-    }
-
-    setApprovingModality(true);
-    try {
-      const response = await approveModalityByExaminer(studentModalityId);
-      setMessage(response.message || "✅ Modalidad aprobada correctamente.");
-      setMessageType("success");
-      await fetchProfile();
-      setTimeout(() => {
-        setMessage("");
-        setMessageType("");
-      }, 8000);
-    } catch (err) {
-      console.error("Error aprobando modalidad:", err);
-      setMessage(getErrorMessage(err));
-      setMessageType("error");
-    } finally {
-      setApprovingModality(false);
-    }
+  const handleApproveModality = () => {
+    setConfirmAction({
+      type: "approveModality",
+      title: "Aprobar Modalidad",
+      message: "¿Estás seguro de aprobar esta modalidad? Todos los documentos obligatorios han sido revisados y aceptados.",
+      variant: "primary",
+    });
   };
 
   // Helper: verifica si se puede finalizar la revisión
@@ -230,27 +216,55 @@ export default function ExaminerStudentProfile() {
     return profile?.currentStatus === "READY_FOR_DEFENSE" && allMandatoryDocsApproved();
   };
 
-  const handleFinalizeReview = async () => {
-    if (!window.confirm("¿Estás seguro de que todos los documentos han sido revisados correctamente? Esta acción notificará al director para que programe la sustentación.")) {
-      return;
-    }
+  const handleFinalizeReview = () => {
+    setConfirmAction({
+      type: "finalizeReview",
+      title: "Finalizar Revisión",
+      message: "¿Estás seguro de que todos los documentos han sido revisados correctamente? Esta acción notificará al director para que programe la sustentación.",
+      variant: "warning",
+    });
+  };
 
-    setFinalizingReview(true);
-    try {
-      const response = await finalizeReviewAsExaminer(studentModalityId);
-      setMessage(response.message || "✅ Revisión finalizada. Se notificó al director para programar la sustentación.");
-      setMessageType("success");
-      await fetchProfile();
-      setTimeout(() => {
-        setMessage("");
-        setMessageType("");
-      }, 8000);
-    } catch (err) {
-      console.error("Error finalizando revisión:", err);
-      setMessage(getErrorMessage(err));
-      setMessageType("error");
-    } finally {
-      setFinalizingReview(false);
+  const executeConfirmAction = async () => {
+    const action = confirmAction;
+    setConfirmAction(null);
+
+    if (action.type === "approveModality") {
+      setApprovingModality(true);
+      try {
+        const response = await approveModalityByExaminer(studentModalityId);
+        setMessage(response.message || "✅ Modalidad aprobada correctamente.");
+        setMessageType("success");
+        await fetchProfile();
+        setTimeout(() => {
+          setMessage("");
+          setMessageType("");
+        }, 8000);
+      } catch (err) {
+        console.error("Error aprobando modalidad:", err);
+        setMessage(getErrorMessage(err));
+        setMessageType("error");
+      } finally {
+        setApprovingModality(false);
+      }
+    } else if (action.type === "finalizeReview") {
+      setFinalizingReview(true);
+      try {
+        const response = await finalizeReviewAsExaminer(studentModalityId);
+        setMessage(response.message || "✅ Revisión finalizada. Se notificó al director para programar la sustentación.");
+        setMessageType("success");
+        await fetchProfile();
+        setTimeout(() => {
+          setMessage("");
+          setMessageType("");
+        }, 8000);
+      } catch (err) {
+        console.error("Error finalizando revisión:", err);
+        setMessage(getErrorMessage(err));
+        setMessageType("error");
+      } finally {
+        setFinalizingReview(false);
+      }
     }
   };
 
@@ -491,14 +505,12 @@ export default function ExaminerStudentProfile() {
                       <option value="">Seleccionar...</option>
                       <option value={EXAMINER_DOCUMENT_STATUS.ACCEPTED}>✅ Aceptar</option>
                       <option value={EXAMINER_DOCUMENT_STATUS.CORRECTIONS}>⚠️ Solicitar Correcciones</option>
-                      <option value={EXAMINER_DOCUMENT_STATUS.REJECTED}>❌ Rechazar</option>
                     </select>
                   </div>
 
                   <div className="examiner-form-group">
                     <label className="examiner-form-label">
-                      Notas {(reviewData.status === EXAMINER_DOCUMENT_STATUS.REJECTED ||
-                        reviewData.status === EXAMINER_DOCUMENT_STATUS.CORRECTIONS) && "*"}
+                      Notas {(reviewData.status === EXAMINER_DOCUMENT_STATUS.CORRECTIONS) && "*"}
                     </label>
                     <textarea
                       value={reviewData.notes}
@@ -729,6 +741,17 @@ export default function ExaminerStudentProfile() {
           </p>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={!!confirmAction}
+        title={confirmAction?.title || ""}
+        message={confirmAction?.message || ""}
+        confirmText="Sí, confirmar"
+        cancelText="Cancelar"
+        variant={confirmAction?.variant || "primary"}
+        onConfirm={executeConfirmAction}
+        onCancel={() => setConfirmAction(null)}
+      />
     </div>
   );
 }

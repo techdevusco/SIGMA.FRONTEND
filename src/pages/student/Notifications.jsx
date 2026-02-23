@@ -12,6 +12,7 @@ import {
   rejectInvitation,
   getMyPendingInvitation,
 } from "../../services/ModalitiesGroupService";
+import ConfirmModal from "../../components/ConfirmModal";
 import "../../styles/student/notifications.css";
 
 export default function Notifications() {
@@ -22,6 +23,7 @@ export default function Notifications() {
   const [filter, setFilter] = useState("all");
   const [message, setMessage] = useState("");
   const [processingInvitation, setProcessingInvitation] = useState(null);
+  const [confirmAction, setConfirmAction] = useState(null);
 
   useEffect(() => {
     fetchNotifications();
@@ -89,34 +91,14 @@ export default function Notifications() {
       return;
     }
 
-    if (!window.confirm("¿Deseas aceptar esta invitación? Te unirás al grupo.")) {
-      return;
-    }
-
-    try {
-      setProcessingInvitation(invitationId);
-      
-      await acceptInvitation(invitationId);
-      
-      setMessage("✅ Invitación aceptada. ¡Bienvenido al grupo!");
-      
-      // Marcar notificación como leída
-      await markNotificationAsRead(notification.id);
-      
-      // Recargar notificaciones
-      await fetchNotifications();
-      
-      setTimeout(() => {
-        setMessage("");
-        navigate("/student/status");
-      }, 2000);
-    } catch (err) {
-      console.error("Error al aceptar invitación:", err);
-      setMessage(err.response?.data?.message || "❌ Error al aceptar invitación");
-      setTimeout(() => setMessage(""), 5000);
-    } finally {
-      setProcessingInvitation(null);
-    }
+    setConfirmAction({
+      type: "accept",
+      invitationId,
+      notification,
+      title: "Aceptar Invitación",
+      message: "¿Deseas aceptar esta invitación? Te unirás al grupo.",
+      variant: "primary",
+    });
   };
 
   // ✅ Rechazar invitación
@@ -130,30 +112,53 @@ export default function Notifications() {
       return;
     }
 
-    if (!window.confirm("¿Estás seguro de rechazar esta invitación?")) {
-      return;
-    }
+    setConfirmAction({
+      type: "reject",
+      invitationId,
+      notification,
+      title: "Rechazar Invitación",
+      message: "¿Estás seguro de rechazar esta invitación?",
+      variant: "danger",
+    });
+  };
 
-    try {
-      setProcessingInvitation(invitationId);
-      
-      await rejectInvitation(invitationId);
-      
-      setMessage("Invitación rechazada");
-      
-      // Marcar notificación como leída
-      await markNotificationAsRead(notification.id);
-      
-      // Recargar notificaciones
-      await fetchNotifications();
-      
-      setTimeout(() => setMessage(""), 3000);
-    } catch (err) {
-      console.error("Error al rechazar invitación:", err);
-      setMessage(err.response?.data?.message || "❌ Error al rechazar invitación");
-      setTimeout(() => setMessage(""), 5000);
-    } finally {
-      setProcessingInvitation(null);
+  const executeConfirmAction = async () => {
+    const action = confirmAction;
+    setConfirmAction(null);
+
+    if (action.type === "accept") {
+      try {
+        setProcessingInvitation(action.invitationId);
+        await acceptInvitation(action.invitationId);
+        setMessage("✅ Invitación aceptada. ¡Bienvenido al grupo!");
+        await markNotificationAsRead(action.notification.id);
+        await fetchNotifications();
+        setTimeout(() => {
+          setMessage("");
+          navigate("/student/status");
+        }, 2000);
+      } catch (err) {
+        console.error("Error al aceptar invitación:", err);
+        setMessage(err.response?.data?.message || "❌ Error al aceptar invitación");
+        setTimeout(() => setMessage(""), 5000);
+      } finally {
+        setProcessingInvitation(null);
+      }
+    } else if (action.type === "reject") {
+      try {
+        setProcessingInvitation(action.invitationId);
+        await rejectInvitation(action.invitationId);
+        setMessage("Invitación rechazada");
+        await markNotificationAsRead(action.notification.id);
+        await fetchNotifications();
+        setTimeout(() => setMessage(""), 3000);
+      } catch (err) {
+        console.error("Error al rechazar invitación:", err);
+        setMessage(err.response?.data?.message || "❌ Error al rechazar invitación");
+        setTimeout(() => setMessage(""), 5000);
+      } finally {
+        setProcessingInvitation(null);
+      }
     }
   };
 
@@ -342,6 +347,15 @@ export default function Notifications() {
           </div>
         )}
       </div>
-    </div>
+      <ConfirmModal
+        isOpen={!!confirmAction}
+        title={confirmAction?.title || ""}
+        message={confirmAction?.message || ""}
+        confirmText="Sí, confirmar"
+        cancelText="Cancelar"
+        variant={confirmAction?.variant || "primary"}
+        onConfirm={executeConfirmAction}
+        onCancel={() => setConfirmAction(null)}
+      />    </div>
   );
 }

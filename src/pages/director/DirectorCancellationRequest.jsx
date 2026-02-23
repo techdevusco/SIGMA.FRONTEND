@@ -6,6 +6,7 @@ import {
   approveModalityCancellationByDirector,
   rejectModalityCancellationByDirector,
 } from "../../services/directorService";
+import ConfirmModal from "../../components/ConfirmModal";
 import "../../styles/council/CancellationRequests.css";
 
 export default function DirectorCancellationRequests() {
@@ -17,6 +18,7 @@ export default function DirectorCancellationRequests() {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [rejectReason, setRejectReason] = useState("");
   const [loadingDoc, setLoadingDoc] = useState(null);
+  const [confirmAction, setConfirmAction] = useState(null);
 
   useEffect(() => {
     fetchRequests();
@@ -82,13 +84,20 @@ export default function DirectorCancellationRequests() {
     navigate(`/project-director/students/${studentModalityId}`);
   };
 
-  const handleApprove = async (studentModalityId) => {
-    if (!window.confirm("¿Estás seguro de aprobar esta solicitud de cancelación?")) {
-      return;
-    }
+  const handleApprove = (studentModalityId) => {
+    setConfirmAction({
+      studentModalityId,
+      title: "Aprobar Cancelación",
+      message: "¿Estás seguro de aprobar esta solicitud de cancelación?",
+      variant: "danger",
+    });
+  };
 
+  const executeApprove = async () => {
+    const smId = confirmAction.studentModalityId;
+    setConfirmAction(null);
     try {
-      await approveModalityCancellationByDirector(studentModalityId);
+      await approveModalityCancellationByDirector(smId);
       setMessage("✅ Solicitud aprobada exitosamente");
       fetchRequests();
       setTimeout(() => setMessage(""), 3000);
@@ -273,6 +282,17 @@ export default function DirectorCancellationRequests() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={!!confirmAction}
+        title={confirmAction?.title || ""}
+        message={confirmAction?.message || ""}
+        confirmText="Sí, aprobar"
+        cancelText="Cancelar"
+        variant={confirmAction?.variant || "danger"}
+        onConfirm={executeApprove}
+        onCancel={() => setConfirmAction(null)}
+      />
     </div>
   );
 }

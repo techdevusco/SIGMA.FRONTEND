@@ -8,6 +8,7 @@ import {
   getStatusLabel,
   getStatusBadgeClass,
 } from "../../services/programsheadService";
+import ConfirmModal from "../../components/ConfirmModal";
 import "../../styles/programhead/programheadprofile.css";
 
 export default function StudentProfileProgramHead() {
@@ -23,6 +24,7 @@ export default function StudentProfileProgramHead() {
   const [notes, setNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [loadingDoc, setLoadingDoc] = useState(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -121,21 +123,16 @@ export default function StudentProfileProgramHead() {
       return;
     }
 
-    if (
-      !window.confirm(
-        "¿Estás seguro de enviar este estudiante al Comité de Currículo de Programa?"
-      )
-    ) {
-      return;
-    }
+    setShowConfirmModal(true);
+  };
 
+  const executeApproveAll = async () => {
+    setShowConfirmModal(false);
     setSubmitting(true);
     try {
       await approveProgramhead(studentModalityId);
       setSuccessMessage("✅ Estudiante enviado al Comité de Currículo de Programa exitosamente");
-      setTimeout(() => {
-        navigate("/jefeprograma");
-      }, 2000);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.message || "Error al enviar al Comité");
@@ -169,6 +166,9 @@ export default function StudentProfileProgramHead() {
       "REJECTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW": "Rechazado por Comité",
       "CORRECTIONS_REQUESTED_BY_PROGRAM_CURRICULUM_COMMITTEE": "Correcciones solicitadas por Comité",
       "CORRECTION_RESUBMITTED": "Corrección reenviada",
+      "ACCEPTED_FOR_EXAMINER_REVIEW": "Aceptado por Juez",
+      "REJECTED_FOR_EXAMINER_REVIEW": "Rechazado por Juez",
+      "CORRECTIONS_REQUESTED_BY_EXAMINER": "Correcciones solicitadas por Juez",
     };
     return statusLabels[status] || status;
   };
@@ -229,6 +229,23 @@ export default function StudentProfileProgramHead() {
         <div className="alert-message success">
           <span>{successMessage}</span>
           <button onClick={() => setSuccessMessage("")} className="alert-close">✕</button>
+          <div style={{ marginTop: "0.75rem" }}>
+            <button
+              onClick={() => navigate("/jefeprograma")}
+              style={{
+                background: "#16a34a",
+                color: "white",
+                border: "none",
+                padding: "0.5rem 1.25rem",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontWeight: "600",
+                fontSize: "0.9rem",
+              }}
+            >
+              ← Volver al listado
+            </button>
+          </div>
         </div>
       )}
 
@@ -531,9 +548,6 @@ export default function StudentProfileProgramHead() {
                                 <option value="ACCEPTED_FOR_PROGRAM_HEAD_REVIEW">
                                   ✅ Aceptado
                                 </option>
-                                <option value="REJECTED_FOR_PROGRAM_HEAD_REVIEW">
-                                  ❌ Rechazado
-                                </option>
                                 <option value="CORRECTIONS_REQUESTED_BY_PROGRAM_HEAD">
                                   🔄 Requiere correcciones
                                 </option>
@@ -609,6 +623,17 @@ export default function StudentProfileProgramHead() {
           ← Volver al listado
         </button>
       </div>
+
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        title="Enviar al Comité"
+        message="¿Estás seguro de enviar este estudiante al Comité de Currículo de Programa?"
+        confirmText="Sí, enviar"
+        cancelText="Cancelar"
+        variant="primary"
+        onConfirm={executeApproveAll}
+        onCancel={() => setShowConfirmModal(false)}
+      />
     </div>
   );
 }

@@ -31,7 +31,7 @@ export default function Navbar() {
             viewAllLink="/student/notifications"
           />
           <button className="navbar-logout" onClick={handleLogout}>
-            Cerrar sesion
+            Cerrar sesión
           </button>
         </div>
       </div>

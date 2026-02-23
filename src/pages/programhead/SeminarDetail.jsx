@@ -11,6 +11,7 @@ import {
   formatDate,
   getStatusLabel,
 } from "../../services/programsheadService";
+import ConfirmModal from "../../components/ConfirmModal";
 import "../../styles/programhead/seminardetail.css";
 
 export default function SeminarDetail() {
@@ -25,6 +26,7 @@ export default function SeminarDetail() {
   
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
+  const [confirmAction, setConfirmAction] = useState(null);
 
   useEffect(() => {
     fetchSeminarDetail();
@@ -50,30 +52,13 @@ export default function SeminarDetail() {
     }
   };
 
-  const handleStartSeminar = async () => {
-    if (!window.confirm(`¿Iniciar el seminario "${seminar.name}"?`)) {
-      return;
-    }
-
-    try {
-      setActionLoading(true);
-      setError("");
-      const response = await startSeminar(seminarId);
-
-      if (response.success) {
-        setSuccessMessage(response.message);
-        await fetchSeminarDetail();
-        setTimeout(() => setSuccessMessage(""), 3000);
-      } else {
-        setError(response.error);
-      }
-    } catch (err) {
-      console.error("❌ Error al iniciar seminario:", err);
-      const errorMsg = err.response?.data?.error || "Error al iniciar el seminario";
-      setError(errorMsg);
-    } finally {
-      setActionLoading(false);
-    }
+  const handleStartSeminar = () => {
+    setConfirmAction({
+      type: "start",
+      title: "Iniciar Seminario",
+      message: `¿Iniciar el seminario "${seminar.name}"?`,
+      variant: "primary",
+    });
   };
 
   const handleCancelSeminar = async () => {
@@ -105,29 +90,59 @@ export default function SeminarDetail() {
     }
   };
 
-  const handleCompleteSeminar = async () => {
-    if (!window.confirm(`¿Marcar como completado el seminario "${seminar.name}"?`)) {
-      return;
-    }
+  const handleCompleteSeminar = () => {
+    setConfirmAction({
+      type: "complete",
+      title: "Completar Seminario",
+      message: `¿Marcar como completado el seminario "${seminar.name}"?`,
+      variant: "primary",
+    });
+  };
 
-    try {
-      setActionLoading(true);
-      setError("");
-      const response = await completeSeminar(seminarId);
+  const executeConfirmAction = async () => {
+    const action = confirmAction;
+    setConfirmAction(null);
 
-      if (response.success) {
-        setSuccessMessage(response.message);
-        await fetchSeminarDetail();
-        setTimeout(() => setSuccessMessage(""), 3000);
-      } else {
-        setError(response.error);
+    if (action.type === "start") {
+      try {
+        setActionLoading(true);
+        setError("");
+        const response = await startSeminar(seminarId);
+
+        if (response.success) {
+          setSuccessMessage(response.message);
+          await fetchSeminarDetail();
+          setTimeout(() => setSuccessMessage(""), 3000);
+        } else {
+          setError(response.error);
+        }
+      } catch (err) {
+        console.error("❌ Error al iniciar seminario:", err);
+        const errorMsg = err.response?.data?.error || "Error al iniciar el seminario";
+        setError(errorMsg);
+      } finally {
+        setActionLoading(false);
       }
-    } catch (err) {
-      console.error("❌ Error al completar seminario:", err);
-      const errorMsg = err.response?.data?.error || "Error al completar el seminario";
-      setError(errorMsg);
-    } finally {
-      setActionLoading(false);
+    } else if (action.type === "complete") {
+      try {
+        setActionLoading(true);
+        setError("");
+        const response = await completeSeminar(seminarId);
+
+        if (response.success) {
+          setSuccessMessage(response.message);
+          await fetchSeminarDetail();
+          setTimeout(() => setSuccessMessage(""), 3000);
+        } else {
+          setError(response.error);
+        }
+      } catch (err) {
+        console.error("❌ Error al completar seminario:", err);
+        const errorMsg = err.response?.data?.error || "Error al completar el seminario";
+        setError(errorMsg);
+      } finally {
+        setActionLoading(false);
+      }
     }
   };
 
@@ -422,6 +437,17 @@ export default function SeminarDetail() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={!!confirmAction}
+        title={confirmAction?.title || ""}
+        message={confirmAction?.message || ""}
+        confirmText="Sí, confirmar"
+        cancelText="Cancelar"
+        variant={confirmAction?.variant || "primary"}
+        onConfirm={executeConfirmAction}
+        onCancel={() => setConfirmAction(null)}
+      />
     </div>
   );
 }
