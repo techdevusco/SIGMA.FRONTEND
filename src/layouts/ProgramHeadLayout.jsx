@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import NotificationBell from "../components/NotificationBell";
 import "../styles/programhead/layout.css";
 
 export default function ProgramHeadLayout() {
@@ -28,7 +29,10 @@ export default function ProgramHeadLayout() {
       {/* Sidebar */}
       <aside className="program-head-sidebar">
         <div className="sidebar-header">
-          <h2 className="sidebar-title">SIGMA</h2>
+          <div className="sidebar-header-top">
+            <h2 className="sidebar-title">SIGMA</h2>
+            <div className="sidebar-bell"><NotificationBell viewAllLink="/jefeprograma/notifications" navigateOnly /></div>
+          </div>
           <p className="sidebar-subtitle">Jefatura de Programa</p>
           <p className="user-info">{user?.email || "Cargando..."}</p>
         </div>
@@ -63,6 +67,19 @@ export default function ProgramHeadLayout() {
               <span className="nav-label">Gestión de Seminarios</span>
             </NavLink>
 
+          </div>
+
+          <div className="nav-section">
+            <p className="nav-section-title">Sistema</p>
+            <NavLink
+              to="/jefeprograma/notifications"
+              className={({ isActive }) =>
+                isActive ? "nav-link active" : "nav-link"
+              }
+            >
+              <span className="nav-icon">🔔</span>
+              <span className="nav-label">Notificaciones</span>
+            </NavLink>
           </div>
         </nav>
 

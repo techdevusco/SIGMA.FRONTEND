@@ -152,6 +152,42 @@ export const registerEvaluation = async (studentModalityId, evaluationData) => {
 };
 
 // ========================================
+// ✅ APROBAR MODALIDAD (JUEZ)
+// ========================================
+/**
+ * Aprobar modalidad como juez (todos los docs obligatorios deben estar aceptados)
+ * Endpoint: POST /modalities/{studentModalityId}/approve-examiners
+ * 
+ * @param {number} studentModalityId - ID de la modalidad del estudiante
+ * @returns {Promise<Object>} Respuesta con confirmación
+ */
+export const approveModalityByExaminer = async (studentModalityId) => {
+  console.log("✅ Aprobando modalidad como juez:", studentModalityId);
+  const response = await axios.post(
+    `/modalities/${studentModalityId}/approve-examiners`
+  );
+  return response.data;
+};
+
+// ========================================
+// ✅ FINALIZAR REVISIÓN (JUEZ)
+// ========================================
+/**
+ * Finalizar revisión de documentos como juez y marcar listo para sustentación
+ * Endpoint: POST /modalities/{studentModalityId}/final-review-completed
+ * 
+ * @param {number} studentModalityId - ID de la modalidad del estudiante
+ * @returns {Promise<Object>} Respuesta con confirmación
+ */
+export const finalizeReviewAsExaminer = async (studentModalityId) => {
+  console.log("✅ Finalizando revisión como juez:", studentModalityId);
+  const response = await axios.post(
+    `/modalities/${studentModalityId}/final-review-completed`
+  );
+  return response.data;
+};
+
+// ========================================
 // 🔍 UTILIDADES
 // ========================================
 
@@ -180,6 +216,7 @@ export const EXAMINER_DECISIONS = {
 export const EXAMINER_MODALITY_STATUS = {
   EXAMINERS_ASSIGNED: "EXAMINERS_ASSIGNED",
   READY_FOR_DEFENSE: "READY_FOR_DEFENSE",
+  FINAL_REVIEW_COMPLETED: "FINAL_REVIEW_COMPLETED",
   DEFENSE_COMPLETED: "DEFENSE_COMPLETED",
   UNDER_EVALUATION_PRIMARY_EXAMINERS: "UNDER_EVALUATION_PRIMARY_EXAMINERS",
   UNDER_EVALUATION_TIEBREAKER: "UNDER_EVALUATION_TIEBREAKER",
@@ -216,6 +253,7 @@ export const getStatusLabel = (status) => {
     GRADED_FAILED: "Reprobado",
     CORRECTIONS_REQUESTED_EXAMINERS: "Correcciones Solicitadas por Jueces",
     PROPOSAL_APPROVED: "Propuesta Aprobada",
+    FINAL_REVIEW_COMPLETED: "Revisión Final Completada",
     DEFENSE_SCHEDULED: "Sustentación Programada",
   };
   return statusMap[status] || status;

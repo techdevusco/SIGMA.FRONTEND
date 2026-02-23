@@ -219,6 +219,18 @@ export const rejectModalityCancellationByDirector = async (studentModalityId, re
   return response.data;
 };
 
+/**
+ * Marcar modalidad como lista para defensa y notificar a los jurados
+ * POST /modalities/{studentModalityId}/ready-for-defense
+ * @param {number} studentModalityId
+ * @returns {Promise<Object>}
+ */
+export const notifyReadyForDefense = async (studentModalityId) => {
+  console.log("📣 Notificando jurados - READY_FOR_DEFENSE:", studentModalityId);
+  const response = await axios.post(`/modalities/${studentModalityId}/ready-for-defense`);
+  return response.data;
+};
+
 // ==================== UTILIDADES ====================
 
 /**
@@ -262,6 +274,7 @@ export const DIRECTOR_STATUS_OPTIONS = [
   { value: "EXAMINERS_ASSIGNED", label: "Jueces Asignados" },
   { value: "CORRECTIONS_REQUESTED_EXAMINERS", label: "Correcciones Solicitadas por Jueces" },
   { value: "READY_FOR_DEFENSE", label: "Listo para Sustentación" },
+  { value: "FINAL_REVIEW_COMPLETED", label: "Revisión Final Completada" },
   { value: "DEFENSE_COMPLETED", label: "Sustentación Completada" },
   { value: "UNDER_EVALUATION_PRIMARY_EXAMINERS", label: "En Evaluación por Jueces Principales" },
   { value: "DISAGREEMENT_REQUIRES_TIEBREAKER", label: "Desacuerdo - Requiere Tercer Juez" },
@@ -301,6 +314,7 @@ export const getStatusBadgeClass = (status) => {
     EXAMINERS_ASSIGNED: "info",
     CORRECTIONS_REQUESTED_EXAMINERS: "error",
     READY_FOR_DEFENSE: "success",
+    FINAL_REVIEW_COMPLETED: "info",
     DEFENSE_COMPLETED: "success",
     UNDER_EVALUATION_PRIMARY_EXAMINERS: "warning",
     DISAGREEMENT_REQUIRES_TIEBREAKER: "warning",
@@ -353,11 +367,22 @@ export const formatDate = (dateString) => {
 };
 
 /**
- * Verificar si se puede proponer sustentación
+ * Verificar si se puede proponer/programar sustentación
+ * Solo disponible cuando los jurados completaron la revisión final
  * @param {string} status - Estado actual de la modalidad
  * @returns {boolean} True si se puede proponer
  */
 export const canProposeDefense = (status) => {
+  return status === "FINAL_REVIEW_COMPLETED";
+};
+
+/**
+ * Verificar si se puede notificar a los jurados (READY_FOR_DEFENSE)
+ * Disponible cuando los jurados aprobaron la modalidad y el estudiante cargó docs secundarios
+ * @param {string} status - Estado actual
+ * @returns {boolean}
+ */
+export const canNotifyExaminers = (status) => {
   return status === "PROPOSAL_APPROVED";
 };
 

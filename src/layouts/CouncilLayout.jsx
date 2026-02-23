@@ -2,6 +2,7 @@
 import { useEffect } from "react";
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import NotificationBell from "../components/NotificationBell";
 import "../styles/council/layout.css";
 
 export default function CouncilLayout() {
@@ -29,7 +30,10 @@ export default function CouncilLayout() {
       {/* Sidebar */}
       <aside className="council-sidebar">
         <div className="sidebar-header">
-          <h2>Comité de Currículo de Programa</h2>
+          <div className="sidebar-header-top">
+            <h2>Comité de Currículo de Programa</h2>
+            <div className="sidebar-bell"><NotificationBell viewAllLink="/comite/notifications" navigateOnly /></div>
+          </div>
           <p className="user-info">{user?.email || "Cargando..."}</p>
         </div>
 
@@ -73,6 +77,16 @@ export default function CouncilLayout() {
           >
             <span className="nav-icon">📊</span>
             Reportes
+          </NavLink>
+
+          <NavLink
+            to="/comite/notifications"
+            className={({ isActive }) =>
+              isActive ? "nav-link active" : "nav-link"
+            }
+          >
+            <span className="nav-icon">🔔</span>
+            Notificaciones
           </NavLink>
         </nav>
 

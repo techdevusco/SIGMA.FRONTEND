@@ -118,8 +118,9 @@ export default function CommitteeStudentProfile() {
     setSubmitting(true);
     try {
       await approveCommittee(studentModalityId);
-      setSuccessMessage("✅ Modalidad aprobada exitosamente");
-      setTimeout(() => navigate("/comite"), 2000);
+      setSuccessMessage("✅ Modalidad aprobada exitosamente. Ahora puedes asignar los jueces.");
+      await fetchProfile();
+      setShowAssignExaminersModal(true);
     } catch (err) {
       setError(err.response?.data?.message || "Error al aprobar la modalidad");
       setTimeout(() => setError(""), 5000);
@@ -217,6 +218,11 @@ export default function CommitteeStudentProfile() {
 
   // ✅ Solo aplica para: Posgrado, Seminario de Grado, Producción Académica de Alto Nivel
   const isFinalDecision = isFinalDecisionModality(profile.modalityName);
+
+  // Stepper pre-aprobación (solo docs + director son obligatorios)
+  const step1Ok = allMandatoryAccepted && uploadedMandatory.length === mandatoryDocs.length;
+  const step2Ok = !!profile.projectDirectorName;
+  const canApproveModality = step1Ok && step2Ok;
 
   return (
     <div className="student-profile-container">
@@ -473,26 +479,62 @@ export default function CommitteeStudentProfile() {
               </table>
             </div>
 
-            {/* Botón aprobar — solo para modalidades que NO son de decisión final */}
+            {/* Stepper de aprobación — solo para modalidades que NO son de decisión final */}
             {!isFinalDecision && (
               <div className="approve-all-section">
-                <div className="approve-all-content">
+                <h4 className="stepper-title">Pasos para aprobar la modalidad</h4>
+
+                {/* Paso 1: Documentos */}
+                <div className={`stepper-step ${step1Ok ? "step-done" : "step-pending"}`}>
+                  <span className="step-icon">{step1Ok ? "✅" : "⏳"}</span>
+                  <span className="step-label">Documentos obligatorios aceptados</span>
+                  {!step1Ok && (
+                    <div className="step-hint">
+                      {uploadedMandatory.length < mandatoryDocs.length
+                        ? `El estudiante debe cargar todos los documentos (${uploadedMandatory.length}/${mandatoryDocs.length})`
+                        : "Debes aceptar todos los documentos obligatorios"}
+                    </div>
+                  )}
+                </div>
+
+                {/* Paso 2: Director */}
+                <div className={`stepper-step ${step2Ok ? "step-done" : "step-pending"}`}>
+                  <div className="step-header">
+                    <span className="step-icon">{step2Ok ? "✅" : "❌"}</span>
+                    <span className="step-label">
+                      Director de proyecto
+                      {step2Ok && <em className="step-value"> — {profile.projectDirectorName}</em>}
+                    </span>
+                    {!step2Ok && (
+                      <button
+                        onClick={() => setShowAssignDirectorModal(true)}
+                        className="step-action-btn"
+                      >
+                        Asignar Director
+                      </button>
+                    )}
+                    {step2Ok && (
+                      <button
+                        onClick={() => setShowChangeDirectorModal(true)}
+                        className="step-action-btn step-action-secondary"
+                      >
+                        Cambiar
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Botón final */}
+                <div className="approve-all-content" style={{ marginTop: "1.5rem" }}>
                   <button
                     onClick={handleApproveModality}
-                    disabled={!allMandatoryAccepted || submitting || uploadedMandatory.length < mandatoryDocs.length}
-                    className={`approve-all-btn ${allMandatoryAccepted && uploadedMandatory.length === mandatoryDocs.length ? "enabled" : "disabled"}`}
+                    disabled={!canApproveModality || submitting}
+                    className={`approve-all-btn ${canApproveModality ? "enabled" : "disabled"}`}
                   >
                     {submitting ? "Procesando..." : "Aprobar Modalidad Para Inicio"}
                   </button>
-                  {uploadedMandatory.length < mandatoryDocs.length && (
-                    <div className="approve-warning">
-                      ⚠️ El estudiante debe cargar todos los documentos obligatorios ({uploadedMandatory.length}/{mandatoryDocs.length})
-                    </div>
-                  )}
-                  {uploadedMandatory.length === mandatoryDocs.length && !allMandatoryAccepted && (
-                    <div className="approve-warning">
-                      ⚠️ Debes aceptar todos los documentos obligatorios antes de aprobar la modalidad
-                    </div>
+                  {!canApproveModality && (
+                    <div className="approve-warning">⚠️ Completa todos los pasos requeridos antes de aprobar</div>
                   )}
                 </div>
               </div>
@@ -541,8 +583,8 @@ export default function CommitteeStudentProfile() {
             </button>
           )}
 
-          {/* Asignar Jueces — solo si DEFENSE_SCHEDULED y NO es de decisión final */}
-          {profile.currentStatus === "DEFENSE_SCHEDULED" && !isFinalDecision && (
+          {/* Asignar Jueces — disponible siempre que NO sea modalidad de decisión final */}
+          {!isFinalDecision && (
             <button
               onClick={() => setShowAssignExaminersModal(true)}
               className="council-action-btn"
@@ -607,8 +649,12 @@ export default function CommitteeStudentProfile() {
       {showAssignExaminersModal && (
         <AssignExaminersModal
           studentModalityId={studentModalityId}
-          onClose={() => setShowAssignExaminersModal(false)}
-          onSuccess={() => { setShowAssignExaminersModal(false); handleModalSuccess("✅ Jueces asignados correctamente"); }}
+          onClose={() => { setShowAssignExaminersModal(false); setTimeout(() => navigate("/comite"), 100); }}
+          onSuccess={() => {
+            setShowAssignExaminersModal(false);
+            handleModalSuccess("✅ Jueces asignados correctamente");
+            setTimeout(() => navigate("/comite"), 2000);
+          }}
         />
       )}
 

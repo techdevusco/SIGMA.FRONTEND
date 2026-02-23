@@ -272,14 +272,41 @@
   min-width: 0;
 }
 
+.notification-subject-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.35rem;
+  margin-bottom: 0.25rem;
+}
+
 .notification-subject {
   font-weight: 600;
   font-size: 0.9rem;
   color: #111827;
-  margin-bottom: 0.25rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-detail-btn {
+  flex-shrink: 0;
+  background: none;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  color: #6b7280;
+  font-size: 0.65rem;
+  line-height: 1;
+  padding: 2px 5px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.notification-detail-btn:hover {
+  background: #7A1117;
+  color: #fff;
+  border-color: #7A1117;
 }
 
 .notification-message {
@@ -290,6 +317,47 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+.notification-message.expanded {
+  -webkit-line-clamp: unset;
+  display: block;
+  overflow: visible;
+  color: #374151;
+}
+
+.notification-detail-panel {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.notification-type-badge {
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: #f3f4f6;
+  color: #7A1117;
+  border: 1px solid #fecaca;
+  border-radius: 999px;
+  padding: 2px 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.notification-goto-btn {
+  background: none;
+  border: none;
+  color: #7A1117;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  transition: opacity 0.15s;
+}
+.notification-goto-btn:hover {
+  opacity: 0.75;
 }
 
 .notification-time {
@@ -379,5 +447,44 @@
     left: 1rem;
     right: 1rem;
     transform: none;
+  }
+}
+
+/* ========================================
+   SIDEBAR BELL — Campanita en sidebars
+   ======================================== */
+
+/* Fila título + campanita dentro del sidebar-header */
+.sidebar-header-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.sidebar-header-top h1,
+.sidebar-header-top h2 {
+  margin: 0;
+  flex: 1;
+}
+
+/* El dropdown en el sidebar abre hacia la derecha del sidebar */
+.sidebar-bell {
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.sidebar-bell .notification-dropdown {
+  left: 0;
+  right: auto;
+}
+
+/* En pantallas pequeñas el dropdown no se sale de la pantalla */
+@media (max-width: 768px) {
+  .sidebar-bell .notification-dropdown {
+    left: 0;
+    right: auto;
+    width: 300px;
   }
 }

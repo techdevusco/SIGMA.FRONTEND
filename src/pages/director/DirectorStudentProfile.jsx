@@ -3,11 +3,13 @@ import { useParams, useNavigate } from "react-router-dom";
 import {
   getDirectorStudentDetail,
   proposeDefenseByDirector,
+  notifyReadyForDefense,
   approveModalityCancellationByDirector,
   rejectModalityCancellationByDirector,
   getDocumentBlobUrl,
   viewCancellationDocument,
   canProposeDefense,
+  canNotifyExaminers,
   hasCancellationRequest,
   formatDate,
   getErrorMessage,
@@ -25,6 +27,7 @@ export default function DirectorStudentProfile() {
   const [message, setMessage] = useState("");
   const [loadingDoc, setLoadingDoc] = useState(null);
   const [loadingCancellationDoc, setLoadingCancellationDoc] = useState(false);
+  const [notifyingExaminers, setNotifyingExaminers] = useState(false);
  
   // Modals
   const [showDefenseModal, setShowDefenseModal] = useState(false);
@@ -54,6 +57,31 @@ export default function DirectorStudentProfile() {
       setMessage("Error al cargar detalle: " + getErrorMessage(err));
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleNotifyExaminers = async () => {
+    if (!window.confirm("¿Confirmas que el estudiante ha entregado todos los documentos y quieres notificar a los jurados?")) return;
+    setNotifyingExaminers(true);
+    try {
+      const response = await notifyReadyForDefense(studentModalityId);
+      setMessage(response.message || "✅ Jurados notificados. Modalidad marcada como lista para defensa.");
+      fetchStudentDetail();
+      setTimeout(() => setMessage(""), 8000);
+    } catch (err) {
+      console.error("Error al notificar jurados:", err);
+      const data = err.response?.data;
+      const msg =
+        (typeof data === "string" && data) ||
+        data?.message ||
+        data?.error ||
+        (typeof data === "object" && Object.keys(data).length > 0 && JSON.stringify(data)) ||
+        err.message ||
+        "Error desconocido";
+      setMessage("❌ " + msg);
+      setTimeout(() => setMessage(""), 8000);
+    } finally {
+      setNotifyingExaminers(false);
     }
   };
 
@@ -188,6 +216,14 @@ export default function DirectorStudentProfile() {
     }
   };
 
+  // Helper: verifica si los documentos MANDATORY y SECONDARY han sido subidos (igual que el backend)
+  const allRequiredDocsUploaded = () => {
+    if (!student?.documents || student.documents.length === 0) return false;
+    const required = student.documents.filter(d => d.documentType === "MANDATORY" || d.documentType === "SECONDARY");
+    if (required.length === 0) return true;
+    return required.every(d => d.uploaded);
+  };
+
   // Helper para obtener clase de badge de documento
   const getDocStatusBadgeClass = (status) => {
     if (status?.includes("ACCEPTED")) return "accepted";
@@ -260,6 +296,32 @@ export default function DirectorStudentProfile() {
             >
               📅 Proponer Sustentación
             </button>
+          )}
+          {canNotifyExaminers(student.currentStatus) && (
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "0.25rem" }}>
+              <button
+                onClick={handleNotifyExaminers}
+                disabled={notifyingExaminers || !allRequiredDocsUploaded()}
+                className="director-btn-submit"
+                title={
+                  !allRequiredDocsUploaded()
+                    ? "El estudiante debe subir todos los documentos obligatorios antes de notificar al jurado"
+                    : "Notificar al jurado que la modalidad está lista para defensa"
+                }
+                style={{
+                  background: allRequiredDocsUploaded() ? "#1d4ed8" : "#9ca3af",
+                  border: `3px solid ${allRequiredDocsUploaded() ? "#1e3a8a" : "#6b7280"}`,
+                  cursor: allRequiredDocsUploaded() ? "pointer" : "not-allowed",
+                }}
+              >
+                {notifyingExaminers ? "⏳ Notificando..." : "🔔 Notificar al Jurado"}
+              </button>
+              {!allRequiredDocsUploaded() && (
+                <small style={{ color: "#dc2626", fontSize: "0.75rem", textAlign: "right" }}>
+                  ⚠️ Faltan documentos obligatorios
+                </small>
+              )}
+            </div>
           )}
         </div>
       </div>

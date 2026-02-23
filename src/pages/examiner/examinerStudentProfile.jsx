@@ -5,6 +5,8 @@ import {
   getDocumentBlobUrl,
   reviewDocumentExaminer,
   registerEvaluation,
+  finalizeReviewAsExaminer,
+  approveModalityByExaminer,
   getStatusLabel,
   getDocumentStatusLabel,
   formatDate,
@@ -29,6 +31,8 @@ export default function ExaminerStudentProfile() {
   const [reviewData, setReviewData] = useState({ status: "", notes: "" });
   const [submittingReview, setSubmittingReview] = useState(false);
   const [loadingDocId, setLoadingDocId] = useState(null);
+  const [finalizingReview, setFinalizingReview] = useState(false);
+  const [approvingModality, setApprovingModality] = useState(false);
 
   const [showEvaluationForm, setShowEvaluationForm] = useState(false);
   const [evaluationData, setEvaluationData] = useState({
@@ -180,15 +184,81 @@ export default function ExaminerStudentProfile() {
 
   const canReviewDocuments = () => {
     return profile?.currentStatus === "EXAMINERS_ASSIGNED" || 
-           profile?.currentStatus === "CORRECTIONS_REQUESTED_EXAMINERS";
+           profile?.currentStatus === "CORRECTIONS_REQUESTED_EXAMINERS" ||
+           profile?.currentStatus === "READY_FOR_DEFENSE";
+  };
+
+  // Helper: verifica si todos los documentos obligatorios han sido aprobados
+  const allMandatoryDocsApproved = () => {
+    if (!profile?.documents || profile.documents.length === 0) return false;
+    const mandatory = profile.documents.filter(d => d.documentType === "MANDATORY" && d.uploaded);
+    if (mandatory.length === 0) return true;
+    return mandatory.every(d => d.status === "ACCEPTED_FOR_EXAMINER_REVIEW");
+  };
+
+  // Helper: verifica si se puede aprobar la modalidad
+  const canApproveModality = () => {
+    return profile?.currentStatus === "EXAMINERS_ASSIGNED" && allMandatoryDocsApproved();
+  };
+
+  const handleApproveModality = async () => {
+    if (!window.confirm("¿Estás seguro de aprobar esta modalidad? Todos los documentos obligatorios han sido revisados y aceptados.")) {
+      return;
+    }
+
+    setApprovingModality(true);
+    try {
+      const response = await approveModalityByExaminer(studentModalityId);
+      setMessage(response.message || "✅ Modalidad aprobada correctamente.");
+      setMessageType("success");
+      await fetchProfile();
+      setTimeout(() => {
+        setMessage("");
+        setMessageType("");
+      }, 8000);
+    } catch (err) {
+      console.error("Error aprobando modalidad:", err);
+      setMessage(getErrorMessage(err));
+      setMessageType("error");
+    } finally {
+      setApprovingModality(false);
+    }
+  };
+
+  // Helper: verifica si se puede finalizar la revisión
+  const canFinalizeReview = () => {
+    return profile?.currentStatus === "READY_FOR_DEFENSE" && allMandatoryDocsApproved();
+  };
+
+  const handleFinalizeReview = async () => {
+    if (!window.confirm("¿Estás seguro de que todos los documentos han sido revisados correctamente? Esta acción notificará al director para que programe la sustentación.")) {
+      return;
+    }
+
+    setFinalizingReview(true);
+    try {
+      const response = await finalizeReviewAsExaminer(studentModalityId);
+      setMessage(response.message || "✅ Revisión finalizada. Se notificó al director para programar la sustentación.");
+      setMessageType("success");
+      await fetchProfile();
+      setTimeout(() => {
+        setMessage("");
+        setMessageType("");
+      }, 8000);
+    } catch (err) {
+      console.error("Error finalizando revisión:", err);
+      setMessage(getErrorMessage(err));
+      setMessageType("error");
+    } finally {
+      setFinalizingReview(false);
+    }
   };
 
   const canEvaluate = () => {
-    // Estados válidos según el backend Java
+    // Solo se puede evaluar DESPUÉS de que la sustentación fue programada
     const validStatuses = [
+      "DEFENSE_SCHEDULED",
       "DEFENSE_COMPLETED",
-      "READY_FOR_DEFENSE",
-      "EXAMINERS_ASSIGNED",
       "UNDER_EVALUATION_PRIMARY_EXAMINERS",
       "UNDER_EVALUATION_TIEBREAKER",
       "DISAGREEMENT_REQUIRES_TIEBREAKER"
@@ -357,7 +427,9 @@ export default function ExaminerStudentProfile() {
       {/* Documents */}
       {profile.documents && profile.documents.filter(d => d.uploaded).length > 0 && (
         <div className="examiner-doc-section">
-          <h3 className="examiner-doc-title">📄 Documentos para Revisión</h3>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+            <h3 className="examiner-doc-title">📄 Documentos para Revisión</h3>
+          </div>
 
           {profile.documents.filter(d => d.uploaded).map((doc) => (
             <div key={doc.studentDocumentId || Math.random()} className="examiner-doc-item">
@@ -449,6 +521,99 @@ export default function ExaminerStudentProfile() {
               )}
             </div>
           ))}
+
+          {/* Botón Aprobar Modalidad */}
+          {canApproveModality() && (
+            <div style={{
+              marginTop: "1.5rem",
+              padding: "1.25rem",
+              background: "#ecfdf5",
+              border: "2px solid #10b981",
+              borderRadius: "8px",
+              textAlign: "center"
+            }}>
+              <p style={{ color: "#065f46", marginBottom: "1rem", fontWeight: 500 }}>
+                ✅ Todos los documentos obligatorios han sido aprobados. Puedes aprobar la modalidad.
+              </p>
+              <button
+                onClick={handleApproveModality}
+                disabled={approvingModality}
+                style={{
+                  padding: "0.75rem 2rem",
+                  background: "#10b981",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "6px",
+                  fontSize: "1.1rem",
+                  fontWeight: 700,
+                  cursor: approvingModality ? "not-allowed" : "pointer",
+                  opacity: approvingModality ? 0.6 : 1,
+                }}
+              >
+                {approvingModality ? "⏳ Aprobando..." : "✅ Aprobar Modalidad"}
+              </button>
+            </div>
+          )}
+
+          {/* Mensaje: faltan docs por aprobar */}
+          {profile?.currentStatus === "EXAMINERS_ASSIGNED" && !allMandatoryDocsApproved() && (
+            <div style={{
+              marginTop: "1.5rem",
+              padding: "1rem",
+              background: "#fef3c7",
+              border: "1px solid #fcd34d",
+              borderRadius: "6px",
+              color: "#92400e"
+            }}>
+              ⚠️ Debes aprobar todos los documentos obligatorios antes de poder aprobar la modalidad.
+            </div>
+          )}
+
+          {/* Botón Finalizar Revisión (READY_FOR_DEFENSE) */}
+          {canFinalizeReview() && (
+            <div style={{
+              marginTop: "1.5rem",
+              padding: "1.25rem",
+              background: "#ecfdf5",
+              border: "2px solid #10b981",
+              borderRadius: "8px",
+              textAlign: "center"
+            }}>
+              <p style={{ color: "#065f46", marginBottom: "1rem", fontWeight: 500 }}>
+                ✅ Todos los documentos obligatorios han sido aprobados. Puedes finalizar la revisión para notificar al director.
+              </p>
+              <button
+                onClick={handleFinalizeReview}
+                disabled={finalizingReview}
+                style={{
+                  padding: "0.75rem 2rem",
+                  background: "#1d4ed8",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "6px",
+                  fontSize: "1.1rem",
+                  fontWeight: 700,
+                  cursor: finalizingReview ? "not-allowed" : "pointer",
+                  opacity: finalizingReview ? 0.6 : 1,
+                }}
+              >
+                {finalizingReview ? "⏳ Finalizando..." : "📋 Listo para Sustentación"}
+              </button>
+            </div>
+          )}
+
+          {!canFinalizeReview() && profile?.currentStatus === "READY_FOR_DEFENSE" && !allMandatoryDocsApproved() && (
+            <div style={{
+              marginTop: "1.5rem",
+              padding: "1rem",
+              background: "#fef3c7",
+              border: "1px solid #fcd34d",
+              borderRadius: "6px",
+              color: "#92400e"
+            }}>
+              ⚠️ Debes aprobar todos los documentos obligatorios antes de finalizar la revisión.
+            </div>
+          )}
         </div>
       )}
 

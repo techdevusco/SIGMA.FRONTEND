@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import NotificationBell from "../components/NotificationBell";
 import "../styles/council/layout.css";
 
 export default function ExaminerLayout() {
@@ -28,7 +29,10 @@ export default function ExaminerLayout() {
       {/* Sidebar */}
       <aside className="council-sidebar">
         <div className="sidebar-header">
-          <h2>Portal de Jueces</h2>
+          <div className="sidebar-header-top">
+            <h2>Portal de Jueces</h2>
+            <div className="sidebar-bell"><NotificationBell viewAllLink="/examiner/notifications" navigateOnly /></div>
+          </div>
           <p className="user-info">{user?.email || "Cargando..."}</p>
         </div>
 
@@ -42,6 +46,16 @@ export default function ExaminerLayout() {
           >
             <span className="nav-icon">👨‍⚖️</span>
             Mis Asignaciones
+          </NavLink>
+
+          <NavLink
+            to="/examiner/notifications"
+            className={({ isActive }) =>
+              isActive ? "nav-link active" : "nav-link"
+            }
+          >
+            <span className="nav-icon">🔔</span>
+            Notificaciones
           </NavLink>
         </nav>
 

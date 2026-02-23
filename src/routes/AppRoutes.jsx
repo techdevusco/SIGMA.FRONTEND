@@ -52,6 +52,9 @@ import DirectorCancellationRequests from "../pages/director/DirectorCancellation
 import ExaminerDashboard from "../pages/examiner/examinerDashboard";
 import ExaminerStudentProfile from "../pages/examiner/examinerStudentProfile";
 
+// SHARED
+import NotificationsPage from "../pages/shared/NotificationsPage";
+
 // ADMIN
 import Roles from "../pages/admin/Roles";
 import Permissions from "../pages/admin/Permissions";
@@ -101,6 +104,7 @@ function AppRoutes() {
           <Route path="seminars/create" element={<SeminarForm />} />
           <Route path="seminars/:seminarId" element={<SeminarDetail />} />
           <Route path="seminars/:seminarId/edit" element={<SeminarForm />} />
+          <Route path="notifications" element={<NotificationsPage />} />
         </Route>
       </Route>
 
@@ -115,6 +119,7 @@ function AppRoutes() {
           <Route path="cancellations" element={<CancellationRequests />} />
           <Route path="proposals" element={<CommitteeDefenseProposals />} />
           <Route path="reports" element={<CommitteeReports />} />
+          <Route path="notifications" element={<NotificationsPage />} />
         </Route>
       </Route>
 
@@ -130,6 +135,7 @@ function AppRoutes() {
             path="cancellations" 
             element={<DirectorCancellationRequests />} 
           />
+          <Route path="notifications" element={<NotificationsPage />} />
         </Route>
       </Route>
 
@@ -141,6 +147,7 @@ function AppRoutes() {
             path="student/:studentModalityId" 
             element={<ExaminerStudentProfile />} 
           />
+          <Route path="notifications" element={<NotificationsPage />} />
         </Route>
       </Route>
 
