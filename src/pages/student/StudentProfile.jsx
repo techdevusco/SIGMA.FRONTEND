@@ -267,17 +267,17 @@ export default function StudentProfile() {
       <div className="profile-card">
         <div className="profile-header">
           <h1>Perfil del Estudiante</h1>
-          <p>Consulta y actualiza tu información académica</p>
+            <p>Consulta y actualiza tu información académica de manera rápida y segura.</p>
         </div>
 
         <div className="profile-body">
           {/* INFO USUARIO */}
           <div className="profile-info">
             <p>
-              <strong>Nombre:</strong> {userInfo.name} {userInfo.lastname}
+              <strong>Nombre Completo:</strong> {userInfo.name} {userInfo.lastname}
             </p>
             <p>
-              <strong>Email:</strong> {userInfo.email}
+              <strong>Correo Institucional:</strong> {userInfo.email}
             </p>
             {/* ✅ NUEVO: Mostrar código estudiantil (generado por backend) */}
             {userInfo.studentCode && userInfo.studentCode !== "Será tomado de tu correo" && (
@@ -289,7 +289,7 @@ export default function StudentProfile() {
                   color: "#10b981",
                   fontWeight: "600"
                 }}>
-                  ✅ Generado automáticamente
+                  
                 </span>
               </p>
             )}
@@ -318,7 +318,7 @@ export default function StudentProfile() {
             {/* FACULTAD */}
             <div className="profile-group">
               <label>
-                Facultad *
+                Facultad 
                 {isFieldLocked && <span className="locked-badge">🔒 Bloqueado</span>}
               </label>
               <select
@@ -341,7 +341,7 @@ export default function StudentProfile() {
             {/* PROGRAMA ACADÉMICO */}
             <div className="profile-group">
               <label>
-                Programa Académico *
+                Programa Académico 
                 {isFieldLocked && <span className="locked-badge">🔒 Bloqueado</span>}
               </label>
               <select
@@ -371,19 +371,21 @@ export default function StudentProfile() {
             {/* SEMESTRE - SIEMPRE EDITABLE */}
             <div className="profile-group">
               <label>
-                Semestre *
+                Semestre En El Que Se Encuentra Actualmente
                 {isFieldLocked && <span className="editable-badge">Editable</span>}
               </label>
-              <input
-                type="number"
+              <select
                 name="semester"
                 value={profile.semester}
                 onChange={handleChange}
-                min="1"
-                max="10"
                 required
                 disabled={saving}
-              />
+              >
+                <option value="">-- Selecciona el semestre --</option>
+                {[...Array(10)].map((_, i) => (
+                  <option key={i + 1} value={i + 1}>{i + 1}</option>
+                ))}
+              </select>
               <small style={{ color: "#666", fontSize: "0.85rem" }}>
                 Debe estar entre 1 y 10
               </small>
@@ -392,7 +394,7 @@ export default function StudentProfile() {
             {/* CRÉDITOS APROBADOS - SIEMPRE EDITABLE */}
             <div className="profile-group">
               <label>
-                Créditos aprobados *
+                Créditos Aprobados 
                 {isFieldLocked && <span className="editable-badge">Editable</span>}
               </label>
               <input
@@ -415,7 +417,7 @@ export default function StudentProfile() {
             {/* GPA - SIEMPRE EDITABLE */}
             <div className="profile-group">
               <label>
-                Promedio (GPA) *
+                Promedio Calificado Ponderado del Pregrado 
                 {isFieldLocked && <span className="editable-badge">Editable</span>}
               </label>
               <input
