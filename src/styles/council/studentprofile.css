@@ -5,9 +5,11 @@
 
 .student-profile-container {
   max-width: 1400px;
-  margin: 0 auto;
-  padding: 2rem;
-  background-color: #f4f4f4;
+  margin: 2rem auto;
+  padding: 2.5rem 1.5rem;
+  background: linear-gradient(135deg, #f9f6e7 0%, #f7f7fa 60%, #e8ebf0 100%);
+  border-radius: 18px;
+  box-shadow: 0 8px 40px 0 rgba(122, 17, 23, 0.10);
   min-height: 100vh;
 }
 
@@ -27,34 +29,45 @@
 
 /* Header */
 .student-profile-header {
-  background-color: #7A1117;
-  color: white;
-  padding: 2rem 2.5rem;
-  border-radius: 12px;
+  background: linear-gradient(90deg, #7A1117 0%, #D5CBA0 100%);
+  color: #fff;
+  border-radius: 18px 18px 0 0;
+  box-shadow: 0 8px 32px rgba(122, 17, 23, 0.10);
+  padding: 2.5rem 2rem 2rem 2rem;
   margin-bottom: 2rem;
-  box-shadow: 0 4px 12px rgba(122, 17, 23, 0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  border-bottom: none;
 }
 
 .student-profile-title {
   font-family: "Georgia", "Times New Roman", serif;
-  font-size: 1.8rem;
+  font-size: 2.3rem;
+  color: #fff;
   margin: 0;
-  font-weight: 600;
+  font-weight: 900;
+  letter-spacing: 0.7px;
+  text-shadow: 0 2px 8px #7A111733;
 }
 
 .student-profile-subtitle {
-  font-size: 1rem;
+  color: #f7f7fa;
   margin-top: 0.5rem;
-  opacity: 0.95;
+  font-size: 1.08rem;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  text-shadow: 0 1px 4px #7A111733;
 }
 
 /* Student Info Card */
 .student-info-card {
-  background: white;
-  border-radius: 12px;
-  padding: 2rem;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(122,17,23,0.08);
+  padding: 2rem 2.5rem;
   margin-bottom: 2rem;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+  border: 1px solid #D5CBA0;
 }
 
 .student-info-grid {
@@ -70,17 +83,20 @@
 }
 
 .student-info-label {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #666;
-  text-transform: uppercase;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #7A1117;
   letter-spacing: 0.5px;
+  font-family: "Georgia", "Times New Roman", serif;
+  text-transform: none;
 }
 
 .student-info-value {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   color: #333;
-  font-weight: 500;
+  font-weight: 600;
+  font-family: "Georgia", "Times New Roman", serif;
+  text-transform: none;
 }
 
 /* Agregar estos estilos al final del archivo existente */
@@ -455,7 +471,161 @@
   margin: 0 0 1.5rem 0;
   font-weight: 600;
 }
+.documents-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 2rem;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.06);
+  border: 1px solid #eee;
+}
 
+.documents-card-header {
+  margin-bottom: 1.8rem;
+  border-bottom: 1px solid #f1f1f1;
+  padding-bottom: 1rem;
+}
+
+.documents-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #7A1117;
+  margin: 0;
+}
+
+.documents-subtitle {
+  margin-top: 0.3rem;
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+.documents-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.95rem;
+}
+
+.documents-table thead th {
+  background: #f8fafc;
+  text-align: left;
+  padding: 0.9rem;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.documents-table td {
+  padding: 0.9rem;
+  border-bottom: 1px solid #f1f1f1;
+}
+
+.documents-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+.document-name {
+  font-weight: 600;
+  color: #111827;
+}
+
+.doc-btn {
+  padding: 0.45rem 0.8rem;
+  border-radius: 8px;
+  border: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-right: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.doc-btn-view {
+  background: #e5e7eb;
+  color: #111827;
+}
+
+.doc-btn-view:hover {
+  background: #d1d5db;
+}
+
+.doc-btn-review {
+  background: #7A1117;
+  color: white;
+}
+
+.doc-btn-review:hover {
+  background: #5c0d12;
+}
+
+.doc-btn-cancel {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.locked-badge {
+  background: #ecfdf5;
+  color: #065f46;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.review-panel {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #fafafa;
+  border-radius: 10px;
+  border: 1px solid #eee;
+}
+
+.review-panel-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.review-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+.review-select,
+.review-textarea {
+  width: 100%;
+  padding: 0.6rem;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 0.9rem;
+}
+
+.review-submit-btn {
+  margin-top: 1rem;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  border: none;
+  background: #7A1117;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.review-submit-btn:hover {
+  background: #5c0d12;
+}
+
+.documents-empty {
+  text-align: center;
+  padding: 2rem;
+  color: #6b7280;
+}
+
+.documents-empty-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
 /* Empty State */
 .documents-empty {
   text-align: center;

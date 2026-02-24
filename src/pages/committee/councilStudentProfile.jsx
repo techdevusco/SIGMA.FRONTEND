@@ -239,7 +239,7 @@ export default function CommitteeStudentProfile() {
       {/* Header */}
       <div className="student-profile-header">
         <h2 className="student-profile-title">Perfil del Estudiante - Comité de Currículo</h2>
-        <p className="student-profile-subtitle">Revisa documentos y gestiona la modalidad de grado</p>
+        <p className="student-profile-subtitle">Revisa la documentación presentada y gestiona la modalidad de grado conforme a los lineamientos académicos establecidos.</p>
       </div>
 
       {/* Student Info */}
@@ -251,7 +251,7 @@ export default function CommitteeStudentProfile() {
             <span className="student-info-value">{profile.studentName} {profile.studentLastName}</span>
           </div>
           <div className="student-info-item">
-            <span className="student-info-label">Email</span>
+            <span className="student-info-label">Correo Institucional</span>
             <span className="student-info-value email">{profile.studentEmail}</span>
           </div>
           <div className="student-info-item">
@@ -271,11 +271,11 @@ export default function CommitteeStudentProfile() {
             <span className="student-info-value">{profile.approvedCredits || "N/A"}</span>
           </div>
           <div className="student-info-item">
-            <span className="student-info-label">Promedio (GPA)</span>
+            <span className="student-info-label">Promedio Ponderado</span>
             <span className="student-info-value">{profile.gpa || "N/A"}</span>
           </div>
           <div className="student-info-item">
-            <span className="student-info-label">Semestre</span>
+            <span className="student-info-label">Semestre Cursado</span>
             <span className="student-info-value">{profile.semester || "N/A"}</span>
           </div>
         </div>
@@ -283,7 +283,7 @@ export default function CommitteeStudentProfile() {
 
       {/* Modality Info */}
       <div className="student-info-card">
-        <h3 className="card-section-title">📚 Información de la Modalidad</h3>
+        <h3 className="card-section-title"> Información de la Modalidad</h3>
         <div className="student-info-grid">
           <div className="student-info-item">
             <span className="student-info-label">Modalidad</span>
@@ -291,7 +291,7 @@ export default function CommitteeStudentProfile() {
           </div>
           <div className="student-info-item">
             <span className="student-info-label">Estado Actual</span>
-            <span className={`student-info-value status ${isModalityClosed ? "closed" : ""}`}>
+            <span className={`student-info-value ${isModalityClosed ? "closed" : ""}`}>
               {isModalityClosed && "🔒 "}{profile.currentStatusDescription}
             </span>
           </div>
@@ -351,21 +351,21 @@ export default function CommitteeStudentProfile() {
 
       {/* Documents Stats */}
       <div className="documents-stats-card">
-        <h3 className="card-section-title">📊 Estadísticas de Documentos</h3>
+        <h3 className="card-section-title"> Estadísticas de Documentos</h3>
         <div className="stats-grid">
-          <div className="stat-item total" style={{ background: '#a01a1f', borderRadius: '12px' }}>
+          <div className="stat-item total" style={{ background: 'linear-gradient(135deg, #7A1117 0%, #D5CBA0 100%)', color: '#fff', borderRadius: '14px', boxShadow: '0 2px 8px rgba(122,17,23,0.08)' }}>
             <div className="stat-number">{profile.totalDocuments || 0}</div>
             <div className="stat-label">Total</div>
           </div>
-          <div className="stat-item approved" style={{ background: '#a01a1f', borderRadius: '12px' }}>
+          <div className="stat-item approved" style={{ background: 'linear-gradient(135deg, #28a745 0%, #D5CBA0 100%)', color: '#fff', borderRadius: '14px', boxShadow: '0 2px 8px rgba(122,17,23,0.08)' }}>
             <div className="stat-number">{profile.approvedDocuments || 0}</div>
             <div className="stat-label">Aprobados</div>
           </div>
-          <div className="stat-item pending" style={{ background: '#a01a1f', borderRadius: '12px' }}>
+          <div className="stat-item pending" style={{ background: 'linear-gradient(135deg, #D5CBA0 0%, #ff9800 100%)', color: '#fff', borderRadius: '14px', boxShadow: '0 2px 8px rgba(122,17,23,0.08)' }}>
             <div className="stat-number">{profile.pendingDocuments || 0}</div>
             <div className="stat-label">Pendientes</div>
           </div>
-          <div className="stat-item rejected" style={{ background: '#a01a1f', borderRadius: '12px' }}>
+          <div className="stat-item rejected" style={{ background: 'linear-gradient(135deg, #dc3545 0%, #D5CBA0 100%)', color: '#fff', borderRadius: '14px', boxShadow: '0 2px 8px rgba(122,17,23,0.08)' }}>
             <div className="stat-number">{profile.rejectedDocuments || 0}</div>
             <div className="stat-label">Rechazados</div>
           </div>
@@ -373,247 +373,230 @@ export default function CommitteeStudentProfile() {
       </div>
 
       {/* Documents */}
-      <div className="documents-section">
-        <h3 className="documents-section-title">📄 Documentos</h3>
-        {uploadedDocs.length === 0 ? (
-          <div className="documents-empty">
-            <div className="documents-empty-icon">📭</div>
-            <p className="documents-empty-text">El estudiante aún no ha cargado documentos</p>
-          </div>
-        ) : (
-          <>
-            <div className="documents-table-wrapper">
-              <table className="documents-table">
-                <thead>
-                  <tr>
-                    <th>Documento</th>
-                    <th>Obligatorio</th>
-                    <th>Estado</th>
-                    <th>Notas</th>
-                    <th>Última actualización</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {uploadedDocs.map((doc) => (
-                    <tr key={doc.studentDocumentId || doc.documentName}>
-                      <td><strong className="document-name">{doc.documentName}</strong></td>
-                      <td>
-                        <span className={`mandatory-badge ${doc.mandatory ? "yes" : "no"}`}>
-                          {doc.mandatory ? "Sí" : "No"}
-                        </span>
-                      </td>
-                      <td>
-                        <span className={`doc-status-badge ${getStatusBadgeClass(doc.status)}`}>
-                          {getStatusLabel(doc.status)}
-                        </span>
-                      </td>
-                      <td>
-                        <span className={`doc-notes ${!doc.notes ? "empty" : ""}`}>
-                          {doc.notes || "Sin comentarios"}
-                        </span>
-                      </td>
-                      <td>
-                        <span className="doc-date">
-                          {doc.lastUpdate
-                            ? new Date(doc.lastUpdate).toLocaleString("es-CO", { dateStyle: "medium", timeStyle: "short" })
-                            : "-"}
-                        </span>
-                      </td>
-                      <td>
-                        <div className="doc-actions">
-                          <button
-                            onClick={() => handleViewDocument(doc.studentDocumentId)}
-                            disabled={loadingDoc === doc.studentDocumentId}
-                            className={`doc-btn doc-btn-view ${loadingDoc === doc.studentDocumentId ? "loading" : ""}`}
-                          >
-                            {loadingDoc === doc.studentDocumentId ? "Cargando..." : "Ver documento"}
-                          </button>
-                          {canEditDocument(doc) ? (
-                            <button
-                              onClick={() => {
-                                if (reviewingDocId === doc.studentDocumentId) {
-                                  setReviewingDocId(null); setSelectedStatus(""); setNotes("");
-                                } else {
-                                  setReviewingDocId(doc.studentDocumentId); setSelectedStatus(""); setNotes("");
-                                }
-                              }}
-                              className={`doc-btn ${reviewingDocId === doc.studentDocumentId ? "doc-btn-cancel" : "doc-btn-review"}`}
-                            >
-                              {reviewingDocId === doc.studentDocumentId ? "Cancelar" : "Cambiar estado"}
-                            </button>
-                          ) : (
-                            <span className="locked-badge">🔒 Aprobado</span>
-                          )}
-                        </div>
-                        {reviewingDocId === doc.studentDocumentId && canEditDocument(doc) && (
-                          <div className="review-panel">
-                            <h4 className="review-panel-title">Revisión de documento</h4>
-                            <div className="review-form-group">
-                              <label className="review-label">Nuevo estado:</label>
-                              <select
-                                value={selectedStatus}
-                                onChange={(e) => setSelectedStatus(e.target.value)}
-                                className="review-select"
-                              >
-                                <option value="">Seleccionar estado</option>
-                                <option value="ACCEPTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW">✅ Aceptado</option>
-                                <option value="CORRECTIONS_REQUESTED_BY_PROGRAM_CURRICULUM_COMMITTEE">🔄 Requiere correcciones</option>
-                              </select>
-                            </div>
-                            <div className="review-form-group">
-                              <label className="review-label">Comentario:</label>
-                              <textarea
-                                value={notes}
-                                onChange={(e) => setNotes(e.target.value)}
-                                className="review-textarea"
-                                placeholder="Escribe aquí el motivo de tu decisión..."
-                                rows={4}
-                              />
-                            </div>
-                            <button
-                              onClick={() => handleReviewDocument(doc.studentDocumentId)}
-                              disabled={submitting}
-                              className="review-submit-btn"
-                            >
-                              {submitting ? "Guardando..." : "Guardar revisión"}
-                            </button>
-                          </div>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+<div className="documents-card">
+  <div className="documents-card-header">
+    <div>
+      <h3 className="documents-title">Documentos de la Modalidad</h3>
+      <p className="documents-subtitle">
+        Revisión y validación de los soportes académicos presentados por el estudiante
+      </p>
+    </div>
+  </div>
 
-            {/* Stepper de aprobación — solo para modalidades que NO son de decisión final */}
-            {!isFinalDecision && (
-              <div className="approve-all-section">
-                <h4 className="stepper-title">Pasos para aprobar la modalidad</h4>
-
-                {/* Paso 1: Documentos */}
-                <div className={`stepper-step ${step1Ok ? "step-done" : "step-pending"}`}>
-                  <span className="step-icon">{step1Ok ? "✅" : "⏳"}</span>
-                  <span className="step-label">Documentos obligatorios aceptados</span>
-                  {!step1Ok && (
-                    <div className="step-hint">
-                      {uploadedMandatory.length < mandatoryDocs.length
-                        ? `El estudiante debe cargar todos los documentos (${uploadedMandatory.length}/${mandatoryDocs.length})`
-                        : "Debes aceptar todos los documentos obligatorios"}
-                    </div>
-                  )}
-                </div>
-
-                {/* Paso 2: Director */}
-                <div className={`stepper-step ${step2Ok ? "step-done" : "step-pending"}`}>
-                  <div className="step-header">
-                    <span className="step-icon">{step2Ok ? "✅" : "❌"}</span>
-                    <span className="step-label">
-                      Director de proyecto
-                      {step2Ok && <em className="step-value"> — {profile.projectDirectorName}</em>}
-                    </span>
-                    {!step2Ok && (
-                      <button
-                        onClick={() => setShowAssignDirectorModal(true)}
-                        className="step-action-btn"
-                      >
-                        Asignar Director
-                      </button>
-                    )}
-                    {step2Ok && (
-                      <button
-                        onClick={() => setShowChangeDirectorModal(true)}
-                        className="step-action-btn step-action-secondary"
-                      >
-                        Cambiar
-                      </button>
-                    )}
-                  </div>
-                </div>
-
-                {/* Botón final */}
-                <div className="approve-all-content" style={{ marginTop: "1.5rem" }}>
-                  <button
-                    onClick={handleApproveModality}
-                    disabled={!canApproveModality || submitting}
-                    className={`approve-all-btn ${canApproveModality ? "enabled" : "disabled"}`}
-                  >
-                    {submitting ? "Procesando..." : "Aprobar Modalidad Para Inicio"}
-                  </button>
-                  {!canApproveModality && (
-                    <div className="approve-warning">⚠️ Completa todos los pasos requeridos antes de aprobar</div>
-                  )}
-                </div>
-              </div>
-            )}
-          </>
-        )}
+  <div className="documents-card-body">
+    {uploadedDocs.length === 0 ? (
+      <div className="documents-empty">
+        <div className="documents-empty-icon">📭</div>
+        <p className="documents-empty-text">
+          El estudiante aún no ha cargado documentos para esta modalidad.
+        </p>
       </div>
+    ) : (
+      <>
+        <div className="documents-table-wrapper">
+          <table className="documents-table">
+            <thead>
+              <tr>
+                <th>Documento</th>
+                <th>Obligatorio</th>
+                <th>Estado</th>
+                <th>Notas</th>
+                <th>Última actualización</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {uploadedDocs.map((doc) => (
+                <tr key={doc.studentDocumentId || doc.documentName}>
+                  <td>
+                    <strong className="document-name">{doc.documentName}</strong>
+                  </td>
+
+                  <td>
+                    <span className={`mandatory-badge ${doc.mandatory ? "yes" : "no"}`}>
+                      {doc.mandatory ? "Sí" : "No"}
+                    </span>
+                  </td>
+
+                  <td>
+                    <span className={`doc-status-badge ${getStatusBadgeClass(doc.status)}`}>
+                      {getStatusLabel(doc.status)}
+                    </span>
+                  </td>
+
+                  <td>
+                    <span className={`doc-notes ${!doc.notes ? "empty" : ""}`}>
+                      {doc.notes || "Sin comentarios"}
+                    </span>
+                  </td>
+
+                  <td>
+                    <span className="doc-date">
+                      {doc.lastUpdate
+                        ? new Date(doc.lastUpdate).toLocaleString("es-CO", {
+                            dateStyle: "medium",
+                            timeStyle: "short"
+                          })
+                        : "-"}
+                    </span>
+                  </td>
+
+                  <td>
+                    <div className="doc-actions">
+                      <button
+                        onClick={() => handleViewDocument(doc.studentDocumentId)}
+                        disabled={loadingDoc === doc.studentDocumentId}
+                        className={`doc-btn doc-btn-view ${
+                          loadingDoc === doc.studentDocumentId ? "loading" : ""
+                        }`}
+                      >
+                        {loadingDoc === doc.studentDocumentId
+                          ? "Cargando..."
+                          : "Ver documento"}
+                      </button>
+
+                      {canEditDocument(doc) ? (
+                        <button
+                          onClick={() => {
+                            if (reviewingDocId === doc.studentDocumentId) {
+                              setReviewingDocId(null);
+                              setSelectedStatus("");
+                              setNotes("");
+                            } else {
+                              setReviewingDocId(doc.studentDocumentId);
+                              setSelectedStatus("");
+                              setNotes("");
+                            }
+                          }}
+                          className={`doc-btn ${
+                            reviewingDocId === doc.studentDocumentId
+                              ? "doc-btn-cancel"
+                              : "doc-btn-review"
+                          }`}
+                        >
+                          {reviewingDocId === doc.studentDocumentId
+                            ? "Cancelar"
+                            : "Cambiar estado"}
+                        </button>
+                      ) : (
+                        <span className="locked-badge">Aprobado</span>
+                      )}
+                    </div>
+
+                    {reviewingDocId === doc.studentDocumentId &&
+                      canEditDocument(doc) && (
+                        <div className="review-panel">
+                          <h4 className="review-panel-title">
+                            Revisión de documento
+                          </h4>
+
+                          <div className="review-form-group">
+                            <label className="review-label">
+                              Nuevo estado:
+                            </label>
+                            <select
+                              value={selectedStatus}
+                              onChange={(e) =>
+                                setSelectedStatus(e.target.value)
+                              }
+                              className="review-select"
+                            >
+                              <option value="">Seleccionar estado</option>
+                              <option value="ACCEPTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW">
+                                Aceptado
+                              </option>
+                              <option value="CORRECTIONS_REQUESTED_BY_PROGRAM_CURRICULUM_COMMITTEE">
+                                Requiere correcciones
+                              </option>
+                            </select>
+                          </div>
+
+                          <div className="review-form-group">
+                            <label className="review-label">
+                              Comentario:
+                            </label>
+                            <textarea
+                              value={notes}
+                              onChange={(e) => setNotes(e.target.value)}
+                              className="review-textarea"
+                              placeholder="Escribe aquí el motivo de tu decisión..."
+                              rows={4}
+                            />
+                          </div>
+
+                          <button
+                            onClick={() =>
+                              handleReviewDocument(doc.studentDocumentId)
+                            }
+                            disabled={submitting}
+                            className="review-submit-btn"
+                          >
+                            {submitting ? "Guardando..." : "Guardar revisión"}
+                          </button>
+                        </div>
+                      )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </>
+    )}
+  </div>
+</div>
 
       {/* Committee Actions */}
       <div className="council-actions-section">
-        <h3 className="section-title">Acciones del Comité de Currículo</h3>
-        <div className="council-actions-grid">
-
-          {/* ✅ Decisión Final — SOLO para Posgrado, Seminario de Grado, Producción Académica */}
-          {isFinalDecision && !isModalityClosed && (
-            <button
-              onClick={() => setShowFinalDecisionModal(true)}
-              className="council-action-btn"
-              style={{ background: "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)" }}
-            >
-              <span className="action-icon">⚖️</span>
-              <span className="action-text">Decisión Final del Comité</span>
-            </button>
-          )}
-
-          {/* Asignar Director — solo si NO tiene director y NO es de decisión final */}
-          {!profile.projectDirectorName && !isFinalDecision && (
-            <button
-              onClick={() => setShowAssignDirectorModal(true)}
-              className="council-action-btn assign-director"
-            >
-              <span className="action-icon">👨‍🏫</span>
-              <span className="action-text">Asignar Director</span>
-            </button>
-          )}
-
-          {/* Cambiar Director — solo si NO es de decisión final */}
-          {profile.projectDirectorName && !isModalityClosed && !isFinalDecision && (
-            <button
-              onClick={() => setShowChangeDirectorModal(true)}
-              className="council-action-btn change-director"
-              style={{ background: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)" }}
-            >
-              <span className="action-icon">🔄</span>
-              <span className="action-text">Cambiar Director</span>
-            </button>
-          )}
-
-          {/* Asignar Jueces — disponible siempre que NO sea modalidad de decisión final */}
-          {!isFinalDecision && (
-            <button
-              onClick={() => setShowAssignExaminersModal(true)}
-              className="council-action-btn"
-              style={{ background: "linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)" }}
-            >
-              <span className="action-icon">👨‍⚖️</span>
-              <span className="action-text">Asignar Jueces de Sustentación</span>
-            </button>
-          )}
-
-          {/* Cerrar Modalidad — siempre disponible */}
-          {!isModalityClosed && (
-            <button
-              onClick={() => setShowCloseModalityModal(true)}
-              className="council-action-btn close-modality"
-              style={{ background: "linear-gradient(135deg, #ef4444 0%, #dc2626 100%)" }}
-            >
-              <span className="action-icon">🔒</span>
-              <span className="action-text">Cerrar Modalidad</span>
-            </button>
-          )}
+        <div className="council-actions-premium-card">
+          <h3 className="section-title premium">Acciones del Comité de Currículo</h3>
+          <div className="council-actions-grid premium">
+            {isFinalDecision && !isModalityClosed && (
+              <button
+                onClick={() => setShowFinalDecisionModal(true)}
+                className="council-action-btn premium"
+                style={{ background: 'linear-gradient(135deg, #7A1117 0%, #D5CBA0 100%)', color: '#fff', border: '1px solid #D5CBA0', borderRadius: '12px', boxShadow: '0 4px 16px rgba(122,17,23,0.10)' }}
+              >
+                <span className="action-text premium">Decisión Final del Comité</span>
+              </button>
+            )}
+            {!profile.projectDirectorName && !isFinalDecision && (
+              <button
+                onClick={() => setShowAssignDirectorModal(true)}
+                className="council-action-btn assign-director premium"
+                style={{ background: 'linear-gradient(135deg, #D5CBA0 0%, #7A1117 100%)', color: '#fff', border: '1px solid #D5CBA0', borderRadius: '12px', boxShadow: '0 4px 16px rgba(122,17,23,0.10)' }}
+              >
+                <span className="action-text premium">Asignar Director</span>
+              </button>
+            )}
+            {profile.projectDirectorName && !isModalityClosed && !isFinalDecision && (
+              <button
+                onClick={() => setShowChangeDirectorModal(true)}
+                className="council-action-btn change-director premium"
+                style={{ background: 'linear-gradient(135deg, #D5CBA0 0%, #f59e0b 100%)', color: '#7A1117', border: '1px solid #D5CBA0', borderRadius: '12px', boxShadow: '0 4px 16px rgba(122,17,23,0.10)' }}
+              >
+                <span className="action-text premium">Cambiar Director</span>
+              </button>
+            )}
+            {!isFinalDecision && (
+              <button
+                onClick={() => setShowAssignExaminersModal(true)}
+                className="council-action-btn premium"
+                style={{ background: 'linear-gradient(135deg, #D5CBA0 0%, #6d28d9 100%)', color: '#fff', border: '1px solid #D5CBA0', borderRadius: '12px', boxShadow: '0 4px 16px rgba(122,17,23,0.10)' }}
+              >
+                <span className="action-text premium">Asignar Jueces de Sustentación</span>
+              </button>
+            )}
+            {!isModalityClosed && (
+              <button
+                onClick={() => setShowCloseModalityModal(true)}
+                className="council-action-btn close-modality premium"
+                style={{ background: 'linear-gradient(135deg, #dc2626 0%, #D5CBA0 100%)', color: '#fff', border: '1px solid #D5CBA0', borderRadius: '12px', boxShadow: '0 4px 16px rgba(122,17,23,0.10)' }}
+              >
+                <span className="action-text premium">Cerrar Modalidad</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
