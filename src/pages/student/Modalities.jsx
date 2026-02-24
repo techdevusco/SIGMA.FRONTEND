@@ -138,7 +138,7 @@ export default function Modalities() {
           setModalityHistory([]);
         }
       } catch (err) {
-        console.error("❌ Error al cargar modalidades:", err);
+        console.error(" Error al cargar modalidades:", err);
         setGlobalMessage("Error al cargar las modalidades");
       } finally {
         setLoading(false);
@@ -203,42 +203,42 @@ export default function Modalities() {
     const status = previousModality.currentStatus;
 
     if (status === "MODALITY_CLOSED") {
-      return {
-        canStart: false,
-        canRestart: false,
-        message: "❌ Esta modalidad fue cerrada y no puede reiniciarse. Puedes intentar con otra modalidad diferente."
-      };
-    }
+  return {
+    canStart: false,
+    canRestart: false,
+    message: "Esta modalidad ha sido cerrada y no puede reiniciarse. Puedes revisar otras modalidades disponibles que se ajusten a tu perfil académico."
+  };
+}
 
-    if (status === "MODALITY_CANCELLED") {
-      return {
-        canStart: true,
-        canRestart: true,
-        message: ""
-      };
-    }
+if (status === "MODALITY_CANCELLED") {
+  return {
+    canStart: true,
+    canRestart: true,
+    message: "Esta modalidad fue cancelada previamente. Puedes iniciar nuevamente esta modalidad o elegir otra modalidad disponible según tu avance académico."
+  };
+}
 
-    if (status === "GRADED_APPROVED") {
-      return {
-        canStart: false,
-        canRestart: false,
-        message: "Estudiante ya aprobaste tu modalidad. No puedes reiniciarla ni iniciar otra modalidad diferente."
-      };
-    }
+if (status === "GRADED_APPROVED") {
+  return {
+    canStart: false,
+    canRestart: false,
+    message: "Has aprobado esta modalidad. No es posible reiniciarla ni iniciar otra modalidad equivalente. Te sugerimos revisar las siguientes opciones para continuar tu proceso académico."
+  };
+}
 
-    if (status === "GRADED_FAILED") {
-      return {
-        canStart: true,
-        canRestart: true,
-        message: ""
-      };
-    }
+if (status === "GRADED_FAILED") {
+  return {
+    canStart: true,
+    canRestart: true,
+    message: "No aprobaste esta modalidad. Puedes reiniciarla o iniciar otra modalidad disponible para cumplir con los requisitos de tu plan académico."
+  };
+}
 
-    return {
-      canStart: false,
-      canRestart: false,
-      message: "⏳ Esta modalidad está en proceso. No puedes reiniciarla ni iniciar una nueva mientras haya una modalidad activa."
-    };
+return {
+  canStart: false,
+  canRestart: false,
+  message: "⏳ Esta modalidad se encuentra en proceso. No puedes reiniciarla ni iniciar una nueva mientras tengas una modalidad activa. Espera a que se complete el proceso actual para continuar."
+};
   };
 
   // ✅ NUEVA FUNCIÓN: Detectar si es Seminario
@@ -479,7 +479,8 @@ export default function Modalities() {
         setModalityMessages({
           [pendingModalityId]: {
             type: 'success',
-            text: `Modalidad grupal iniciada. Invitaciones enviadas a ${selectedStudents.length} estudiante(s). Esperando sus respuestas.`
+            text: `Modalidad grupal iniciada. Invitaciones enviadas a ${selectedStudents.length} estudiante(s). Esperando sus respuestas.`,
+            fade: true // Indicador para fade automático
           }
         });
         
@@ -664,7 +665,7 @@ export default function Modalities() {
       <div className="modalities-header">
         <h2 className="modalities-title">Modalidades de Grado</h2>
         <p className="modalities-subtitle">
-          Selecciona la modalidad que mejor se ajuste a tu perfil académico
+          Elija la modalidad que se adecúe a sus objetivos y plan de formación universitaria.
         </p>
       </div>
 
@@ -689,14 +690,27 @@ export default function Modalities() {
 
       {profileComplete && !studentModalityId && (
         <div className="modalities-message success">
-          ✅ Tu perfil está completo. Ahora puedes seleccionar una modalidad.
+          Tu perfil está completo. Ahora puedes seleccionar una modalidad.
         </div>
       )}
 
       {studentModalityId && (
-        <div className="modalities-message info">
-          ℹ️ Ya tienes una modalidad seleccionada. Puedes subir tus documentos en la sección{' '}
-          <a href="/student/documents" style={{ color: '#004085', fontWeight: '600', textDecoration: 'underline' }}>
+        <div className="modalities-message info" style={{
+          background: 'linear-gradient(90deg, #f9f6e7 0%, #f7f7fa 100%)',
+          color: '#7A1117',
+          borderLeft: '4px solid #D5CBA0',
+          boxShadow: '0 2px 12px #7A111733',
+          fontSize: '1.08rem',
+          fontWeight: 700,
+          letterSpacing: '0.2px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.7rem',
+          animation: 'fadeOut 5s linear forwards',
+        }}>
+          <span style={{ fontSize: '1.3rem', color: '#7A1117', fontWeight: 900 }}>ℹ️</span>
+          Ya tienes una modalidad seleccionada. Puedes subir tus documentos en la sección{' '}
+          <a href="/student/documents" style={{ color: '#7A1117', fontWeight: '600', textDecoration: 'underline' }}>
             Documentos
           </a>
         </div>
@@ -795,9 +809,9 @@ export default function Modalities() {
                 <div className="modal-detail-info">
                   <strong>Tipo:</strong>{' '}
                   {modalityAllowsGroup(modalityDetail) ? (
-                    <span style={{ color: '#2563eb' }}>Individual o Grupal (hasta 3 integrantes)</span>
+                    <span style={{ color: '#7A1117', fontWeight: 700 }}>Individual o Grupal (hasta 3 integrantes)</span>
                   ) : (
-                    <span style={{ color: '#7A1117' }}>Solo Individual</span>
+                    <span style={{ color: '#7A1117', fontWeight: 700 }}>Solo Individual</span>
                   )}
                 </div>
 
@@ -1012,28 +1026,78 @@ export default function Modalities() {
       {showModalityTypeModal && (
         <div className="modal-overlay" onClick={() => setShowModalityTypeModal(false)}>
           <div className="modal-confirm" onClick={(e) => e.stopPropagation()}>
-            <h3>Tipo de Modalidad</h3>
-            <p>¿Deseas realizar esta modalidad de forma individual o grupal?</p>
+            <h3 style={{
+              fontFamily: 'Georgia, Times New Roman, serif',
+              color: '#7A1117',
+              fontSize: '2rem',
+              fontWeight: 900,
+              letterSpacing: '0.5px',
+              textShadow: '0 2px 8px #d5cba02a',
+              marginBottom: '0.5rem'
+            }}>Tipo de Modalidad</h3>
+            <p style={{
+              color: '#7A1117cc',
+              fontSize: '1.13rem',
+              fontWeight: 500,
+              textAlign: 'center',
+              marginBottom: '2rem'
+            }}>
+              Elige cómo deseas realizar tu modalidad de grado:
+            </p>
 
             <div className="modality-type-options">
               <button
                 className="modality-type-btn individual"
                 onClick={handleSelectIndividual}
                 disabled={sendingId}
+                style={{
+                  borderColor: '#D5CBA0',
+                  boxShadow: '0 4px 16px #7A111733',
+                  position: 'relative'
+                }}
               >
-                <span className="type-icon">👤</span>
-                <span className="type-label">Individual</span>
-                <span className="type-description">Trabajarás solo en esta modalidad</span>
+                <span className="type-icon" style={{ fontSize: '3.5rem', color: '#7A1117' }}>👤</span>
+                <span className="type-label" style={{ color: '#7A1117', fontWeight: 700, fontSize: '1.25rem' }}>Individual</span>
+                <span className="type-description" style={{ color: '#7A1117cc', fontSize: '1rem', marginTop: '0.5rem' }}>Trabajarás solo en esta modalidad</span>
+                <span style={{
+                  position: 'absolute',
+                  top: '1rem',
+                  right: '1rem',
+                  background: '#D5CBA0',
+                  color: '#7A1117',
+                  borderRadius: '8px',
+                  padding: '0.3rem 0.7rem',
+                  fontWeight: 600,
+                  fontSize: '0.95rem',
+                  boxShadow: '0 2px 8px #D5CBA033'
+                }}>Solo</span>
               </button>
 
               <button
                 className="modality-type-btn group"
                 onClick={handleSelectGroup}
                 disabled={sendingId}
+                style={{
+                  borderColor: '#D5CBA0',
+                  boxShadow: '0 4px 16px #7A111733',
+                  position: 'relative'
+                }}
               >
-                <span className="type-icon">👥</span>
-                <span className="type-label">Grupal</span>
-                <span className="type-description">Hasta 3 integrantes (incluido tú)</span>
+                <span className="type-icon" style={{ fontSize: '3.5rem', color: '#7A1117' }}>👥</span>
+                <span className="type-label" style={{ color: '#7A1117', fontWeight: 700, fontSize: '1.25rem' }}>Grupal</span>
+                <span className="type-description" style={{ color: '#7A1117cc', fontSize: '1rem', marginTop: '0.5rem' }}>Hasta 3 integrantes (incluido tú)</span>
+                <span style={{
+                  position: 'absolute',
+                  top: '1rem',
+                  right: '1rem',
+                  background: '#D5CBA0',
+                  color: '#7A1117',
+                  borderRadius: '8px',
+                  padding: '0.3rem 0.7rem',
+                  fontWeight: 600,
+                  fontSize: '0.95rem',
+                  boxShadow: '0 2px 8px #D5CBA033'
+                }}>Grupo</span>
               </button>
             </div>
 
@@ -1044,6 +1108,7 @@ export default function Modalities() {
                 resetGroupFlow();
               }}
               disabled={sendingId}
+              style={{ marginTop: '2rem' }}
             >
               Cancelar
             </button>
@@ -1150,46 +1215,121 @@ export default function Modalities() {
       {/* MODAL CONFIRMACIÓN FINAL */}
       {showConfirmModal && (
         <div className="modal-overlay" onClick={() => setShowConfirmModal(false)}>
-          <div className="modal-confirm" onClick={(e) => e.stopPropagation()}>
-            <h3>Confirmar selección</h3>
+          <div className="modal-confirm" style={{
+            background: 'linear-gradient(120deg, #f9f6e7 0%, #f7f7fa 60%, #e8ebf0 100%)',
+            border: '2.5px solid #D5CBA0',
+            boxShadow: '0 20px 40px rgba(122, 17, 23, 0.18)',
+            borderRadius: '18px',
+            padding: '2.5rem 2rem 2rem 2rem',
+            maxWidth: '480px',
+            position: 'relative',
+            textAlign: 'center',
+            animation: 'slideDown 0.35s ease-out',
+          }} onClick={(e) => e.stopPropagation()}>
+            <h3 style={{
+              fontFamily: 'Georgia, Times New Roman, serif',
+              color: '#7A1117',
+              fontSize: '1.7rem',
+              fontWeight: 900,
+              letterSpacing: '0.5px',
+              textShadow: '0 2px 8px #d5cba02a',
+              marginBottom: '1.2rem',
+            }}>Confirmar selección</h3>
 
             {isSeminarioSelection ? (
-              <p>
+              <div style={{
+                background: '#fffbe6',
+                borderLeft: '4px solid #D5CBA0',
+                borderRadius: '8px',
+                padding: '1.2rem',
+                marginBottom: '1.5rem',
+                color: '#7A1117',
+                fontWeight: 600,
+                fontSize: '1.08rem',
+                boxShadow: '0 2px 12px #7A111733',
+              }}>
                 ¿Estás seguro que deseas activar la modalidad <strong>SEMINARIO DE GRADO</strong>?
-                <br />
-                Después de confirmar, podrás seleccionar el seminario en el que deseas inscribirte.
-                <br />
-                <strong>Esta acción no se puede deshacer.</strong>
-              </p>
+                <br />Después de confirmar, podrás seleccionar el seminario en el que deseas inscribirte.
+                <br /><strong>Esta acción no se puede deshacer.</strong>
+              </div>
             ) : modalityType === "INDIVIDUAL" ? (
-              <p>
+              <div style={{
+                background: '#fffbe6',
+                borderLeft: '4px solid #D5CBA0',
+                borderRadius: '8px',
+                padding: '1.2rem',
+                marginBottom: '1.5rem',
+                color: '#7A1117',
+                fontWeight: 600,
+                fontSize: '1.08rem',
+                boxShadow: '0 2px 12px #7A111733',
+              }}>
                 ¿Estás seguro que deseas seleccionar esta modalidad de forma <strong>individual</strong>?
-                <br />
-                <strong>Esta acción no se puede deshacer.</strong>
-              </p>
+                <br /><strong>Esta acción no se puede deshacer.</strong>
+              </div>
             ) : (
               <>
-                <p>
+                <div style={{
+                  background: '#f9fafb',
+                  borderLeft: '4px solid #7A1117',
+                  borderRadius: '8px',
+                  padding: '1.2rem',
+                  marginBottom: '1.5rem',
+                  color: '#7A1117',
+                  fontWeight: 600,
+                  fontSize: '1.08rem',
+                  boxShadow: '0 2px 12px #7A111733',
+                }}>
                   Has invitado a <strong>{selectedStudents.length} compañero(s)</strong>:
-                </p>
-                <ul className="invited-students-list">
-                  {selectedStudents.map(s => (
-                    <li key={s.userId}>• {s.fullName}</li>
-                  ))}
-                </ul>
-                <p>
-                  Las invitaciones serán enviadas. Una vez que acepten, podrán trabajar juntos.
-                </p>
+                  <ul className="invited-students-list" style={{
+                    margin: '1rem 0',
+                    background: '#fff',
+                    borderRadius: '8px',
+                    borderLeft: '4px solid #D5CBA0',
+                    padding: '1rem',
+                    boxShadow: '0 2px 8px #D5CBA033',
+                    textAlign: 'left',
+                  }}>
+                    {selectedStudents.map(s => (
+                      <li key={s.userId} style={{
+                        padding: '0.5rem 0',
+                        color: '#7A1117',
+                        fontSize: '1rem',
+                        fontWeight: 600,
+                      }}>• {s.fullName}</li>
+                    ))}
+                  </ul>
+                  <span style={{
+                    display: 'block',
+                    color: '#666',
+                    fontSize: '0.98rem',
+                    marginTop: '0.5rem',
+                    fontWeight: 400,
+                  }}>
+                    Las invitaciones serán enviadas. Una vez que acepten, podrán trabajar juntos.
+                  </span>
+                </div>
               </>
             )}
 
-            <div className="modal-confirm-actions">
+            <div className="modal-confirm-actions" style={{ marginTop: '2rem', gap: '1.2rem', display: 'flex', justifyContent: 'center' }}>
               <button
                 className="modality-button secondary"
                 disabled={sendingId}
                 onClick={() => {
                   setShowConfirmModal(false);
                   resetGroupFlow();
+                }}
+                style={{
+                  minWidth: '120px',
+                  background: '#7A1117',
+                  color: '#fff',
+                  border: '2px solid #7A1117',
+                  fontWeight: 700,
+                  fontSize: '1rem',
+                  borderRadius: '10px',
+                  boxShadow: '0 2px 8px #7A111733',
+                  transition: 'all 0.3s',
                 }}
               >
                 Cancelar
@@ -1199,6 +1339,17 @@ export default function Modalities() {
                 className={`modality-button ${sendingId ? "loading" : ""}`}
                 disabled={sendingId}
                 onClick={handleFinalConfirm}
+                style={{
+                  minWidth: '120px',
+                  background: '#D5CBA0',
+                  color: '#7A1117',
+                  border: '2px solid #D5CBA0',
+                  fontWeight: 700,
+                  fontSize: '1rem',
+                  borderRadius: '10px',
+                  boxShadow: '0 2px 8px #D5CBA033',
+                  transition: 'all 0.3s',
+                }}
               >
                 {sendingId ? "Procesando..." : "Confirmar"}
               </button>

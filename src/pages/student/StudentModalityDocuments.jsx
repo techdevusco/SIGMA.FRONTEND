@@ -274,12 +274,49 @@ export default function StudentModalityDocuments({ studentModalityId }) {
 
         {/* DOCUMENTOS MANDATORY */}
         {mandatoryDocs.length > 0 && (
-          <div className="documents-section">
-            <h4 className="documents-section-title">Documentos Obligatorios</h4>
-            <p className="documents-section-subtitle">
-              Estos documentos son requeridos para iniciar tu modalidad de grado.
+          <div className="documents-section" style={{
+            background: 'linear-gradient(120deg, #f9f6e7 0%, #f7f7fa 60%, #e8ebf0 100%)',
+            borderRadius: '16px',
+            boxShadow: '0 4px 24px #7A111733',
+            padding: '2.2rem 1.5rem',
+            marginBottom: '2.5rem',
+            border: '2px solid #D5CBA0',
+            animation: 'slideDown 0.3s ease-out',
+          }}>
+            <h4 className="documents-section-title" style={{
+              fontFamily: 'Georgia, Times New Roman, serif',
+              color: '#7A1117',
+              fontSize: '1.35rem',
+              fontWeight: 900,
+              marginBottom: '0.7rem',
+              letterSpacing: '0.5px',
+              textShadow: '0 2px 8px #d5cba02a',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+            }}>
+              <span style={{ fontSize: '1.5rem', color: '#D5CBA0' }}>📑</span>
+              Documentos Obligatorios
+            </h4>
+            <p className="documents-section-subtitle" style={{
+              color: '#7A1117cc',
+              fontSize: '1.08rem',
+              fontWeight: 500,
+              marginBottom: '1.5rem',
+              textAlign: 'center',
+              background: 'rgba(213,203,160,0.08)',
+              borderRadius: '8px',
+              padding: '0.7rem 1rem',
+              boxShadow: '0 2px 8px #D5CBA033',
+            }}>
+              Estos documentos son requeridos para iniciar tu modalidad de grado. Por favor, verifica que todos estén completos antes de continuar.
             </p>
-            <ul className="documents-list">
+            <ul className="documents-list" style={{
+              marginTop: '1.2rem',
+              padding: 0,
+              display: 'grid',
+              gap: '1.8rem',
+            }}>
               {mandatoryDocs.map((doc) => (
                 <DocumentCard
                   key={doc.requiredDocumentId}
@@ -482,7 +519,7 @@ function DocumentCard({
               sendingDocId === doc.requiredDocumentId ? "loading" : ""
             }`}
           >
-            {sendingDocId === doc.requiredDocumentId ? "Enviando..." : "📤 Enviar documento"}
+            {sendingDocId === doc.requiredDocumentId ? "Enviando..." : " Enviar documento"}
           </button>
         </div>
       )}

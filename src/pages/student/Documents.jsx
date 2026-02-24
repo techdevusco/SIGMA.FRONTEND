@@ -1,4 +1,4 @@
-//pages/student/Documents.jsx
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getCurrentModalityStatus } from "../../services/studentService";

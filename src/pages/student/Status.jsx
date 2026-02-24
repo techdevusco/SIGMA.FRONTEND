@@ -225,7 +225,7 @@ export default function ModalityStatus() {
 
       {/* Estadísticas de Documentos */}
       <div className="status-section">
-        <h3 className="status-section-title">📊 Resumen de Documentos</h3>
+        <h3 className="status-section-title"> Resumen de Documentos</h3>
         <div className="status-documents-stats">
           <div className="status-stat-card">
             <div className="status-stat-number">{data.totalDocuments || 0}</div>

@@ -3,11 +3,13 @@
    ======================================== */
 
 .status-container {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 2rem;
-  background-color: #f4f4f4;
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 3rem 2rem;
+  background: linear-gradient(135deg, #f9f6e7 0%, #f7f7fa 60%, #e8ebf0 100%);
   min-height: 100vh;
+  border-radius: 24px;
+  box-shadow: 0 8px 40px 0 rgba(122, 17, 23, 0.10);
 }
 
 /* ========================================
@@ -67,17 +69,24 @@
    ======================================== */
 
 .status-header {
-  background-color: #7A1117;
-  color: white;
-  padding: 2rem 2.5rem;
-  border-radius: 12px 12px 0 0;
+  background: linear-gradient(90deg, #7A1117 0%, #a01820 100%);
+  color: #fff;
+  padding: 3rem 2.5rem 2.5rem 2.5rem;
+  border-radius: 24px 24px 0 0;
+  box-shadow: 0 12px 40px rgba(122, 17, 23, 0.13);
   margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .status-title {
   font-family: "Georgia", "Times New Roman", serif;
-  font-size: 2rem;
+  font-size: 2.7rem;
   margin: 0;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 8px #7A111733;
 }
 
 /* ========================================
@@ -85,70 +94,64 @@
    ======================================== */
 
 .status-main-card {
-  background: white;
-  border-radius: 0 0 12px 12px;
-  padding: 2.5rem;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
-  margin-bottom: 2rem;
+  background: #fff;
+  border-radius: 0 0 24px 24px;
+  padding: 3rem;
+  box-shadow: 0 15px 40px rgba(122, 17, 23, 0.13);
+  margin-bottom: 2.5rem;
+  border-top: 6px solid #D5CBA0;
 }
 
 .status-info-grid {
   display: grid;
-  gap: 1.5rem;
-  margin-bottom: 1.5rem;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 
 .status-info-item {
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-.status-info-item:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
+  padding-bottom: 1.2rem;
+  border-bottom: 1.5px solid #e0e0e0;
+  background: #f8f6ef;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px #D5CBA033;
 }
 
 .status-label {
-  font-weight: 700;
-  color: #333;
-  font-size: 0.9rem;
+  font-weight: 900;
+  color: #7A1117;
+  font-size: 1.08rem;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.7px;
   margin-bottom: 0.5rem;
   display: block;
 }
 
 .status-value {
-  font-size: 1.1rem;
-  color: #7A1117;
-  font-weight: 600;
+  font-size: 1.22rem;
+  color: #222;
+  font-weight: 700;
   display: block;
-}
-
-.status-description {
-  color: #666;
-  line-height: 1.6;
-  margin-top: 1rem;
-  padding: 1rem;
-  background-color: #f4f4f4;
-  border-radius: 8px;
-  border-left: 3px solid #7A1117;
+  letter-spacing: 0.2px;
 }
 
 .status-current-badge {
   display: inline-block;
-  padding: 0.5rem 1.2rem;
-  background-color: #7A1117;
-  color: white;
-  border-radius: 20px;
-  font-size: 1rem;
-  font-weight: 600;
+  padding: 0.6rem 1.4rem;
+  background: linear-gradient(90deg, #D5CBA0 0%, #f9f6e7 100%);
+  color: #7A1117;
+  border-radius: 22px;
+  font-size: 1.13rem;
+  font-weight: 900;
   margin-top: 0.5rem;
+  box-shadow: 0 2px 12px #D5CBA033;
+  border: 2px solid #7A1117;
+  letter-spacing: 0.5px;
 }
 
 .status-date {
   color: #888;
-  font-size: 0.95rem;
+  font-size: 0.98rem;
   font-style: italic;
 }
 
@@ -157,19 +160,24 @@
    ======================================== */
 
 .status-history-section {
-  background: white;
-  border-radius: 12px;
-  padding: 2.5rem;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+  background: #fff;
+  border-radius: 24px;
+  padding: 3rem;
+  box-shadow: 0 15px 40px #7A111733;
+  margin-top: 2.5rem;
+  border-top: 6px solid #D5CBA0;
 }
 
 .status-history-title {
   font-family: "Georgia", "Times New Roman", serif;
-  font-size: 1.6rem;
+  font-size: 1.7rem;
   color: #7A1117;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 3px solid #7A1117;
+  margin-bottom: 1.7rem;
+  padding-bottom: 1.2rem;
+  border-bottom: 4px solid #D5CBA0;
+  font-weight: 900;
+  letter-spacing: 0.7px;
+  text-shadow: 0 2px 8px #7A111733;
 }
 
 .status-history-list {
@@ -187,7 +195,7 @@
   top: 0;
   bottom: 0;
   width: 3px;
-  background: linear-gradient(to bottom, #7A1117, #e0e0e0);
+  background: linear-gradient(to bottom, #7A1117, #D5CBA0);
 }
 
 .status-history-item {
@@ -202,7 +210,6 @@
   margin-bottom: 0;
 }
 
-/* Timeline dot */
 .status-history-item::before {
   content: '';
   position: absolute;
@@ -211,38 +218,40 @@
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background-color: #7A1117;
-  border: 4px solid white;
+  background: #D5CBA0;
+  border: 4px solid #fff;
   box-shadow: 0 0 0 2px #7A1117;
   z-index: 1;
 }
 
 .status-history-card {
-  background-color: #f9f9f9;
-  border-radius: 10px;
-  padding: 1.5rem;
-  border-left: 4px solid #7A1117;
+  background: #f9f6e7;
+  border-radius: 14px;
+  padding: 2rem;
+  border-left: 6px solid #D5CBA0;
   transition: all 0.3s ease;
+  box-shadow: 0 4px 16px #D5CBA033;
 }
 
 .status-history-card:hover {
-  background-color: #fff;
-  box-shadow: 0 4px 12px rgba(122, 17, 23, 0.15);
-  transform: translateX(5px);
+  background: #fff;
+  box-shadow: 0 8px 24px #7A111733;
+  transform: translateX(8px);
 }
 
 .status-history-status {
-  font-weight: 700;
+  font-weight: 900;
   color: #7A1117;
-  font-size: 1.1rem;
-  margin-bottom: 0.5rem;
+  font-size: 1.18rem;
+  margin-bottom: 0.7rem;
+  letter-spacing: 0.3px;
 }
 
 .status-history-description {
-  color: #666;
-  line-height: 1.6;
-  margin-bottom: 1rem;
-  font-size: 0.95rem;
+  color: #222;
+  line-height: 1.7;
+  margin-bottom: 1.2rem;
+  font-size: 1.05rem;
 }
 
 /* ========================================
@@ -250,23 +259,33 @@
    ======================================== */
 
 .status-message {
-  padding: 1rem 1.5rem;
+  padding: 1.2rem 1.5rem;
   border-radius: 10px;
-  margin-bottom: 1.5rem;
-  font-weight: 500;
+  margin-bottom: 2rem;
+  font-weight: 700;
   animation: slideDown 0.3s ease-out;
+  font-size: 1.08rem;
+  letter-spacing: 0.2px;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
 }
 
 .status-message.success {
-  background: #d4edda;
-  color: #155724;
-  border-left: 4px solid #28a745;
+  background: linear-gradient(90deg, #f9f6e7 0%, #f7f7fa 100%);
+  color: #7A1117;
+  border-left: 6px solid #D5CBA0;
+  box-shadow: 0 4px 16px #7A111733;
+  animation: fadeOut 5s linear forwards;
+  font-size: 1.13rem;
 }
 
 .status-message.error {
   background: #fde1e1;
   color: #7A1117;
-  border-left: 4px solid #7A1117;
+  border-left: 6px solid #7A1117;
+  box-shadow: 0 4px 16px #7A111733;
+  font-size: 1.13rem;
 }
 
 /* ========================================
@@ -282,207 +301,94 @@
 }
 
 .status-section-title {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   color: #7A1117;
   margin: 0 0 1.5rem;
   font-family: "Georgia", "Times New Roman", serif;
-  font-weight: 700;
-}
-
-.status-documents-empty {
-  text-align: center;
-  padding: 3rem;
-  color: #999;
-}
-
-.status-documents-empty-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-}
-
-.status-documents-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 1.5rem;
-}
-
-.status-document-card {
-  background: #f9f9f9;
-  border-radius: 10px;
-  padding: 1.5rem;
-  border: 2px solid #e0e0e0;
-  transition: all 0.3s ease;
-}
-
-.status-document-card:hover {
-  border-color: #7A1117;
-  box-shadow: 0 4px 12px rgba(122, 17, 23, 0.1);
-}
-
-.status-document-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 1rem;
-  gap: 1rem;
-}
-
-.status-document-name {
-  font-size: 1.1rem;
-  color: #333;
-  margin: 0;
-  font-weight: 600;
-  flex: 1;
-}
-
-.status-document-mandatory-badge {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  background: #ffc107;
-  color: #856404;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
-.status-document-info {
-  margin-bottom: 1rem;
-}
-
-.status-document-info-item {
+  font-weight: 900;
+  letter-spacing: 0.7px;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 0.75rem;
+  text-shadow: 0 2px 8px #7A111733;
 }
 
-.status-document-label {
-  font-weight: 600;
-  color: #666;
-  font-size: 0.9rem;
+.status-info-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 2rem;
+  box-shadow: 0 4px 16px #7A111733;
+  margin-bottom: 2rem;
+  border-top: 4px solid #D5CBA0;
 }
 
-.status-document-badge {
-  display: inline-block;
-  padding: 0.35rem 0.85rem;
-  border-radius: 16px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.status-document-badge.pending {
+.status-info-note {
   background: #fff3cd;
   color: #856404;
+  border-left: 4px solid #D5CBA0;
+  border-radius: 10px;
+  padding: 1rem 1.2rem;
+  margin-top: 1.2rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  box-shadow: 0 2px 8px #D5CBA033;
 }
 
-.status-document-badge.accepted {
-  background: #d4edda;
-  color: #155724;
+.status-info-empty {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: #999;
+  background: #f8f6ef;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px #D5CBA033;
 }
 
-.status-document-badge.rejected {
-  background: #f8d7da;
-  color: #721c24;
+.status-documents-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
 }
 
-.status-document-badge.corrections {
-  background: #fde1e1;
+.status-stat-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 2rem 1.5rem;
+  text-align: center;
+  box-shadow: 0 4px 16px #D5CBA033;
+  border-left: 6px solid #D5CBA0;
+  transition: box-shadow 0.2s;
+}
+
+.status-stat-card.success {
+  border-left-color: #7A1117;
+  box-shadow: 0 4px 16px #7A111733;
+}
+
+.status-stat-card.warning {
+  border-left-color: #D5CBA0;
+  box-shadow: 0 4px 16px #D5CBA033;
+}
+
+.status-stat-card.error {
+  border-left-color: #a01820;
+  box-shadow: 0 4px 16px #a0182033;
+}
+
+.status-stat-number {
+  font-size: 2.7rem;
+  font-weight: 900;
   color: #7A1117;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 2px 8px #7A111733;
 }
 
-.status-document-date {
-  color: #666;
-  font-size: 0.9rem;
-}
-
-.status-document-notes {
-  background: white;
-  padding: 1rem;
-  border-radius: 8px;
-  border-left: 4px solid #7A1117;
-  margin-top: 0.75rem;
-}
-
-.status-document-notes-text {
-  margin: 0.5rem 0 0;
-  color: #333;
-  line-height: 1.5;
-  font-size: 0.9rem;
-}
-
-.status-document-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-top: 1rem;
-  padding-top: 1rem;
-  border-top: 1px solid #e0e0e0;
-}
-
-.status-document-btn {
-  padding: 0.75rem 1rem;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-align: center;
-}
-
-.status-document-btn.view {
-  background: linear-gradient(135deg, #7A1117 0%, #5d0d12 100%);
-  color: white;
-}
-
-.status-document-btn.view:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(122, 17, 23, 0.3);
-}
-
-.status-document-upload {
-  position: relative;
-}
-
-.status-document-upload-label {
-  display: block;
-  cursor: pointer;
-}
-
-.status-document-upload-input {
-  position: absolute;
-  width: 0.1px;
-  height: 0.1px;
-  opacity: 0;
-  overflow: hidden;
-  z-index: -1;
-}
-
-.status-document-upload-btn {
-  display: block;
-  padding: 0.75rem 1rem;
-  background: #e8f5e9;
-  color: #2e7d32;
-  border: 2px solid #2e7d32;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 0.9rem;
-  text-align: center;
-  transition: all 0.3s ease;
-}
-
-.status-document-upload-btn:hover {
-  background: #2e7d32;
-  color: white;
-  transform: translateY(-2px);
-}
-
-.status-document-upload-input:disabled + .status-document-upload-btn {
-  opacity: 0.6;
-  cursor: not-allowed;
+.status-stat-label {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #7A1117;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
 }
 
 .status-history-meta {
@@ -504,6 +410,7 @@
   color: #333;
   font-size: 0.85rem;
 }
+
 /* Document Statistics */
 .status-documents-stats {
   display: grid;
@@ -512,41 +419,40 @@
 }
 
 .status-stat-card {
-  background: white;
+  background: #fff;
   border-radius: 12px;
   padding: 1.5rem;
   text-align: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border-left: 4px solid #d1d5db;
+  box-shadow: 0 2px 8px #D5CBA033;
+  border-left: 4px solid #D5CBA0;
 }
 
 .status-stat-card.success {
-  border-left-color: #10b981;
+  border-left-color: #7A1117;
 }
 
 .status-stat-card.warning {
-  border-left-color: #f59e0b;
+  border-left-color: #D5CBA0;
 }
 
 .status-stat-card.error {
-  border-left-color: #ef4444;
+  border-left-color: #a01820;
 }
 
 .status-stat-number {
   font-size: 2.5rem;
-  font-weight: 700;
-  color: #1f2937;
+  font-weight: 900;
+  color: #7A1117;
   margin-bottom: 0.5rem;
 }
 
 .status-stat-label {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #6b7280;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #7A1117;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
-
 
 .status-history-meta-value {
   color: #666;
@@ -583,6 +489,9 @@
   padding: 3rem 2rem;
   color: #999;
   font-style: italic;
+  background: #f8f6ef;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px #D5CBA033;
 }
 
 .status-history-empty-icon {
@@ -606,13 +515,10 @@
   }
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+@keyframes fadeOut {
+  0% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { opacity: 0; }
 }
 
 /* ========================================
@@ -621,60 +527,76 @@
 
 @media (max-width: 768px) {
   .status-container {
-    padding: 1.5rem 1rem;
+    padding: 1.2rem 0.5rem;
+    border-radius: 12px;
   }
-
   .status-header {
-    padding: 1.5rem 1.5rem;
+    padding: 1.2rem 1rem;
+    border-radius: 12px 12px 0 0;
   }
-
   .status-title {
-    font-size: 1.5rem;
-  }
-
-  .status-main-card,
-  .status-history-section {
-    padding: 1.5rem;
-  }
-
-  .status-history-title {
     font-size: 1.3rem;
   }
-
+  .status-main-card,
+  .status-history-section {
+    padding: 1.2rem;
+    border-radius: 12px;
+  }
+  .status-history-title {
+    font-size: 1.1rem;
+  }
   .status-history-item {
-    padding-left: 50px;
+    padding-left: 40px;
   }
-
   .status-history-list::before {
-    left: 15px;
+    left: 10px;
   }
-
   .status-history-item::before {
-    left: 7px;
-    width: 16px;
-    height: 16px;
+    left: 3px;
+    width: 12px;
+    height: 12px;
+  }
+  .status-info-item {
+    padding-bottom: 0.7rem;
+    border-radius: 6px;
+  }
+  .status-info-card {
+    padding: 1rem;
+    border-radius: 8px;
+  }
+  .status-stat-card {
+    padding: 1rem;
+    border-radius: 8px;
   }
 }
 
 @media (max-width: 480px) {
   .status-container {
-    padding: 1rem 0.75rem;
+    padding: 0.7rem 0.3rem;
+    border-radius: 8px;
   }
-
   .status-header {
-    padding: 1.25rem;
+    padding: 0.7rem;
+    border-radius: 8px 8px 0 0;
   }
-
   .status-main-card,
   .status-history-section {
-    padding: 1.25rem;
+    padding: 0.7rem;
+    border-radius: 8px;
   }
-
   .status-value {
-    font-size: 1rem;
+    font-size: 0.95rem;
   }
-
   .status-history-card {
-    padding: 1.25rem;
+    padding: 0.7rem;
+    border-radius: 8px;
+  }
+  .status-info-item {
+    padding-bottom: 0.5rem;
+    border-radius: 4px;
+  }
+  .status-stat-card {
+    padding: 0.7rem;
+    border-radius: 6px;
   }
 }
