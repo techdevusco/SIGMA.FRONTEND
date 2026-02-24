@@ -9,21 +9,52 @@ const API_URL = 'http://localhost:8080';
 
 // Estados de proceso reales del enum ModalityProcessStatus
 export const PROCESS_STATUSES = [
+  // ========== SELECCIÓN Y REVISIÓN INICIAL ========== 
   { value: 'MODALITY_SELECTED', label: 'Modalidad Seleccionada' },
-  { value: 'UNDER_REVIEW_PROGRAM_HEAD', label: 'Revisión Director de Programa' },
-  { value: 'READY_FOR_PROGRAM_CURRICULUM_COMMITTEE', label: 'Listo para Comité Curricular' },
-  { value: 'UNDER_REVIEW_PROGRAM_CURRICULUM_COMMITTEE', label: 'Revisión Comité Curricular' },
-  { value: 'PROPOSAL_APPROVED', label: 'Propuesta Aprobada' },
+  { value: 'UNDER_REVIEW_PROGRAM_HEAD', label: 'Bajo Revisión de Jefatura de Programa' },
+  { value: 'CORRECTIONS_REQUESTED_PROGRAM_HEAD', label: 'Correcciones Solicitadas por Jefatura de Programa' },
   { value: 'CORRECTIONS_SUBMITTED', label: 'Correcciones Enviadas' },
   { value: 'CORRECTIONS_APPROVED', label: 'Correcciones Aprobadas' },
   { value: 'CORRECTIONS_REJECTED_FINAL', label: 'Correcciones Rechazadas (Final)' },
+
+  // ========== REVISIÓN DE COMITÉ ========== 
+  { value: 'READY_FOR_PROGRAM_CURRICULUM_COMMITTEE', label: 'Listo para Comité' },
+  { value: 'UNDER_REVIEW_PROGRAM_CURRICULUM_COMMITTEE', label: 'Revisión Comité' },
+  { value: 'CORRECTIONS_REQUESTED_PROGRAM_CURRICULUM_COMMITTEE', label: 'Correcciones Solicitadas por Comité' },
+  { value: 'PROPOSAL_APPROVED', label: 'Propuesta Aprobada' },
+
+  // ========== PROGRAMACIÓN DE SUSTENTACIÓN ========== 
+  { value: 'DEFENSE_REQUESTED_BY_PROJECT_DIRECTOR', label: 'Sustentación Solicitada por Director de Proyecto' },
   { value: 'DEFENSE_SCHEDULED', label: 'Sustentación Programada' },
+
+  // ========== ASIGNACIÓN DE JUECES (NUEVO) ========== 
   { value: 'EXAMINERS_ASSIGNED', label: 'Jurados Asignados' },
+  { value: 'READY_FOR_EXAMINERS', label: 'Listo para Jurados' },
+  { value: 'CORRECTIONS_REQUESTED_EXAMINERS', label: 'Correcciones Solicitadas por Jurados' },
+  { value: 'READY_FOR_DEFENSE', label: 'Listo para Sustentación' },
+  { value: 'FINAL_REVIEW_COMPLETED', label: 'Revisión Final Completada' },
+
+  // ========== SUSTENTACIÓN Y EVALUACIÓN ========== 
   { value: 'DEFENSE_COMPLETED', label: 'Sustentación Completada' },
   { value: 'UNDER_EVALUATION_PRIMARY_EXAMINERS', label: 'Evaluación Jurados Principales' },
+  { value: 'DISAGREEMENT_REQUIRES_TIEBREAKER', label: 'Desacuerdo - Requiere Desempate' },
+  { value: 'UNDER_EVALUATION_TIEBREAKER', label: 'Evaluación Juez de Desempate' },
   { value: 'EVALUATION_COMPLETED', label: 'Evaluación Completada' },
+
+  // ========== RESULTADO FINAL ========== 
   { value: 'GRADED_APPROVED', label: 'Calificado - Aprobado' },
-  { value: 'GRADED_FAILED', label: 'Calificado - Reprobado' }
+  { value: 'GRADED_FAILED', label: 'Calificado - Reprobado' },
+  { value: 'MODALITY_CLOSED', label: 'Modalidad Cerrada' },
+  { value: 'SEMINAR_CANCELED', label: 'Seminario Cancelado' },
+
+  // ========== CANCELACIONES ========== 
+  { value: 'MODALITY_CANCELLED', label: 'Modalidad Cancelada' },
+  { value: 'CANCELLATION_REQUESTED', label: 'Cancelación Solicitada' },
+  { value: 'CANCELLATION_APPROVED_BY_PROJECT_DIRECTOR', label: 'Cancelación Aprobada por Director de Proyecto' },
+  { value: 'CANCELLATION_REJECTED_BY_PROJECT_DIRECTOR', label: 'Cancelación Rechazada por Director de Proyecto' },
+  { value: 'CANCELLED_WITHOUT_REPROVAL', label: 'Cancelada sin Reprobación' },
+  { value: 'CANCELLATION_REJECTED', label: 'Cancelación Rechazada' },
+  { value: 'CANCELLED_BY_CORRECTION_TIMEOUT', label: 'Cancelada por Tiempo de Corrección' }
 ];
 
 // Resultados de modalidades completadas
@@ -283,9 +314,8 @@ export const getAvailableModalityTypes = async () => {
 export const getDirectors = async () => {
   try {
     const token = localStorage.getItem('token');
-    
-    // Ajustar endpoint según tu backend
-    const response = await fetch(`${API_URL}/api/users/directors`, {
+    // Nuevo endpoint según backend
+    const response = await fetch(`${API_URL}/modalities/project-directors`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -299,9 +329,15 @@ export const getDirectors = async () => {
     }
 
     const directors = await response.json();
-    console.log('✅ Directores obtenidos:', directors.length);
-    
-    return directors;
+    // El backend retorna un array de ProjectDirectorResponse
+    // Adaptar a formato esperado por el frontend
+    const mapped = directors.map(d => ({
+      id: d.id,
+      name: d.name ? `${d.name} ${d.lastName || ''}`.trim() : d.email,
+      email: d.email
+    }));
+    console.log('✅ Directores obtenidos:', mapped.length);
+    return mapped;
   } catch (error) {
     console.error('❌ Error al obtener directores:', error);
     return [];
@@ -341,8 +377,6 @@ export const downloadFilteredModalitiesPDF = async (filters = {}) => {
     includeWithoutDirector: filters.includeWithoutDirector || false,
     onlyWithDirector: filters.onlyWithDirector || false
   });
-
-  console.log('📦 Filtros limpiados:', cleanedFilters);
 
   return downloadPDF(
     '/reports/modalities/filtered/pdf',
@@ -403,15 +437,21 @@ export const downloadModalityHistoricalPDF = async (modalityTypeId, periods = 8)
  */
 export const downloadDirectorPerformancePDF = async (filters = {}) => {
   console.log('📤 Filtros de directores:', filters);
-  
+
+  // Solo enviar el valor si el usuario lo marca (true), si no, dejarlo como null para que el backend no filtre solo activas
+  const onlyActiveModalities =
+    typeof filters.onlyActiveModalities === 'boolean'
+      ? filters.onlyActiveModalities
+      : null;
+
   const cleanedFilters = cleanFilters({
     directorId: filters.directorId || null,
     processStatuses: filters.processStatuses || null,
     modalityTypes: filters.modalityTypes || null,
     onlyOverloaded: filters.onlyOverloaded || false,
     onlyAvailable: filters.onlyAvailable || false,
-    onlyActiveModalities: filters.onlyActiveModalities !== false,
-    includeWorkloadAnalysis: filters.includeWorkloadAnalysis !== false
+    onlyActiveModalities,
+    includeWorkloadAnalysis: typeof filters.includeWorkloadAnalysis === 'boolean' ? filters.includeWorkloadAnalysis : true
   });
 
   console.log('📦 Filtros limpiados:', cleanedFilters);

@@ -41,7 +41,7 @@ const CommitteeReports = () => {
   // Estados de filtros para cada reporte
   const [filters, setFilters] = useState({
     filtered: {
-      degreeModalityNames: [],
+      degreeModalityIds: [],
       processStatuses: [],
       startDate: '',
       endDate: '',
@@ -102,7 +102,8 @@ const CommitteeReports = () => {
       includeWorkloadAnalysis: true
     },
     individualDirector: {
-      directorId: null
+      directorId: null,
+      includeWorkloadAnalysis: true
     }
   });
 
@@ -152,12 +153,56 @@ const CommitteeReports = () => {
   const handleDownloadGlobal = async () => {
     setLoading(true);
     setError(null);
+    setSuccess(null);
     try {
+      // Simula un pequeño delay para mejor UX visual
+      await new Promise(res => setTimeout(res, 350));
       const result = await downloadGlobalModalitiesPDF();
-      setSuccess(`✅ ${result.filename} descargado exitosamente`);
+      setSuccess(
+        <span style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          padding: '2px 0',
+          fontSize: '1em',
+          color: '#205c2c',
+          gap: 7,
+          fontWeight: 400,
+          margin: '4px 0 0 0',
+          background: 'none',
+          border: 'none',
+          boxShadow: 'none',
+          borderRadius: 0
+        }}>
+          <span style={{fontSize: '1em', color: '#388e3c', marginRight: 4, lineHeight: 1, flexShrink: 0}}>✔️</span>
+          <span style={{lineHeight: 1.2}}>
+            Reporte global <span style={{color: '#7A1117'}}>{result.filename}</span> descargado exitosamente
+          </span>
+        </span>
+      );
       setTimeout(() => setSuccess(null), 5000);
     } catch (err) {
-      setError(err.message || 'Error al descargar el reporte global');
+      setError(
+        <span style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          padding: '2px 0',
+          fontSize: '1em',
+          color: '#7A1117',
+          gap: 7,
+          fontWeight: 400,
+          margin: '4px 0 0 0',
+          background: 'none',
+          border: 'none',
+          boxShadow: 'none',
+          borderRadius: 0
+        }}>
+          <span style={{fontSize: '1em', color: '#b71c1c', marginRight: 4, lineHeight: 1, flexShrink: 0}}>✖️</span>
+          <span style={{lineHeight: 1.2}}>
+            No se pudo descargar el reporte global.
+            <span style={{display: 'inline', color: '#b71c1c', fontWeight: 400, fontSize: '0.97em', marginLeft: 4}}>{err.message || 'Error desconocido.'}</span>
+          </span>
+        </span>
+      );
     } finally {
       setLoading(false);
     }
@@ -167,7 +212,12 @@ const CommitteeReports = () => {
     setLoading(true);
     setError(null);
     try {
-      const result = await downloadFilteredModalitiesPDF(filters.filtered);
+      // Usar directamente los IDs seleccionados
+      const payload = {
+        ...filters.filtered,
+        degreeModalityIds: Array.isArray(filters.filtered.degreeModalityIds) ? filters.filtered.degreeModalityIds : []
+      };
+      const result = await downloadFilteredModalitiesPDF(payload);
       setSuccess(`✅ ${result.filename} descargado exitosamente`);
       setTimeout(() => setSuccess(null), 5000);
       setOpenFilterDialog(null);
@@ -284,9 +334,15 @@ const CommitteeReports = () => {
 
     setLoading(true);
     setError(null);
+    setSuccess(null);
     try {
-      const result = await downloadIndividualDirectorPDF(filters.individualDirector.directorId);
-      setSuccess(`✅ ${result.filename} descargado exitosamente`);
+      // Usar el método de directores, pasando el filtro con directorId
+      const filtersToSend = {
+        directorId: filters.individualDirector.directorId,
+        // Puedes agregar más filtros si tu UI lo permite (estados, modalidades, etc.)
+      };
+      await downloadDirectorPerformancePDF(filtersToSend);
+      setSuccess('Reporte descargado correctamente.');
       setTimeout(() => setSuccess(null), 5000);
       setOpenFilterDialog(null);
     } catch (err) {
@@ -311,80 +367,119 @@ const CommitteeReports = () => {
   };
 
   const handleCheckboxChange = (reportType, field, value) => {
-    setFilters(prev => {
-      const currentValues = prev[reportType][field] || [];
-      const newValues = currentValues.includes(value)
-        ? currentValues.filter(v => v !== value)
-        : [...currentValues, value];
-      
-      return {
-        ...prev,
-        [reportType]: {
-          ...prev[reportType],
-          [field]: newValues
-        }
-      };
-    });
-  };
+  setFilters(prev => {
+    let currentValues = prev[reportType][field];
+    if (!Array.isArray(currentValues)) currentValues = [];
+    const newValues = currentValues.includes(value)
+      ? currentValues.filter(v => v !== value)
+      : [...currentValues, value];
+    return {
+      ...prev,
+      [reportType]: {
+        ...prev[reportType],
+        [field]: newValues
+      }
+    };
+  });
+};
 
-  // ========================================
-  // RENDERIZADO DE FILTROS
-  // ========================================
+
 
   const renderFilteredFilters = () => (
-    <div className="filters-panel">
-      <div className="filter-group">
-        <label>Tipos de Modalidad</label>
-        <div className="checkbox-list">
+    <div className="filters-panel" style={{
+      background: '#fff',
+      border: '1px solid #e6d7da',
+      borderRadius: 10,
+      padding: '1.5rem 1.5rem 1.2rem 1.5rem',
+      boxShadow: '0 2px 12px rgba(122,17,23,0.06)',
+      marginBottom: 16,
+      fontFamily: 'Inter, Segoe UI, Arial, sans-serif',
+      color: '#5d0d12',
+      fontSize: '1.04rem',
+      maxWidth: 520
+      // No textTransform ni estilos de mayúsculas
+    }}>
+      <div className="filter-group" style={{ marginBottom: 18 }}>
+        <label style={{ fontWeight: 700, color: '#7A1117', marginBottom: 6, display: 'block', letterSpacing: '0.2px', textTransform: 'none' }}>Tipos de Modalidad</label>
+        <div className="checkbox-list" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.7rem 1.2rem' }}>
           {modalityTypes.map((type) => (
-            <label key={type.id}>
+            <label key={type.id} style={{ display: 'flex', alignItems: 'center', gap: 7, fontWeight: 500, cursor: 'pointer', textTransform: 'none' }}>
               <input
                 type="checkbox"
-                checked={filters.filtered.degreeModalityNames.includes(type.name)}
-                onChange={() => handleCheckboxChange('filtered', 'degreeModalityNames', type.name)}
+                checked={Array.isArray(filters.filtered.degreeModalityIds) && filters.filtered.degreeModalityIds.includes(type.id)}
+onChange={() => handleCheckboxChange('filtered', 'degreeModalityIds', type.id)}
+                style={{ accentColor: '#7A1117', width: 17, height: 17, marginRight: 5, borderRadius: 4, border: '1.5px solid #7A1117' }}
               />
-              {type.name} ({type.activeModalitiesCount || 0} activas)
+              <span style={{ textTransform: 'none' }}>{type.name}</span>
+              <span style={{ color: '#b71c1c', fontWeight: 600, fontSize: '0.97em', marginLeft: 2, opacity: 0.85 }}>({type.activeModalitiesCount || 0} activas)</span>
             </label>
           ))}
         </div>
       </div>
 
-      <div className="filter-group">
-        <label>Estados de Proceso</label>
-        <div className="checkbox-list" style={{ maxHeight: '200px', overflowY: 'auto' }}>
+      <div className="filter-group" style={{ marginBottom: 18 }}>
+        <label style={{ fontWeight: 700, color: '#7A1117', marginBottom: 6, display: 'block', letterSpacing: '0.2px', textTransform: 'none' }}>Estados de Proceso</label>
+        <div className="checkbox-list" style={{ maxHeight: '140px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 7 }}>
           {PROCESS_STATUSES.map((status) => (
-            <label key={status.value}>
+            <label key={status.value} style={{ display: 'flex', alignItems: 'center', gap: 7, fontWeight: 500, cursor: 'pointer', textTransform: 'none' }}>
               <input
                 type="checkbox"
                 checked={filters.filtered.processStatuses.includes(status.value)}
                 onChange={() => handleCheckboxChange('filtered', 'processStatuses', status.value)}
+                style={{ accentColor: '#7A1117', width: 17, height: 17, marginRight: 5, borderRadius: 4, border: '1.5px solid #7A1117' }}
               />
-              {status.label}
+              <span style={{ textTransform: 'none' }}>{status.label}</span>
             </label>
           ))}
         </div>
       </div>
 
-      <div className="filter-group">
-        <label>Fecha Inicio (Opcional)</label>
+      <div className="filter-group" style={{ marginBottom: 18 }}>
+        <label style={{ fontWeight: 700, color: '#7A1117', marginBottom: 6, display: 'block', letterSpacing: '0.2px', textTransform: 'none' }}>Fecha Inicio <span style={{ color: '#b71c1c', fontWeight: 400, fontSize: '0.97em', textTransform: 'none' }}>(Opcional)</span></label>
         <input
           type="date"
           value={filters.filtered.startDate}
           onChange={(e) => handleFilterChange('filtered', 'startDate', e.target.value)}
+          style={{
+            border: '1.5px solid #e6d7da',
+            borderRadius: 6,
+            padding: '6px 10px',
+            fontSize: '1em',
+            color: '#5d0d12',
+            outline: 'none',
+            fontFamily: 'inherit',
+            marginTop: 2,
+            width: '100%',
+            boxSizing: 'border-box',
+            transition: 'border-color 0.2s',
+          }}
         />
       </div>
 
-      <div className="filter-group">
-        <label>Fecha Fin (Opcional)</label>
+      <div className="filter-group" style={{ marginBottom: 18 }}>
+        <label style={{ fontWeight: 700, color: '#7A1117', marginBottom: 6, display: 'block', letterSpacing: '0.2px', textTransform: 'none' }}>Fecha Fin <span style={{ color: '#b71c1c', fontWeight: 400, fontSize: '0.97em', textTransform: 'none' }}>(Opcional)</span></label>
         <input
           type="date"
           value={filters.filtered.endDate}
           onChange={(e) => handleFilterChange('filtered', 'endDate', e.target.value)}
+          style={{
+            border: '1.5px solid #e6d7da',
+            borderRadius: 6,
+            padding: '6px 10px',
+            fontSize: '1em',
+            color: '#5d0d12',
+            outline: 'none',
+            fontFamily: 'inherit',
+            marginTop: 2,
+            width: '100%',
+            boxSizing: 'border-box',
+            transition: 'border-color 0.2s',
+          }}
         />
       </div>
 
-      <div className="filter-group checkbox-group">
-        <label>
+      <div className="filter-group checkbox-group" style={{ marginBottom: 10 }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 7, fontWeight: 500, cursor: 'pointer', color: '#5d0d12', textTransform: 'none' }}>
           <input
             type="checkbox"
             checked={filters.filtered.onlyWithDirector}
@@ -398,13 +493,14 @@ const CommitteeReports = () => {
                 }
               }));
             }}
+            style={{ accentColor: '#7A1117', width: 17, height: 17, borderRadius: 4, border: '1.5px solid #7A1117' }}
           />
-          Solo modalidades con director
+          <span style={{ textTransform: 'none' }}>Solo modalidades con director</span>
         </label>
       </div>
 
       <div className="filter-group checkbox-group">
-        <label>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 7, fontWeight: 500, cursor: 'pointer', color: '#5d0d12', textTransform: 'none' }}>
           <input
             type="checkbox"
             checked={filters.filtered.includeWithoutDirector}
@@ -418,32 +514,71 @@ const CommitteeReports = () => {
                 }
               }));
             }}
+            style={{ accentColor: '#7A1117', width: 17, height: 17, borderRadius: 4, border: '1.5px solid #7A1117' }}
           />
-          Solo modalidades sin director
+          <span style={{ textTransform: 'none' }}>Solo modalidades sin director</span>
         </label>
       </div>
     </div>
   );
 
   const renderComparisonFilters = () => (
-    <div className="filters-panel">
+    <div className="filters-panel" style={{
+      background: '#fff',
+      border: '1px solid #e6d7da',
+      borderRadius: 10,
+      padding: '1.5rem 1.5rem 1.2rem 1.5rem',
+      boxShadow: '0 2px 12px rgba(122,17,23,0.06)',
+      marginBottom: 16,
+      fontFamily: 'Inter, Segoe UI, Arial, sans-serif',
+      color: '#5d0d12',
+      fontSize: '1.04rem',
+      maxWidth: 520
+    }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
         <div className="filter-group">
-          <label>Año</label>
-          <input
-            type="number"
+          <label style={{ fontWeight: 700, color: '#7A1117', marginBottom: 6, display: 'block', letterSpacing: '0.2px', textTransform: 'none' }}>Año</label>
+          <select
             value={filters.comparison.year}
-            onChange={(e) => handleFilterChange('comparison', 'year', parseInt(e.target.value) || getCurrentPeriod().year)}
-            min="2020"
-            max="2030"
-          />
+            onChange={(e) => handleFilterChange('comparison', 'year', parseInt(e.target.value))}
+            style={{
+              border: '1.5px solid #e6d7da',
+              borderRadius: 6,
+              padding: '6px 10px',
+              fontSize: '1em',
+              color: '#5d0d12',
+              outline: 'none',
+              fontFamily: 'inherit',
+              marginTop: 2,
+              width: '100%',
+              boxSizing: 'border-box',
+              transition: 'border-color 0.2s',
+            }}
+          >
+            {Array.from({ length: 11 }, (_, i) => 2026 + i).map(year => (
+              <option key={year} value={year}>{year}</option>
+            ))}
+          </select>
         </div>
 
         <div className="filter-group">
-          <label>Semestre</label>
+          <label style={{ fontWeight: 700, color: '#7A1117', marginBottom: 6, display: 'block', letterSpacing: '0.2px', textTransform: 'none' }}>Semestre</label>
           <select
             value={filters.comparison.semester}
             onChange={(e) => handleFilterChange('comparison', 'semester', parseInt(e.target.value))}
+            style={{
+              border: '1.5px solid #e6d7da',
+              borderRadius: 6,
+              padding: '6px 10px',
+              fontSize: '1em',
+              color: '#5d0d12',
+              outline: 'none',
+              fontFamily: 'inherit',
+              marginTop: 2,
+              width: '100%',
+              boxSizing: 'border-box',
+              transition: 'border-color 0.2s',
+            }}
           >
             <option value={1}>Semestre 1</option>
             <option value={2}>Semestre 2</option>
@@ -451,89 +586,108 @@ const CommitteeReports = () => {
         </div>
       </div>
 
-      <div className="filter-group checkbox-group">
-        <label>
+      <div className="filter-group checkbox-group" style={{ marginTop: 18 }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 7, fontWeight: 500, cursor: 'pointer', color: '#5d0d12', textTransform: 'none' }}>
           <input
             type="checkbox"
             checked={filters.comparison.includeHistoricalComparison}
             onChange={(e) => handleFilterChange('comparison', 'includeHistoricalComparison', e.target.checked)}
+            style={{ accentColor: '#7A1117', width: 17, height: 17, borderRadius: 4, border: '1.5px solid #7A1117' }}
           />
-          Incluir comparación histórica
+          <span style={{ textTransform: 'none' }}>Incluir comparación histórica</span>
         </label>
       </div>
 
       {filters.comparison.includeHistoricalComparison && (
         <div className="filter-group">
-          <label>Número de periodos históricos (2-10)</label>
-          <input
-            type="number"
+          <label style={{ fontWeight: 700, color: '#7A1117', marginBottom: 6, display: 'block', letterSpacing: '0.2px', textTransform: 'none' }}>Número de periodos históricos (2-10)</label>
+          <select
             value={filters.comparison.historicalPeriodsCount}
-            onChange={(e) => handleFilterChange('comparison', 'historicalPeriodsCount', parseInt(e.target.value) || 4)}
-            min="2"
-            max="10"
-          />
-          <small style={{ color: '#666', marginTop: '0.5rem', display: 'block' }}>
+            onChange={(e) => handleFilterChange('comparison', 'historicalPeriodsCount', parseInt(e.target.value))}
+            style={{
+              border: '1.5px solid #e6d7da',
+              borderRadius: 6,
+              padding: '6px 10px',
+              fontSize: '1em',
+              color: '#5d0d12',
+              outline: 'none',
+              fontFamily: 'inherit',
+              marginTop: 2,
+              width: '100%',
+              boxSizing: 'border-box',
+              transition: 'border-color 0.2s',
+            }}
+          >
+            {Array.from({ length: 9 }, (_, i) => 2 + i).map(period => (
+              <option key={period} value={period}>{period}</option>
+            ))}
+          </select>
+          <small style={{ color: '#666', marginTop: '0.5rem', display: 'block', textTransform: 'none' }}>
             Comparará con los últimos {filters.comparison.historicalPeriodsCount} semestres ({filters.comparison.historicalPeriodsCount / 2} años)
           </small>
         </div>
       )}
 
-      <div className="filter-group checkbox-group">
-        <label>
+      <div className="filter-group checkbox-group" style={{ marginTop: 18 }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 7, fontWeight: 500, cursor: 'pointer', color: '#5d0d12', textTransform: 'none' }}>
           <input
             type="checkbox"
             checked={filters.comparison.includeTrendsAnalysis}
             onChange={(e) => handleFilterChange('comparison', 'includeTrendsAnalysis', e.target.checked)}
+            style={{ accentColor: '#7A1117', width: 17, height: 17, borderRadius: 4, border: '1.5px solid #7A1117' }}
           />
-          Incluir análisis de tendencias
+          <span style={{ textTransform: 'none' }}>Incluir análisis de tendencias</span>
         </label>
       </div>
 
-      <div className="filter-group checkbox-group">
-        <label>
+      <div className="filter-group checkbox-group" style={{ marginTop: 10 }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 7, fontWeight: 500, cursor: 'pointer', color: '#5d0d12', textTransform: 'none' }}>
           <input
             type="checkbox"
             checked={filters.comparison.onlyActiveModalities}
             onChange={(e) => handleFilterChange('comparison', 'onlyActiveModalities', e.target.checked)}
+            style={{ accentColor: '#7A1117', width: 17, height: 17, borderRadius: 4, border: '1.5px solid #7A1117' }}
           />
-          Solo modalidades activas
+          <span style={{ textTransform: 'none' }}>Solo modalidades activas</span>
         </label>
       </div>
     </div>
   );
 
   const renderHistoricalFilters = () => (
-    <div className="filters-panel">
-      <div className="alert-info" style={{ marginBottom: '1.5rem' }}>
-        ℹ️ Selecciona un tipo de modalidad para ver su evolución histórica
+    <div className="filters-panel historical-filters-panel">
+      <div className="alert-info historical-alert">
+        <span className="historical-icon">📈</span>
+        <span>Selecciona un tipo de modalidad para ver su evolución histórica</span>
       </div>
 
-      <div className="filter-group">
-        <label>Tipo de Modalidad *</label>
+      <div className="filter-group historical-filter-group">
+        <label className="historical-label">Tipo de Modalidad <span className="historical-required">*</span></label>
         <select
+          className="historical-select"
           value={filters.historical.modalityTypeId || ''}
           onChange={(e) => handleFilterChange('historical', 'modalityTypeId', e.target.value)}
           required
         >
           <option value="">Seleccionar...</option>
           {modalityTypes.map((type) => (
-            <option key={type.id} value={type.id}>
-              {type.name}
-            </option>
+            <option key={type.id} value={type.id}>{type.name}</option>
           ))}
         </select>
       </div>
 
-      <div className="filter-group">
-        <label>Número de periodos a analizar (2-20)</label>
-        <input
-          type="number"
+      <div className="filter-group historical-filter-group">
+        <label className="historical-label">Número de periodos a analizar <span className="historical-hint">(2-20)</span></label>
+        <select
+          className="historical-select"
           value={filters.historical.periods}
-          onChange={(e) => handleFilterChange('historical', 'periods', parseInt(e.target.value) || 8)}
-          min="2"
-          max="20"
-        />
-        <small style={{ color: '#666', marginTop: '0.5rem', display: 'block' }}>
+          onChange={(e) => handleFilterChange('historical', 'periods', parseInt(e.target.value))}
+        >
+          {Array.from({ length: 19 }, (_, i) => 2 + i).map(period => (
+            <option key={period} value={period}>{period}</option>
+          ))}
+        </select>
+        <small className="historical-small">
           Se analizarán los últimos {filters.historical.periods} periodos (≈ {(filters.historical.periods / 2).toFixed(1)} años)
         </small>
       </div>
@@ -898,31 +1052,79 @@ const CommitteeReports = () => {
   );
 
   const renderDirectorsFilters = () => (
-    <div className="filters-panel">
+    <div className="filters-panel" style={{
+      background: '#fff',
+      border: '1px solid #e6d7da',
+      borderRadius: 10,
+      padding: '1.5rem 1.5rem 1.2rem 1.5rem',
+      boxShadow: '0 2px 12px rgba(122,17,23,0.06)',
+      marginBottom: 16,
+      fontFamily: 'Inter, Segoe UI, Arial, sans-serif',
+      color: '#5d0d12',
+      fontSize: '1.04rem',
+      maxWidth: 520
+    }}>
       <div className="filter-group">
-        <label>Director Específico (Opcional)</label>
-        <select
-          value={filters.directors.directorId || ''}
-          onChange={(e) => handleFilterChange('directors', 'directorId', e.target.value || null)}
-        >
-          <option value="">Todos los directores</option>
-          {directors.map((director) => (
-            <option key={director.id} value={director.id}>
-              {director.name || director.fullName}
-            </option>
-          ))}
-        </select>
+        {/* Espacio para futuros filtros o info */}
       </div>
 
       <div className="filter-group">
-        <label>Estados de Proceso</label>
-        <div className="checkbox-list" style={{ maxHeight: '200px', overflowY: 'auto' }}>
-          {PROCESS_STATUSES.map((status) => (
-            <label key={status.value}>
+        <label style={{ fontWeight: 700, color: '#7A1117', marginBottom: 6, display: 'block', letterSpacing: '0.2px' }}>Estados de Proceso</label>
+        <div style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
+          <input
+            type="text"
+            placeholder="Buscar estado..."
+            value={filters.directors.processStatusSearch || ''}
+            onChange={e => handleFilterChange('directors', 'processStatusSearch', e.target.value)}
+            style={{
+              border: '1.5px solid #e6d7da',
+              borderRadius: 6,
+              padding: '6px 10px',
+              fontSize: '1em',
+              color: '#5d0d12',
+              outline: 'none',
+              fontFamily: 'inherit',
+              width: '100%',
+              boxSizing: 'border-box',
+              transition: 'border-color 0.2s',
+              maxWidth: 220
+            }}
+          />
+          <button
+            type="button"
+            onClick={() => setFilters(prev => ({
+              ...prev,
+              directors: {
+                ...prev.directors,
+                processStatuses: [],
+                processStatusSearch: ''
+              }
+            }))}
+            style={{
+              background: '#f8e9eb',
+              color: '#7A1117',
+              border: '1px solid #e6d7da',
+              borderRadius: 6,
+              padding: '6px 14px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              fontSize: '1em',
+              marginLeft: 4
+            }}
+          >
+            Borrar filtros
+          </button>
+        </div>
+        <div className="checkbox-list" style={{ maxHeight: '200px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 7 }}>
+          {PROCESS_STATUSES.filter(status =>
+            !filters.directors.processStatusSearch || status.label.toLowerCase().includes(filters.directors.processStatusSearch.toLowerCase())
+          ).map((status) => (
+            <label key={status.value} style={{ display: 'flex', alignItems: 'center', gap: 7, fontWeight: 500, cursor: 'pointer' }}>
               <input
                 type="checkbox"
                 checked={filters.directors.processStatuses.includes(status.value)}
                 onChange={() => handleCheckboxChange('directors', 'processStatuses', status.value)}
+                style={{ accentColor: '#7A1117', width: 17, height: 17, borderRadius: 4, border: '1.5px solid #7A1117' }}
               />
               {status.label}
             </label>
@@ -930,24 +1132,41 @@ const CommitteeReports = () => {
         </div>
       </div>
 
-      <div className="filter-group">
-        <label>Tipos de Modalidad</label>
-        <div className="checkbox-list">
+      <div className="filter-group" style={{ marginBottom: 18 }}>
+        <label style={{ fontWeight: 700, color: '#7A1117', marginBottom: 6, display: 'block', letterSpacing: '0.2px' }}>Tipos de modalidad</label>
+        <select
+          multiple
+          value={filters.directors.modalityTypes}
+          onChange={e => {
+            const selected = Array.from(e.target.selectedOptions, option => option.value);
+            handleFilterChange('directors', 'modalityTypes', selected);
+          }}
+          style={{
+            border: '1.5px solid #e6d7da',
+            borderRadius: 6,
+            padding: '8px 10px',
+            fontSize: '1em',
+            color: '#5d0d12',
+            outline: 'none',
+            fontFamily: 'inherit',
+            width: '100%',
+            boxSizing: 'border-box',
+            marginTop: 4,
+            minHeight: 44,
+            background: '#f9f6f7'
+          }}
+        >
           {modalityTypes.map((type) => (
-            <label key={type.id}>
-              <input
-                type="checkbox"
-                checked={filters.directors.modalityTypes.includes(type.name)}
-                onChange={() => handleCheckboxChange('directors', 'modalityTypes', type.name)}
-              />
-              {type.name}
-            </label>
+            <option key={type.id} value={type.name}>{type.name}</option>
           ))}
+        </select>
+        <div style={{ fontSize: '0.92em', color: '#7A1117', marginTop: 6 }}>
+          Mantén presionada Ctrl o Shift para seleccionar varias modalidades
         </div>
       </div>
 
-      <div className="filter-group checkbox-group">
-        <label>
+      <div className="filter-group checkbox-group" style={{ marginBottom: 10 }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 7, fontWeight: 500, cursor: 'pointer', color: '#5d0d12' }}>
           <input
             type="checkbox"
             checked={filters.directors.onlyOverloaded}
@@ -961,13 +1180,14 @@ const CommitteeReports = () => {
                 }
               }));
             }}
+            style={{ accentColor: '#7A1117', width: 17, height: 17, borderRadius: 4, border: '1.5px solid #7A1117' }}
           />
           Solo directores sobrecargados (≥5 modalidades)
         </label>
       </div>
 
-      <div className="filter-group checkbox-group">
-        <label>
+      <div className="filter-group checkbox-group" style={{ marginBottom: 10 }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 7, fontWeight: 500, cursor: 'pointer', color: '#5d0d12' }}>
           <input
             type="checkbox"
             checked={filters.directors.onlyAvailable}
@@ -981,28 +1201,31 @@ const CommitteeReports = () => {
                 }
               }));
             }}
+            style={{ accentColor: '#7A1117', width: 17, height: 17, borderRadius: 4, border: '1.5px solid #7A1117' }}
           />
           Solo directores disponibles (&lt;3 modalidades)
         </label>
       </div>
 
-      <div className="filter-group checkbox-group">
-        <label>
+      <div className="filter-group checkbox-group" style={{ marginBottom: 10 }}>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 7, fontWeight: 500, cursor: 'pointer', color: '#5d0d12' }}>
           <input
             type="checkbox"
             checked={filters.directors.onlyActiveModalities}
             onChange={(e) => handleFilterChange('directors', 'onlyActiveModalities', e.target.checked)}
+            style={{ accentColor: '#7A1117', width: 17, height: 17, borderRadius: 4, border: '1.5px solid #7A1117' }}
           />
           Solo modalidades activas
         </label>
       </div>
 
       <div className="filter-group checkbox-group">
-        <label>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 7, fontWeight: 500, cursor: 'pointer', color: '#5d0d12' }}>
           <input
             type="checkbox"
             checked={filters.directors.includeWorkloadAnalysis}
             onChange={(e) => handleFilterChange('directors', 'includeWorkloadAnalysis', e.target.checked)}
+            style={{ accentColor: '#7A1117', width: 17, height: 17, borderRadius: 4, border: '1.5px solid #7A1117' }}
           />
           Incluir análisis de carga de trabajo
         </label>
@@ -1011,28 +1234,103 @@ const CommitteeReports = () => {
   );
 
   const renderIndividualDirectorFilters = () => (
-    <div className="filters-panel">
-      <div className="alert-info" style={{ marginBottom: '1.5rem' }}>
-        ℹ️ Genera un reporte individual de un director específico con todas sus modalidades asignadas
-      </div>
-
-      <div className="filter-group">
-        <label>Seleccionar Director *</label>
+    <div className="filters-panel individual-director-filters-panel">
+      <div className="filter-group individual-director-filter-group">
+        <label className="individual-director-label">
+          {"Seleccionar director".toLowerCase()} <span className="individual-director-required">*</span>
+        </label>
         <select
+          className="individual-director-select"
           value={filters.individualDirector.directorId || ''}
-          onChange={(e) => handleFilterChange('individualDirector', 'directorId', e.target.value)}
+          onChange={e => {
+            const value = e.target.value ? Number(e.target.value) : '';
+            handleFilterChange('individualDirector', 'directorId', value);
+          }}
           required
         >
-          <option value="">Seleccionar...</option>
-          {directors.map((director) => (
-            <option key={director.id} value={director.id}>
-              {director.name || director.fullName}
-            </option>
-          ))}
+          <option value="">{"Seleccionar...".toLowerCase()}</option>
+          {directors && directors.length > 0 ? (
+            directors.map((director) => (
+              <option key={director.id} value={director.id}>
+                {(director.name || director.fullName)?.toLowerCase()}
+              </option>
+            ))
+          ) : (
+            <option value="" disabled>{"No hay directores disponibles".toLowerCase()}</option>
+          )}
         </select>
       </div>
+
+    <div className="filter-group individual-director-filter-group">
+      <label className="individual-director-label">{"Estados de proceso".toLowerCase()}</label>
+      <div className="checkbox-list individual-director-checkbox-list">
+        {PROCESS_STATUSES.map((status) => (
+          <label key={status.value} className="individual-director-checkbox-label">
+            <input
+              type="checkbox"
+              className="individual-director-checkbox-input"
+              checked={Array.isArray(filters.individualDirector.processStatuses) && filters.individualDirector.processStatuses.includes(status.value)}
+              onChange={() => {
+                const prev = Array.isArray(filters.individualDirector.processStatuses) ? filters.individualDirector.processStatuses : [];
+                const newStatuses = prev.includes(status.value)
+                  ? prev.filter(v => v !== status.value)
+                  : [...prev, status.value];
+                handleFilterChange('individualDirector', 'processStatuses', newStatuses);
+              }}
+            />
+            <span>{status.label.toLowerCase()}</span>
+          </label>
+        ))}
+      </div>
     </div>
-  );
+
+    <div className="filter-group individual-director-filter-group">
+      <label className="individual-director-label">{"Tipos de modalidad".toLowerCase()}</label>
+      <div className="checkbox-list individual-director-checkbox-list">
+        {modalityTypes.map((type) => (
+          <label key={type.id} className="individual-director-checkbox-label">
+            <input
+              type="checkbox"
+              className="individual-director-checkbox-input"
+              checked={Array.isArray(filters.individualDirector.modalityTypes) && filters.individualDirector.modalityTypes.includes(type.id)}
+              onChange={() => {
+                const prev = Array.isArray(filters.individualDirector.modalityTypes) ? filters.individualDirector.modalityTypes : [];
+                const newTypes = prev.includes(type.id)
+                  ? prev.filter(v => v !== type.id)
+                  : [...prev, type.id];
+                handleFilterChange('individualDirector', 'modalityTypes', newTypes);
+              }}
+            />
+            <span>{type.name.toLowerCase()}</span>
+          </label>
+        ))}
+      </div>
+    </div>
+
+    <div className="filter-group checkbox-group individual-director-checkbox-group">
+      <label className="individual-director-checkbox-label">
+        <input
+          type="checkbox"
+          className="individual-director-checkbox-input"
+          checked={!!filters.individualDirector.onlyActiveModalities}
+          onChange={e => handleFilterChange('individualDirector', 'onlyActiveModalities', e.target.checked)}
+        />
+        {"Solo modalidades activas".toLowerCase()}
+      </label>
+    </div>
+    <div className="filter-group checkbox-group individual-director-checkbox-group">
+      <label className="individual-director-checkbox-label">
+        <input
+          type="checkbox"
+          className="individual-director-checkbox-input"
+          checked={!!filters.individualDirector.includeWorkloadAnalysis}
+          onChange={e => handleFilterChange('individualDirector', 'includeWorkloadAnalysis', e.target.checked)}
+        />
+        {"Incluir análisis de carga de trabajo".toLowerCase()}
+      </label>
+    </div>
+  </div>
+);
 
   // ========================================
   // RENDER PRINCIPAL
@@ -1051,14 +1349,70 @@ const CommitteeReports = () => {
 
   return (
     <div className="reports-page">
-      {/* Header */}
-      <div className="reports-header">
-        <div>
-          <h1>📊 Reportes del Comité</h1>
-          <p className="reports-subtitle">
-            Sistema completo de generación de reportes en PDF con análisis detallado
+      {/* Header Profesional y Minimalista */}
+      <div className="reports-header" style={{
+        textAlign: 'center',
+        position: 'relative',
+        overflow: 'hidden',
+        padding: '2.5rem 2rem 2rem 2rem',
+        background: 'linear-gradient(135deg, #7A1117 0%, #5d0d12 100%)',
+        boxShadow: '0 8px 20px rgba(122, 17, 23, 0.18)',
+        borderRadius: '12px',
+        marginBottom: '2.2rem',
+      }}>
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '1.1rem',
+          zIndex: 2,
+          position: 'relative',
+        }}>
+          <h1 style={{
+            fontFamily: 'Georgia, Times New Roman, serif',
+            fontWeight: 800,
+            fontSize: '2.5rem',
+            margin: 0,
+            letterSpacing: '1.5px',
+            color: '#fff',
+            textShadow: '0 2px 12px rgba(122,17,23,0.13)',
+            lineHeight: 1.1,
+            paddingBottom: '0.2rem',
+            borderBottom: '2.5px solid #fff3',
+            width: '100%',
+            maxWidth: 600,
+            marginLeft: 'auto',
+            marginRight: 'auto',
+          }}>
+            Reportes del Comité
+          </h1>
+          <p className="reports-subtitle" style={{
+            margin: 0,
+            marginTop: '0.7rem',
+            maxWidth: 600,
+            color: '#fff',
+            fontSize: '1.13rem',
+            opacity: 0.97,
+            fontWeight: 400,
+            lineHeight: 1.7,
+            textShadow: '0 1px 8px rgba(122,17,23,0.10)'
+          }}>
+            Sistema completo de generación de reportes en PDF con análisis detallado.<br />
+            Permite consolidar información sobre modalidades, estados, decisiones académicas, asignación de directores y estadísticas institucionales.
           </p>
         </div>
+        <span style={{
+          position: 'absolute',
+          right: '-60px',
+          top: '-60px',
+          opacity: 0.10,
+          pointerEvents: 'none',
+          fontSize: '11rem',
+          lineHeight: 1,
+          zIndex: 1
+        }}>
+          <span role="img" aria-label="decorativo">📑</span>
+        </span>
       </div>
 
       {/* Estado de conexión */}
@@ -1074,16 +1428,62 @@ const CommitteeReports = () => {
 
       {/* Mensajes de éxito/error */}
       {error && (
-        <div className="reports-alert alert-error">
-          <span>❌</span>
-          <div>
-            <strong>Error</strong>
-            <p>{error}</p>
+        <div
+          className="reports-alert alert-error"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.7rem',
+            background: '#f8e9eb',
+            border: '1px solid #e0bcbc',
+            borderLeft: '4px solid #7A1117',
+            borderRadius: '7px',
+            boxShadow: '0 1px 6px rgba(122,17,23,0.06)',
+            padding: '0.7rem 1.1rem 0.7rem 1rem',
+            margin: '1rem 0',
+            position: 'relative',
+            minHeight: 40,
+            zIndex: 10
+          }}
+        >
+          <span
+            style={{
+              fontSize: '1.25rem',
+              color: '#d32f2f',
+              background: '#fff',
+              borderRadius: '50%',
+              boxShadow: '0 1px 4px #d32f2f11',
+              padding: '0.1rem 0.5rem',
+              marginRight: '0.3rem',
+              flexShrink: 0,
+              border: '1px solid #fff3',
+              marginTop: 0
+            }}
+            aria-label="Error"
+          >
+            ❌
+          </span>
+          <div style={{ flex: 1 }}>
+            <span style={{ color: '#7A1117', fontWeight: 700, fontSize: '1rem', letterSpacing: '0.2px' }}>Error</span>
+            <span style={{ color: '#b71c1c', marginLeft: 8, fontWeight: 500, fontSize: '0.98rem', lineHeight: 1.4 }}>{error}</span>
           </div>
           <button
             className="alert-close"
+            style={{
+              background: 'none',
+              border: 'none',
+              color: '#d32f2f',
+              fontSize: '1.25rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              marginLeft: '0.5rem',
+              marginTop: 0,
+              transition: 'color 0.2s',
+              lineHeight: 1
+            }}
             onClick={() => setError(null)}
             aria-label="Cerrar"
+            title="Cerrar"
           >
             ×
           </button>
@@ -1109,298 +1509,328 @@ const CommitteeReports = () => {
 
       {/* Grid de reportes */}
       <div className="reports-grid">
-        {/* 1. Reporte Global */}
-        <div className="report-card">
+        {/* Reporte Global */}
+        <div className="report-card" style={{ borderTop: '4px solid #7A1117', boxShadow: '0 8px 32px rgba(122,17,23,0.10)' }}>
           <div className="report-card-header">
-            <span className="report-icon">🌐</span>
-            <h3>1. Reporte Global</h3>
+            <h3 style={{ color: '#7A1117', fontWeight: 800, fontSize: '1.35rem', letterSpacing: '0.5px', margin: 0 }}>Reporte Modalidades Activas</h3>
           </div>
-          <p className="report-description">
+          <p className="report-description" style={{ fontWeight: 500, color: '#5d0d12' }}>
             Vista completa de todas las modalidades activas del programa académico
           </p>
           <div className="report-stats">
-            <span>Sin filtros</span>
-            <span>Vista completa</span>
+            <span style={{ background: '#f8e9eb', color: '#7A1117', fontWeight: 700 }}>Sin filtros</span>
+            <span style={{ background: '#f8e9eb', color: '#7A1117', fontWeight: 700 }}>Vista completa</span>
           </div>
           <div className="report-actions">
             <button
               className="btn-primary full-width"
+              style={{ fontWeight: 700, fontSize: '1.05rem', letterSpacing: '0.5px' }}
               onClick={handleDownloadGlobal}
               disabled={loading}
             >
-              {loading ? <span className="spinner-small"></span> : '📄'} Descargar PDF
+              {loading ? <span className="spinner-small"></span> : ''} Descargar PDF
             </button>
           </div>
         </div>
 
-        {/* 2. Reporte Filtrado (RF-46) */}
-        <div className="report-card">
+        {/* Reporte Filtrado (RF-46) */}
+        <div className="report-card" style={{ borderTop: '4px solid #7A1117', boxShadow: '0 8px 32px rgba(122,17,23,0.10)' }}>
           <div className="report-card-header">
-            <span className="report-icon">🔍</span>
-            <div>
-              <h3>2. Reporte Filtrado</h3>
-            </div>
+            <h3 style={{ color: '#7A1117', fontWeight: 800, fontSize: '1.25rem', margin: 0 }}>Reporte Institucional de Modalidades de Grado</h3>
           </div>
-          <p className="report-description">
-            Modalidades con filtros avanzados por tipo, estado, fechas y director
+          <p className="report-description" style={{ fontWeight: 500, color: '#5d0d12' }}>
+            Genera un reporte institucional de modalidades de grado aplicando filtros avanzados por tipo, estado, rango de fechas y director asignado.
           </p>
           <div className="report-stats">
-            <span>Múltiples filtros</span>
-            <span>15-20 páginas</span>
+            <span style={{ background: '#f8e9eb', color: '#7A1117', fontWeight: 700 }}>Múltiples filtros</span>
           </div>
           <div className="report-actions">
-            <button
-              className="btn-filters"
-              onClick={() => setOpenFilterDialog(openFilterDialog === 'filtered' ? null : 'filtered')}
-              disabled={loading}
-            >
-              ⚙️ {openFilterDialog === 'filtered' ? 'Ocultar' : 'Configurar'} Filtros
-            </button>
-            <button
-              className="btn-primary full-width"
-              onClick={handleDownloadFiltered}
-              disabled={loading}
-            >
-              {loading ? <span className="spinner-small"></span> : '📄'} Descargar PDF
-            </button>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button
+                className="btn-filters"
+                style={{ fontWeight: 600, borderColor: '#7A1117', color: '#7A1117' }}
+                onClick={() => setOpenFilterDialog(openFilterDialog === 'filtered' ? null : 'filtered')}
+                disabled={loading}
+              >
+                 {openFilterDialog === 'filtered' ? 'Ocultar' : 'Configurar'} Filtros
+              </button>
+              <button
+                className="btn-primary"
+                style={{ fontWeight: 700 }}
+                onClick={handleDownloadFiltered}
+                disabled={loading}
+              >
+                {loading ? <span className="spinner-small"></span> : ''} Descargar PDF
+              </button>
+            </div>
           </div>
           {openFilterDialog === 'filtered' && renderFilteredFilters()}
         </div>
 
-        {/* 3. Reporte Comparativo (RF-48) */}
-        <div className="report-card">
+        {/* Comparación de Periodos (RF-48) */}
+        <div className="report-card" style={{ borderTop: '4px solid #7A1117', boxShadow: '0 8px 32px rgba(122,17,23,0.10)' }}>
           <div className="report-card-header">
-            <span className="report-icon">📊</span>
-            <div>
-              <h3>3. Comparación de Periodos</h3>
-            </div>
+          
+            <h3 style={{ color: '#7A1117', fontWeight: 800, fontSize: '1.25rem', margin: 0 }}>Reporte Comparativo Institucional de Modalidades de Grado</h3>
           </div>
-          <p className="report-description">
-            Análisis comparativo entre periodos académicos con tendencias históricas
+          <p className="report-description" style={{ fontWeight: 500, color: '#5d0d12' }}>
+            Genera un reporte institucional que compara las modalidades de grado por tipo, incorporando análisis estadístico y tendencias para la toma de decisiones académicas.
           </p>
           <div className="report-stats">
-            <span>Histórico</span>
-            <span>Tendencias</span>
-            <span>Proyecciones</span>
+            
+            <span style={{ background: '#f8e9eb', color: '#7A1117', fontWeight: 700 }}>Tendencias</span>
+            <span style={{ background: '#f8e9eb', color: '#7A1117', fontWeight: 700 }}>Proyecciones</span>
           </div>
           <div className="report-actions">
-            <button
-              className="btn-filters"
-              onClick={() => setOpenFilterDialog(openFilterDialog === 'comparison' ? null : 'comparison')}
-              disabled={loading}
-            >
-              ⚙️ {openFilterDialog === 'comparison' ? 'Ocultar' : 'Configurar'} Filtros
-            </button>
-            <button
-              className="btn-primary full-width"
-              onClick={handleDownloadComparison}
-              disabled={loading}
-            >
-              {loading ? <span className="spinner-small"></span> : '📄'} Descargar PDF
-            </button>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button
+                className="btn-filters"
+                style={{ fontWeight: 600, borderColor: '#7A1117', color: '#7A1117' }}
+                onClick={() => setOpenFilterDialog(openFilterDialog === 'comparison' ? null : 'comparison')}
+                disabled={loading}
+              >
+                 {openFilterDialog === 'comparison' ? 'Ocultar' : 'Configurar'} Filtros
+              </button>
+              <button
+                className="btn-primary"
+                style={{ fontWeight: 700 }}
+                onClick={handleDownloadComparison}
+                disabled={loading}
+              >
+                {loading ? <span className="spinner-small"></span> : ''} Descargar PDF
+              </button>
+            </div>
           </div>
           {openFilterDialog === 'comparison' && renderComparisonFilters()}
         </div>
 
-        {/* 4. Análisis Histórico */}
-        <div className="report-card">
+        {/* Análisis Histórico */}
+        <div className="report-card" style={{ borderTop: '4px solid #7A1117', boxShadow: '0 8px 32px rgba(122,17,23,0.10)' }}>
           <div className="report-card-header">
-            <span className="report-icon">📈</span>
-            <h3>4. Análisis Histórico</h3>
+            <h3 style={{ color: '#7A1117', fontWeight: 800, fontSize: '1.25rem', margin: 0 }}>Reporte Histórico Institucional de Modalidades de Grado</h3>
           </div>
-          <p className="report-description">
-            Evolución temporal de un tipo específico de modalidad con proyecciones futuras
+          <p className="report-description" style={{ fontWeight: 500, color: '#5d0d12' }}>
+            Genera un reporte que analiza la evolución temporal de una modalidad de grado específica, incorporando estadísticas históricas, tendencias y comparativas entre periodos para apoyar la planificación académica.
           </p>
           <div className="report-stats">
-            <span>20-30 páginas</span>
-            <span>Proyecciones</span>
-            <span>KPIs</span>
+            <span style={{ background: '#f8e9eb', color: '#7A1117', fontWeight: 700 }}>Evolución temporal</span>
+
           </div>
           <div className="report-actions">
-            <button
-              className="btn-filters"
-              onClick={() => setOpenFilterDialog(openFilterDialog === 'historical' ? null : 'historical')}
-              disabled={loading}
-            >
-              ⚙️ {openFilterDialog === 'historical' ? 'Ocultar' : 'Configurar'} Filtros
-            </button>
-            <button
-              className="btn-primary full-width"
-              onClick={handleDownloadHistorical}
-              disabled={loading}
-            >
-              {loading ? <span className="spinner-small"></span> : '📄'} Descargar PDF
-            </button>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button
+                className="btn-filters"
+                style={{ fontWeight: 600, borderColor: '#7A1117', color: '#7A1117' }}
+                onClick={() => setOpenFilterDialog(openFilterDialog === 'historical' ? null : 'historical')}
+                disabled={loading}
+              >
+                 {openFilterDialog === 'historical' ? 'Ocultar' : 'Configurar'} Filtros
+              </button>
+              <button
+                className="btn-primary"
+                style={{ fontWeight: 700 }}
+                onClick={handleDownloadHistorical}
+                disabled={loading}
+              >
+                {loading ? <span className="spinner-small"></span> : ''} Descargar PDF
+              </button>
+            </div>
           </div>
           {openFilterDialog === 'historical' && renderHistoricalFilters()}
         </div>
 
-        {/* 5. Modalidades Completadas */}
-        <div className="report-card">
+        {/* Carga de Directores (RF-49) */}
+        <div className="report-card" style={{ borderTop: '4px solid #7A1117', boxShadow: '0 8px 32px rgba(122,17,23,0.10)' }}>
           <div className="report-card-header">
-            <span className="report-icon">✅</span>
-            <h3>5. Modalidades Completadas</h3>
+            <h3 style={{ color: '#7A1117', fontWeight: 800, fontSize: '1.25rem', margin: 0 }}>Reporte Institucional de Directores y Modalidades Asignadas </h3>
           </div>
-          <p className="report-description">
-            Análisis detallado de modalidades finalizadas con resultados, calificaciones y distinciones
+          <p className="report-description" style={{ fontWeight: 500, color: '#5d0d12' }}>
+            Genera un reporte institucional que consolida las modalidades de grado asignadas a los directores, incluyendo análisis de carga académica, estado y seguimiento temporal.
           </p>
           <div className="report-stats">
-            <span>Exitosas/Fallidas</span>
-            <span>Distinciones</span>
-            <span>Análisis temporal</span>
+          
+            <span style={{ background: '#f8e9eb', color: '#7A1117', fontWeight: 700 }}>Directores</span>
+            <span style={{ background: '#f8e9eb', color: '#7A1117', fontWeight: 700 }}>Sobrecarga</span>
+            <span style={{ background: '#f8e9eb', color: '#7A1117', fontWeight: 700 }}>Disponibilidad</span>
           </div>
           <div className="report-actions">
-            <button
-              className="btn-filters"
-              onClick={() => setOpenFilterDialog(openFilterDialog === 'completed' ? null : 'completed')}
-              disabled={loading}
-            >
-              ⚙️ {openFilterDialog === 'completed' ? 'Ocultar' : 'Configurar'} Filtros
-            </button>
-            <button
-              className="btn-primary full-width"
-              onClick={handleDownloadCompleted}
-              disabled={loading}
-            >
-              {loading ? <span className="spinner-small"></span> : '📄'} Descargar PDF
-            </button>
-          </div>
-          {openFilterDialog === 'completed' && renderCompletedFilters()}
-        </div>
-
-        {/* 6. Calendario de Sustentaciones */}
-        <div className="report-card">
-          <div className="report-card-header">
-            <span className="report-icon">📅</span>
-            <h3>6. Calendario de Sustentaciones</h3>
-          </div>
-          <p className="report-description">
-            Calendario completo de defensas programadas, alertas y estadísticas de jurados
-          </p>
-          <div className="report-stats">
-            <span>Próximas defensas</span>
-            <span>Alertas</span>
-            <span>20-30 páginas</span>
-          </div>
-          <div className="report-actions">
-            <button
-              className="btn-filters"
-              onClick={() => setOpenFilterDialog(openFilterDialog === 'calendar' ? null : 'calendar')}
-              disabled={loading}
-            >
-              ⚙️ {openFilterDialog === 'calendar' ? 'Ocultar' : 'Configurar'} Filtros
-            </button>
-            <button
-              className="btn-primary full-width"
-              onClick={handleDownloadCalendar}
-              disabled={loading}
-            >
-              {loading ? <span className="spinner-small"></span> : '📄'} Descargar PDF
-            </button>
-          </div>
-          {openFilterDialog === 'calendar' && renderCalendarFilters()}
-        </div>
-
-        {/* 7. Listado de Estudiantes */}
-        <div className="report-card">
-          <div className="report-card-header">
-            <span className="report-icon">👥</span>
-            <h3>7. Listado de Estudiantes</h3>
-          </div>
-          <p className="report-description">
-            Reporte detallado de estudiantes con filtros avanzados y análisis de progreso
-          </p>
-          <div className="report-stats">
-            <span>10+ filtros</span>
-            <span>Ordenamiento</span>
-            <span>Timeline</span>
-          </div>
-          <div className="report-actions">
-            <button
-              className="btn-filters"
-              onClick={() => setOpenFilterDialog(openFilterDialog === 'studentListing' ? null : 'studentListing')}
-              disabled={loading}
-            >
-              ⚙️ {openFilterDialog === 'studentListing' ? 'Ocultar' : 'Configurar'} Filtros
-            </button>
-            <button
-              className="btn-primary full-width"
-              onClick={handleDownloadStudentListing}
-              disabled={loading}
-            >
-              {loading ? <span className="spinner-small"></span> : '📄'} Descargar PDF
-            </button>
-          </div>
-          {openFilterDialog === 'studentListing' && renderStudentListingFilters()}
-        </div>
-
-        {/* 8. Desempeño de Directores (RF-49) */}
-        <div className="report-card">
-          <div className="report-card-header">
-            <span className="report-icon">👨‍🏫</span>
-            <div>
-              <h3>8. Carga de Directores</h3>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button
+                className="btn-filters"
+                style={{ fontWeight: 600, borderColor: '#7A1117', color: '#7A1117' }}
+                onClick={() => setOpenFilterDialog(openFilterDialog === 'directors' ? null : 'directors')}
+                disabled={loading}
+              >
+                 {openFilterDialog === 'directors' ? 'Ocultar' : 'Configurar'} Filtros
+              </button>
+              <button
+                className="btn-primary"
+                style={{ fontWeight: 700 }}
+                onClick={handleDownloadDirectors}
+                disabled={loading}
+              >
+                {loading ? <span className="spinner-small"></span> : ''} Descargar PDF
+              </button>
             </div>
-          </div>
-          <p className="report-description">
-            Análisis de carga de trabajo y desempeño de directores del programa
-          </p>
-          <div className="report-stats">
-            <span>Carga laboral</span>
-            <span>Sobrecarga</span>
-            <span>Disponibilidad</span>
-          </div>
-          <div className="report-actions">
-            <button
-              className="btn-filters"
-              onClick={() => setOpenFilterDialog(openFilterDialog === 'directors' ? null : 'directors')}
-              disabled={loading}
-            >
-              ⚙️ {openFilterDialog === 'directors' ? 'Ocultar' : 'Configurar'} Filtros
-            </button>
-            <button
-              className="btn-primary full-width"
-              onClick={handleDownloadDirectors}
-              disabled={loading}
-            >
-              {loading ? <span className="spinner-small"></span> : '📄'} Descargar PDF
-            </button>
           </div>
           {openFilterDialog === 'directors' && renderDirectorsFilters()}
         </div>
 
-        {/* 9. Reporte Individual de Director */}
-        <div className="report-card">
+
+        {/* Director Individual */}
+        <div className="report-card" style={{ borderTop: '4px solid #7A1117', boxShadow: '0 8px 32px rgba(122,17,23,0.10)' }}>
           <div className="report-card-header">
-            <span className="report-icon">📋</span>
-            <h3>9. Director Individual</h3>
+            <h3 style={{ color: '#7A1117', fontWeight: 800, fontSize: '1.25rem', margin: 0 }}>Reporte Institucional Individual de Directores y Modalidades Asignadas</h3>
           </div>
-          <p className="report-description">
-            Reporte completo de un director específico con todas sus modalidades asignadas
+          <p className="report-description" style={{ fontWeight: 500, color: '#5d0d12' }}>
+            Genera un reporte institucional de un director específico, detallando sus modalidades de grado asignadas, estado actual, carga académica y seguimiento temporal.
           </p>
           <div className="report-stats">
-            <span>Director específico</span>
-            <span>Detallado</span>
-            <span>10-15 páginas</span>
+          
+            <span style={{ background: '#f8e9eb', color: '#7A1117', fontWeight: 700 }}>Director específico</span>
+            <span style={{ background: '#f8e9eb', color: '#7A1117', fontWeight: 700 }}>Detallado</span>
+          
           </div>
           <div className="report-actions">
-            <button
-              className="btn-filters"
-              onClick={() => setOpenFilterDialog(openFilterDialog === 'individualDirector' ? null : 'individualDirector')}
-              disabled={loading}
-            >
-              ⚙️ {openFilterDialog === 'individualDirector' ? 'Ocultar' : 'Configurar'} Filtros
-            </button>
-            <button
-              className="btn-primary full-width"
-              onClick={handleDownloadIndividualDirector}
-              disabled={loading}
-            >
-              {loading ? <span className="spinner-small"></span> : '📄'} Descargar PDF
-            </button>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button
+                className="btn-filters"
+                style={{ fontWeight: 600, borderColor: '#7A1117', color: '#7A1117' }}
+                onClick={() => setOpenFilterDialog(openFilterDialog === 'individualDirector' ? null : 'individualDirector')}
+                disabled={loading}
+              >
+                 {openFilterDialog === 'individualDirector' ? 'Ocultar' : 'Configurar'} Filtros
+              </button>
+              <button
+                className="btn-primary"
+                style={{ fontWeight: 700 }}
+                onClick={handleDownloadIndividualDirector}
+                disabled={loading}
+              >
+                {loading ? <span className="spinner-small"></span> : ''} Descargar PDF
+              </button>
+            </div>
           </div>
           {openFilterDialog === 'individualDirector' && renderIndividualDirectorFilters()}
         </div>
+
+        {/* Modalidades Completadas */}
+        <div className="report-card" style={{ borderTop: '4px solid #7A1117', boxShadow: '0 8px 32px rgba(122,17,23,0.10)' }}>
+          <div className="report-card-header">
+            <span className="report-icon" style={{ color: '#7A1117', background: '#f8e9eb', borderRadius: '50%', padding: '0.5rem', marginRight: '0.5rem' }}>✅</span>
+            <h3 style={{ color: '#7A1117', fontWeight: 800, fontSize: '1.25rem', margin: 0 }}>Modalidades Completadas</h3>
+          </div>
+          <p className="report-description" style={{ fontWeight: 500, color: '#5d0d12' }}>
+            Análisis detallado de modalidades finalizadas con resultados, calificaciones y distinciones
+          </p>
+          <div className="report-stats">
+            <span className="report-badge rf-info">Finalizadas</span>
+            <span style={{ background: '#f8e9eb', color: '#7A1117', fontWeight: 700 }}>Exitosas/Fallidas</span>
+            <span style={{ background: '#f8e9eb', color: '#7A1117', fontWeight: 700 }}>Distinciones</span>
+            <span style={{ background: '#f8e9eb', color: '#7A1117', fontWeight: 700 }}>Análisis temporal</span>
+          </div>
+          <div className="report-actions">
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button
+                className="btn-filters"
+                style={{ fontWeight: 600, borderColor: '#7A1117', color: '#7A1117' }}
+                onClick={() => setOpenFilterDialog(openFilterDialog === 'completed' ? null : 'completed')}
+                disabled={loading}
+              >
+                ⚙️ {openFilterDialog === 'completed' ? 'Ocultar' : 'Configurar'} Filtros
+              </button>
+              <button
+                className="btn-primary"
+                style={{ fontWeight: 700 }}
+                onClick={handleDownloadCompleted}
+                disabled={loading}
+              >
+                {loading ? <span className="spinner-small"></span> : '📄'} Descargar PDF
+              </button>
+            </div>
+          </div>
+          {openFilterDialog === 'completed' && renderCompletedFilters()}
+        </div>
+
+        {/* Calendario de Sustentaciones */}
+        <div className="report-card" style={{ borderTop: '4px solid #7A1117', boxShadow: '0 8px 32px rgba(122,17,23,0.10)' }}>
+          <div className="report-card-header">
+            <span className="report-icon" style={{ color: '#7A1117', background: '#f8e9eb', borderRadius: '50%', padding: '0.5rem', marginRight: '0.5rem' }}>📅</span>
+            <h3 style={{ color: '#7A1117', fontWeight: 800, fontSize: '1.25rem', margin: 0 }}>Calendario de Sustentaciones</h3>
+          </div>
+          <p className="report-description" style={{ fontWeight: 500, color: '#5d0d12' }}>
+            Calendario completo de defensas programadas, alertas y estadísticas de jurados
+          </p>
+          <div className="report-stats">
+            <span className="report-badge rf-info">Calendario</span>
+            <span style={{ background: '#f8e9eb', color: '#7A1117', fontWeight: 700 }}>Próximas defensas</span>
+            <span style={{ background: '#f8e9eb', color: '#7A1117', fontWeight: 700 }}>Alertas</span>
+            <span style={{ background: '#f8e9eb', color: '#7A1117', fontWeight: 700 }}>20-30 páginas</span>
+          </div>
+          <div className="report-actions">
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button
+                className="btn-filters"
+                style={{ fontWeight: 600, borderColor: '#7A1117', color: '#7A1117' }}
+                onClick={() => setOpenFilterDialog(openFilterDialog === 'calendar' ? null : 'calendar')}
+                disabled={loading}
+              >
+                ⚙️ {openFilterDialog === 'calendar' ? 'Ocultar' : 'Configurar'} Filtros
+              </button>
+              <button
+                className="btn-primary"
+                style={{ fontWeight: 700 }}
+                onClick={handleDownloadCalendar}
+                disabled={loading}
+              >
+                {loading ? <span className="spinner-small"></span> : '📄'} Descargar PDF
+              </button>
+            </div>
+          </div>
+          {openFilterDialog === 'calendar' && renderCalendarFilters()}
+        </div>
+
+        {/* Listado de Estudiantes */}
+        <div className="report-card" style={{ borderTop: '4px solid #7A1117', boxShadow: '0 8px 32px rgba(122,17,23,0.10)' }}>
+          <div className="report-card-header">
+            <span className="report-icon" style={{ color: '#7A1117', background: '#f8e9eb', borderRadius: '50%', padding: '0.5rem', marginRight: '0.5rem' }}>👥</span>
+            <h3 style={{ color: '#7A1117', fontWeight: 800, fontSize: '1.25rem', margin: 0 }}>Listado de Estudiantes</h3>
+          </div>
+          <p className="report-description" style={{ fontWeight: 500, color: '#5d0d12' }}>
+            Reporte detallado de estudiantes con filtros avanzados y análisis de progreso
+          </p>
+          <div className="report-stats">
+            <span className="report-badge rf-info">Estudiantes</span>
+            <span style={{ background: '#f8e9eb', color: '#7A1117', fontWeight: 700 }}>10+ filtros</span>
+            <span style={{ background: '#f8e9eb', color: '#7A1117', fontWeight: 700 }}>Ordenamiento</span>
+            <span style={{ background: '#f8e9eb', color: '#7A1117', fontWeight: 700 }}>Timeline</span>
+          </div>
+          <div className="report-actions">
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button
+                className="btn-filters"
+                style={{ fontWeight: 600, borderColor: '#7A1117', color: '#7A1117' }}
+                onClick={() => setOpenFilterDialog(openFilterDialog === 'studentListing' ? null : 'studentListing')}
+                disabled={loading}
+              >
+                ⚙️ {openFilterDialog === 'studentListing' ? 'Ocultar' : 'Configurar'} Filtros
+              </button>
+              <button
+                className="btn-primary"
+                style={{ fontWeight: 700 }}
+                onClick={handleDownloadStudentListing}
+                disabled={loading}
+              >
+                {loading ? <span className="spinner-small"></span> : '📄'} Descargar PDF
+              </button>
+            </div>
+          </div>
+          {openFilterDialog === 'studentListing' && renderStudentListingFilters()}
+        </div>
+
+        
+
+        
       </div>
 
       {/* Footer informativo */}

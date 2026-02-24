@@ -1,4 +1,259 @@
 /* ========================================
+   INDIVIDUAL DIRECTOR FILTERS PANEL
+   ======================================== */
+.individual-director-filters-panel {
+  background: #fff;
+  border: 1.5px solid #7A1117;
+  border-radius: 14px;
+  padding: 2rem 2rem 1.5rem 2rem;
+  box-shadow: 0 4px 24px rgba(122,17,23,0.10);
+  margin-bottom: 24px;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  color: #5d0d12;
+  font-size: 1.07rem;
+  max-width: 540px;
+}
+.individual-director-alert {
+  margin-bottom: 1.5rem;
+  background: #f8e9eb;
+  color: #7A1117;
+  border-radius: 8px;
+  padding: 0.85rem 1.2rem;
+  font-weight: 600;
+  font-size: 1.04rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.individual-director-filter-group {
+  margin-bottom: 22px;
+}
+.individual-director-label {
+  font-weight: 700;
+  color: #7A1117;
+  margin-bottom: 7px;
+  display: block;
+  letter-spacing: 0.2px;
+}
+.individual-director-required {
+  color: #b71c1c;
+}
+.individual-director-select {
+  border: 1.5px solid #e6d7da;
+  border-radius: 7px;
+  padding: 8px 12px;
+  font-size: 1em;
+  color: #5d0d12;
+  outline: none;
+  font-family: inherit;
+  margin-top: 2px;
+  width: 100%;
+  box-sizing: border-box;
+  background: #f9f6f7;
+  transition: border-color 0.2s;
+  font-weight: 500;
+}
+.individual-director-checkbox-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem 1.2rem;
+}
+.individual-director-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 500;
+  cursor: pointer;
+  color: #5d0d12;
+  background: none;
+  border-radius: 5px;
+  padding: 2px 6px;
+}
+.individual-director-checkbox-input {
+  accent-color: #7A1117;
+  width: 17px;
+  height: 17px;
+  margin-right: 5px;
+  border-radius: 4px;
+  border: 1.5px solid #7A1117;
+}
+.individual-director-checkbox-group {
+  margin-bottom: 14px;
+}
+/* ========================================
+   DIRECTORS FILTERS PANEL (MODALIDADES ASIGNADAS)
+   ======================================== */
+.directors-filters-panel {
+  background: #fff;
+  border: 1px solid #e6d7da;
+  border-radius: 10px;
+  padding: 1.5rem 1.5rem 1.2rem 1.5rem;
+  box-shadow: 0 2px 12px rgba(122,17,23,0.06);
+  margin-bottom: 16px;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  color: #5d0d12;
+  font-size: 1.04rem;
+  max-width: 520px;
+}
+.directors-label {
+  font-weight: 700;
+  color: #7A1117;
+  margin-bottom: 6px;
+  display: block;
+  letter-spacing: 0.2px;
+}
+.directors-search-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.directors-search-input {
+  border: 1.5px solid #e6d7da;
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 1em;
+  color: #5d0d12;
+  outline: none;
+  font-family: inherit;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+  max-width: 220px;
+}
+.directors-clear-btn {
+  background: #f8e9eb;
+  color: #7A1117;
+  border: 1px solid #e6d7da;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 1em;
+  margin-left: 4px;
+}
+.directors-checkbox-list {
+  max-height: 200px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.directors-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 500;
+  cursor: pointer;
+  color: #5d0d12;
+}
+.directors-checkbox-input {
+  accent-color: #7A1117;
+  width: 17px;
+  height: 17px;
+  border-radius: 4px;
+  border: 1.5px solid #7A1117;
+}
+.directors-modality-group {
+  margin-bottom: 18px;
+}
+.directors-modality-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem 1.2rem;
+}
+.directors-checkbox-group {
+  margin-bottom: 10px;
+}
+/* ========================================
+   HISTORICAL FILTERS PANEL (EVOLUCIÓN)
+   ======================================== */
+.historical-filters-panel {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 1.7rem 1.5rem 1.2rem 1.5rem;
+  border-radius: 12px;
+  border: 2px solid #e0e0e0;
+  box-shadow: 0 2px 12px rgba(122,17,23,0.06);
+  margin-bottom: 1.5rem;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  color: #5d0d12;
+  font-size: 1.04rem;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.historical-alert {
+  background: #d1ecf1;
+  color: #0c5460;
+  border-left: 4px solid #17a2b8;
+  padding: 1rem 1.2rem;
+  border-radius: 8px;
+  font-size: 0.97rem;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 1.2rem;
+}
+.historical-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.historical-filter-group {
+  margin-bottom: 0.7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.historical-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #7A1117;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.2rem;
+  letter-spacing: 0.2px;
+}
+.historical-required {
+  color: #b71c1c;
+  font-weight: 700;
+  font-size: 1.1em;
+}
+.historical-hint {
+  color: #666;
+  font-size: 0.92em;
+  font-weight: 400;
+  margin-left: 0.3rem;
+}
+.historical-select {
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  background: white;
+  padding: 0.75rem;
+  transition: all 0.3s ease;
+  color: #5d0d12;
+  margin-top: 2px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.historical-select:focus {
+  outline: none;
+  border-color: #7A1117;
+  box-shadow: 0 0 0 3px rgba(122, 17, 23, 0.1);
+}
+.historical-small {
+  color: #666;
+  font-size: 0.85rem;
+  font-style: italic;
+  display: block;
+  margin-top: 0.5rem;
+}
+/* ========================================
    📊 REPORTES DEL COMITÉ - USCO VINOTINTO
    Sistema Completo de Reportes en PDF
    ======================================== */
@@ -257,7 +512,6 @@
   border-radius: 12px;
   font-size: 0.75rem;
   font-weight: 700;
-  text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
