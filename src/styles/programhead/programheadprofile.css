@@ -3,11 +3,13 @@
    ======================================== */
 
 .student-profile-container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 2rem;
-  background-color: #f4f4f4;
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 2.5rem 1.5rem;
+  background: linear-gradient(135deg, #f8f6ef 0%, #fafbfc 60%, #e8ebf0 100%);
   min-height: 100vh;
+  border-radius: 18px;
+  box-shadow: 0 8px 40px 0 rgba(122, 17, 23, 0.10);
 }
 
 /* ========================================
@@ -38,25 +40,28 @@
    ======================================== */
 
 .student-profile-header {
-  background: linear-gradient(135deg, #7A1117 0%, #5d0d12 100%);
-  color: white;
-  padding: 2.5rem;
-  border-radius: 12px;
+  background: linear-gradient(90deg, #7A1117 0%, #D5CBA0 100%);
+  color: #fff;
+  padding: 2rem 1.5rem;
+  border-radius: 18px 18px 0 0;
   margin-bottom: 2rem;
-  box-shadow: 0 8px 20px rgba(122, 17, 23, 0.4);
+  box-shadow: 0 8px 32px rgba(122, 17, 23, 0.10);
 }
 
 .student-profile-title {
   font-family: "Georgia", "Times New Roman", serif;
-  font-size: 2.2rem;
-  margin: 0 0 0.5rem 0;
-  font-weight: 600;
+  font-size: 2rem;
+  margin: 0 0 1rem 0;
+  font-weight: 900;
+  letter-spacing: 0.7px;
+  text-shadow: 0 2px 8px #7A111733;
 }
 
 .student-profile-subtitle {
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   opacity: 0.95;
   margin: 0;
+  font-weight: 600;
 }
 
 /* ========================================
@@ -64,11 +69,11 @@
    ======================================== */
 
 .student-info-card {
-  background: white;
-  border-radius: 12px;
-  padding: 2.5rem;
+  background: #fff;
+  border-radius: 18px;
+  padding: 2rem 1.5rem;
   margin-bottom: 2rem;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 32px rgba(122, 17, 23, 0.10);
   border-top: 4px solid #7A1117;
 }
 
@@ -80,25 +85,26 @@
 
 .student-info-item {
   padding: 1rem;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  border-left: 3px solid #7A1117;
+  background-color: #f8f6ef;
+  border-radius: 12px;
+  border-left: 4px solid #7A1117;
+  box-shadow: 0 2px 8px #7A111733;
 }
 
 .student-info-label {
-  font-weight: 700;
-  color: #333;
-  font-size: 0.85rem;
+  font-weight: 900;
+  color: #7A1117;
+  font-size: 0.92rem;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.6px;
   margin-bottom: 0.5rem;
   display: block;
 }
 
 .student-info-value {
-  font-size: 1.1rem;
-  color: #7A1117;
-  font-weight: 600;
+  font-size: 1.08rem;
+  color: #1a1a2e;
+  font-weight: 700;
 }
 
 .student-info-value.email {
@@ -109,13 +115,15 @@
 
 .student-info-value.status {
   display: inline-block;
-  padding: 0.75rem 1.5rem;
-  background-color: #7A1117;
+  padding: 0.65rem 1.4rem;
+  background: linear-gradient(135deg, #7A1117, #a01820);
   color: white;
   border-radius: 25px;
   font-size: 0.95rem;
   line-height: 1.4;
   max-width: 100%;
+  font-weight: 900;
+  box-shadow: 0 4px 12px #7A111733;
 }
 
 /* ========================================
@@ -123,20 +131,21 @@
    ======================================== */
 
 .documents-section {
-  background: white;
-  border-radius: 12px;
-  padding: 2.5rem;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+  background: #fff;
+  border-radius: 18px;
+  padding: 2rem 1.5rem;
+  box-shadow: 0 8px 32px rgba(122, 17, 23, 0.10);
   margin-bottom: 2rem;
 }
 
 .documents-section-title {
   font-family: "Georgia", "Times New Roman", serif;
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   color: #7A1117;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 3px solid #7A1117;
+  margin-bottom: 1.2rem;
+  padding-bottom: 0.7rem;
+  border-bottom: 2px solid #D5CBA0;
+  font-weight: 900;
 }
 
 /* ========================================
@@ -169,27 +178,28 @@
 
 .documents-table-wrapper {
   overflow-x: auto;
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 14px;
+  box-shadow: 0 4px 16px #7A111733;
 }
 
 .documents-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0 0.5rem;
   min-width: 900px;
 }
 
 .documents-table thead {
-  background: linear-gradient(135deg, #7A1117 0%, #5d0d12 100%);
-  color: white;
+  background: linear-gradient(135deg, #7A1117 0%, #D5CBA0 100%);
+  color: #fff;
 }
 
 .documents-table th {
-  padding: 1.25rem 1rem;
+  padding: 1rem 1.2rem;
   text-align: left;
   font-family: "Georgia", "Times New Roman", serif;
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-size: 0.98rem;
+  font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   white-space: nowrap;
@@ -209,10 +219,11 @@
 }
 
 .documents-table td {
-  padding: 1.25rem 1rem;
-  font-size: 0.95rem;
-  color: #333;
+  padding: 1rem 1.2rem;
+  font-size: 0.98rem;
+  color: #1a1a2e;
   vertical-align: top;
+  font-weight: 700;
 }
 
 /* ========================================
@@ -224,32 +235,33 @@
   padding: 0.5rem 1rem;
   border-radius: 20px;
   font-size: 0.85rem;
-  font-weight: 700;
+  font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.3px;
   white-space: nowrap;
+  box-shadow: 0 2px 8px #7A111733;
 }
 
 .doc-status-badge.accepted {
-  background-color: #d4edda;
+  background: linear-gradient(135deg, #d4edda 0%, #c8e6c9 100%);
   color: #155724;
   border: 2px solid #28a745;
 }
 
 .doc-status-badge.rejected {
-  background-color: #fde1e1;
+  background: linear-gradient(135deg, #fde1e1 0%, #ffcdd2 100%);
   color: #7A1117;
   border: 2px solid #7A1117;
 }
 
 .doc-status-badge.corrections {
-  background-color: #fff3cd;
+  background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
   color: #856404;
   border: 2px solid #ffc107;
 }
 
 .doc-status-badge.pending {
-  background-color: #d1ecf1;
+  background: linear-gradient(135deg, #d1ecf1 0%, #b2ebf2 100%);
   color: #0c5460;
   border: 2px solid #17a2b8;
 }
@@ -302,34 +314,37 @@
 }
 
 .doc-btn-view {
-  background-color: #7A1117;
+  background: linear-gradient(135deg, #7A1117 0%, #a01820 100%);
   color: white;
+  font-weight: 900;
 }
 
 .doc-btn-view:hover:not(:disabled) {
-  background-color: #5d0d12;
+  background: linear-gradient(135deg, #5d0d12 0%, #7A1117 100%);
   transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(122, 17, 23, 0.3);
+  box-shadow: 0 8px 20px rgba(122, 17, 23, 0.4);
 }
 
 .doc-btn-review {
-  background-color: #17a2b8;
+  background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
   color: white;
+  font-weight: 900;
 }
 
 .doc-btn-review:hover:not(:disabled) {
-  background-color: #138496;
+  background: linear-gradient(135deg, #138496 0%, #17a2b8 100%);
   transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(23, 162, 184, 0.3);
+  box-shadow: 0 8px 20px rgba(23, 162, 184, 0.4);
 }
 
 .doc-btn-cancel {
-  background-color: #6c757d;
+  background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
   color: white;
+  font-weight: 900;
 }
 
 .doc-btn-cancel:hover:not(:disabled) {
-  background-color: #5a6268;
+  background: linear-gradient(135deg, #5a6268 0%, #6c757d 100%);
   transform: translateY(-2px);
 }
 
@@ -367,19 +382,19 @@
 .review-panel {
   margin-top: 1rem;
   padding: 1.5rem;
-  background: linear-gradient(135deg, #f9f9f9 0%, #ffffff 100%);
-  border-radius: 10px;
+  background: linear-gradient(135deg, #f8f6ef 0%, #fff 100%);
+  border-radius: 14px;
   border: 2px solid #7A1117;
-  box-shadow: 0 4px 12px rgba(122, 17, 23, 0.15);
+  box-shadow: 0 4px 16px #7A111733;
   animation: slideDown 0.3s ease-out;
 }
 
 .review-panel-title {
   font-family: "Georgia", "Times New Roman", serif;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   color: #7A1117;
   margin-bottom: 1.25rem;
-  font-weight: 600;
+  font-weight: 900;
 }
 
 .review-form-group {
@@ -466,10 +481,10 @@
    ======================================== */
 
 .approve-all-section {
-  background: white;
-  border-radius: 12px;
-  padding: 2.5rem;
-  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+  background: #fff;
+  border-radius: 18px;
+  padding: 2rem 1.5rem;
+  box-shadow: 0 8px 32px rgba(122, 17, 23, 0.10);
   margin-bottom: 2rem;
   border-top: 4px solid #7A1117;
 }
@@ -538,12 +553,12 @@
 
 .card-section-title {
   font-family: "Georgia", "Times New Roman", serif;
-  font-size: 1.3rem;
+  font-size: 1.15rem;
   color: #7A1117;
-  margin: 0 0 1.5rem 0;
-  font-weight: 600;
-  padding-bottom: 0.75rem;
-  border-bottom: 2px solid #e0e0e0;
+  margin: 0 0 1.2rem 0;
+  font-weight: 900;
+  padding-bottom: 0.7rem;
+  border-bottom: 2px solid #D5CBA0;
 }
 
 .student-info-value.distinction {
@@ -763,12 +778,12 @@
 
 .back-btn {
   padding: 0.85rem 2.5rem;
-  background-color: #6c757d;
+  background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
   color: white;
   border: none;
   border-radius: 10px;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 900;
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 3px 8px rgba(108, 117, 125, 0.3);

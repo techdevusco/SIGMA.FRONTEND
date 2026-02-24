@@ -213,7 +213,7 @@ export default function StudentProfileProgramHead() {
       <div className="student-profile-header">
         <h2 className="student-profile-title">Perfil del Estudiante</h2>
         <p className="student-profile-subtitle">
-          Revisa y aprueba los documentos de la modalidad de grado
+          Revisa y aprueba los documentos de la modalidad de grado, verificando que cumplan con los requisitos académicos y lineamientos establecidos antes de emitir tu concepto.
         </p>
       </div>
 
@@ -313,7 +313,7 @@ export default function StudentProfileProgramHead() {
 
       {/* Modality Info Card */}
       <div className="student-info-card">
-        <h3 className="card-section-title">📚 Información de la Modalidad</h3>
+        <h3 className="card-section-title"> Información de la Modalidad</h3>
         <div className="student-info-grid">
           <div className="student-info-item">
             <span className="student-info-label">Modalidad</span>
@@ -397,24 +397,26 @@ export default function StudentProfileProgramHead() {
       </div>
 
       {/* Documents Statistics */}
-      <div className="documents-stats-card">
-        <h3 className="card-section-title">📊 Estadísticas de Documentos</h3>
-        <div className="stats-grid">
-          <div className="stat-item total">
-            <div className="stat-number">{profile.totalDocuments || 0}</div>
-            <div className="stat-label">Total</div>
+      <div className="documents-stats-card" style={{background: 'linear-gradient(135deg, #f8f6ef 0%, #fafbfc 60%, #e8ebf0 100%)', borderRadius: '18px', boxShadow: '0 8px 32px rgba(122,17,23,0.10)', marginBottom: '2.5rem'}}>
+        <h3 className="card-section-title" style={{fontSize: '1.25rem', color: '#7A1117', fontWeight: 900, marginBottom: '1.2rem', letterSpacing: '0.5px', display: 'flex', alignItems: 'center', gap: '0.7rem'}}>
+          <span style={{fontSize: '1.7rem'}}>📊</span> Estadísticas de Documentos
+        </h3>
+        <div className="stats-grid" style={{gap: '2rem', marginTop: '1.2rem'}}>
+          <div className="stat-item total" style={{background: 'linear-gradient(135deg, #7A1117 0%, #D5CBA0 100%)', color: 'white', borderRadius: '14px', boxShadow: '0 4px 16px #7A111733'}}>
+            <div className="stat-number" style={{fontSize: '2.2rem', fontWeight: 900, marginBottom: '0.5rem'}}> {profile.totalDocuments || 0} </div>
+            <div className="stat-label" style={{fontWeight: 700, letterSpacing: '0.5px'}}>Total</div>
           </div>
-          <div className="stat-item approved">
-            <div className="stat-number">{profile.approvedDocuments || 0}</div>
-            <div className="stat-label">Aprobados</div>
+          <div className="stat-item approved" style={{background: 'linear-gradient(135deg, #28a745 0%, #D5CBA0 100%)', color: 'white', borderRadius: '14px', boxShadow: '0 4px 16px #7A111733'}}>
+            <div className="stat-number" style={{fontSize: '2.2rem', fontWeight: 900, marginBottom: '0.5rem'}}> {profile.approvedDocuments || 0} </div>
+            <div className="stat-label" style={{fontWeight: 700, letterSpacing: '0.5px'}}>Aprobados</div>
           </div>
-          <div className="stat-item pending">
-            <div className="stat-number">{profile.pendingDocuments || 0}</div>
-            <div className="stat-label">Pendientes</div>
+          <div className="stat-item pending" style={{background: 'linear-gradient(135deg, #ffc107 0%, #D5CBA0 100%)', color: '#7A1117', borderRadius: '14px', boxShadow: '0 4px 16px #7A111733'}}>
+            <div className="stat-number" style={{fontSize: '2.2rem', fontWeight: 900, marginBottom: '0.5rem'}}> {profile.pendingDocuments || 0} </div>
+            <div className="stat-label" style={{fontWeight: 700, letterSpacing: '0.5px'}}>Pendientes</div>
           </div>
-          <div className="stat-item rejected">
-            <div className="stat-number">{profile.rejectedDocuments || 0}</div>
-            <div className="stat-label">Rechazados</div>
+          <div className="stat-item rejected" style={{background: 'linear-gradient(135deg, #fde1e1 0%, #7A1117 100%)', color: '#7A1117', borderRadius: '14px', boxShadow: '0 4px 16px #7A111733'}}>
+            <div className="stat-number" style={{fontSize: '2.2rem', fontWeight: 900, marginBottom: '0.5rem'}}> {profile.rejectedDocuments || 0} </div>
+            <div className="stat-label" style={{fontWeight: 700, letterSpacing: '0.5px'}}>Rechazados</div>
           </div>
         </div>
       </div>

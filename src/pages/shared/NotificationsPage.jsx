@@ -106,13 +106,13 @@ export default function NotificationsPage() {
           className={`tab ${filter === "all" ? "active" : ""}`}
           onClick={() => setFilter("all")}
         >
-          Todas ({notifications.length})
+          Todas <span className="tab-count">({notifications.length})</span>
         </button>
         <button
           className={`tab ${filter === "unread" ? "active" : ""}`}
           onClick={() => setFilter("unread")}
         >
-          Sin leer ({unreadCount})
+          Sin leer <span className="tab-count">({unreadCount})</span>
         </button>
       </div>
 
@@ -131,7 +131,7 @@ export default function NotificationsPage() {
             {filteredNotifications.map((notification) => (
               <div
                 key={notification.id}
-                className={`notification-item ${!notification.read ? "unread" : ""}`}
+                className={`notification-item${!notification.read ? " unread" : ""}`}
               >
                 <div className="notification-main">
                   <div className="notification-icon-container">
