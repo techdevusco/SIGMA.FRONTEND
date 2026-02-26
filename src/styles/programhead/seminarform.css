@@ -64,7 +64,7 @@
   gap: 2rem;
   margin-bottom: 3.5rem;
   padding: 2.5rem;
-  background: linear-gradient(135deg, white 0%, var(--lighter-bg) 100%);
+  background:  #5d0d12;
   border-radius: 20px;
   box-shadow: var(--shadow-md);
   border: 1px solid var(--border-color);
@@ -122,15 +122,12 @@
   flex: 1;
   min-width: 300px;
   font-size: 2.5rem;
-  color: var(--primary-color);
+  color: #fff;
   margin: 0;
   font-family: 'Georgia', 'Times New Roman', serif;
   font-weight: 700;
   letter-spacing: -1px;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.05);
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   background-clip: text;
   position: relative;
   z-index: 1;
@@ -177,7 +174,7 @@
   margin: 0;
   font-weight: 600;
   letter-spacing: 0.8px;
-  text-transform: uppercase;
+  
 }
 
 /* ========================================
@@ -271,7 +268,7 @@
   border-bottom: 3px solid var(--primary-color);
   font-weight: 700;
   letter-spacing: -0.3px;
-  text-transform: uppercase;
+  
   font-family: 'Georgia', 'Times New Roman', serif;
 }
 
@@ -281,13 +278,11 @@
 
 .form-group label {
   display: block;
-  font-weight: 700;
-  color: var(--text-dark);
-  margin-bottom: 0.9rem;
-  font-size: 0.95rem;
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
-  color: var(--primary-color);
+  font-weight: 900;
+  color: #7A1117;
+  font-size: 1rem;
+  letter-spacing: 0.6px;
+  
 }
 
 .form-group label .required {
@@ -312,10 +307,10 @@
 
 .form-control:focus {
   outline: none;
-  border-color: var(--primary-color);
+  border-color: #7A1117;
   box-shadow: 0 0 0 5px rgba(122, 17, 23, 0.15);
   transform: translateY(-2px);
-  background: white;
+  background: #fff;
 }
 
 .form-control:hover:not(:focus) {
@@ -496,13 +491,20 @@ textarea.form-control {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
-  color: white;
+  background: linear-gradient(135deg, #7A1117 0%, #5d0d12 100%);
+  color: #fff;
+  font-weight: 900;
+  font-size: 1.08rem;
+  box-shadow: 0 8px 20px rgba(122, 17, 23, 0.18);
+  letter-spacing: 0.5px;
 }
 
 .btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #5d0d12 0%, #7A1117 100%);
+  color: #FFD700;
+  border: 2px solid #7A1117;
+  box-shadow: 0 12px 32px rgba(122, 17, 23, 0.25);
   transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(122, 17, 23, 0.4);
 }
 
 .btn-secondary {

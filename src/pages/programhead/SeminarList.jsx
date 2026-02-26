@@ -91,7 +91,7 @@ export default function SeminarList() {
       <div className="seminar-list-header">
         <div>
           <h1 className="seminar-list-title">Gestión de Seminarios</h1>
-          <p className="seminar-list-subtitle">Adminstra todos tus seminarios desde aquí</p>
+          <p className="seminar-list-subtitle">Administra, organiza y supervisa los seminarios académicos y sus participantes.</p>
         </div>
         <button 
           className="btn btn-primary" 

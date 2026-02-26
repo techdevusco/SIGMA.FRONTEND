@@ -106,11 +106,11 @@ export default function SeminarForm() {
     const totalHoursVal = parseInt(formData.totalHours) || 0;
 
     if (minPart < 15) {
-      newErrors.minParticipants = "Mínimo 15 participantes requeridos (Artículo 43)";
+      newErrors.minParticipants = "Mínimo 15 participantes requeridos";
     }
 
     if (maxPart > 35) {
-      newErrors.maxParticipants = "Máximo 35 participantes permitidos (Artículo 43)";
+      newErrors.maxParticipants = "Máximo 35 participantes permitidos";
     }
 
     if (minPart > maxPart) {
@@ -118,7 +118,7 @@ export default function SeminarForm() {
     }
 
     if (totalHoursVal < 160) {
-      newErrors.totalHours = "Mínimo 160 horas requeridas (Artículo 42)";
+      newErrors.totalHours = "Mínimo 160 horas requeridas";
     }
 
     if (totalCostVal <= 0) {
@@ -223,7 +223,9 @@ export default function SeminarForm() {
         {/* Nombre */}
         <div className="form-group">
           <label htmlFor="name">
-            Nombre del Seminario <span className="required">*</span>
+            <span style={{ color: '#7A1117', fontWeight: 900, letterSpacing: '0.6px' }}>
+              Nombre del Seminario <span className="required">*</span>
+            </span>
           </label>
           <input
             type="text"
@@ -235,13 +237,16 @@ export default function SeminarForm() {
             className={errors.name ? "form-control is-invalid" : "form-control"}
             disabled={submitting}
             required
+            style={{ borderColor: errors.name ? '#e74c3c' : '#7A1117', fontWeight: 700, fontSize: '1.05rem', color: '#1a1a2e', background: '#fff' }}
           />
           {errors.name && <small className="error-text">{errors.name}</small>}
         </div>
 
         {/* Descripción */}
         <div className="form-group">
-          <label htmlFor="description">Descripción</label>
+          <label htmlFor="description">
+            <span style={{ color: '#7A1117', fontWeight: 900, letterSpacing: '0.6px' }}>Descripción</span>
+          </label>
           <textarea
             id="description"
             name="description"
@@ -251,6 +256,7 @@ export default function SeminarForm() {
             className="form-control"
             rows={4}
             disabled={submitting}
+            style={{ borderColor: '#7A1117', fontWeight: 600, fontSize: '1.05rem', color: '#1a1a2e', background: '#fff' }}
           />
           <small className="form-hint">Campo opcional pero recomendado</small>
         </div>
@@ -260,7 +266,7 @@ export default function SeminarForm() {
           {/* Costo Total */}
           <div className="form-group">
             <label htmlFor="totalCost">
-              Costo Total (COP) <span className="required">*</span>
+              <span style={{ color: '#7A1117', fontWeight: 900, letterSpacing: '0.6px' }}>Costo Total (COP) <span className="required">*</span></span>
             </label>
             <input
               type="text"
@@ -273,6 +279,7 @@ export default function SeminarForm() {
               className={errors.totalCost ? "form-control is-invalid" : "form-control"}
               disabled={submitting}
               required
+              style={{ borderColor: errors.totalCost ? '#e74c3c' : '#7A1117', fontWeight: 700, fontSize: '1.05rem', color: '#1a1a2e', background: '#fff' }}
             />
             {errors.totalCost && <small className="error-text">{errors.totalCost}</small>}
           </div>
@@ -280,7 +287,7 @@ export default function SeminarForm() {
           {/* Total de Horas */}
           <div className="form-group">
             <label htmlFor="totalHours">
-              Total de Horas <span className="required">*</span>
+              <span style={{ color: '#7A1117', fontWeight: 900, letterSpacing: '0.6px' }}>Total de Horas <span className="required">*</span></span>
             </label>
             <input
               type="number"
@@ -293,15 +300,16 @@ export default function SeminarForm() {
               className={errors.totalHours ? "form-control is-invalid" : "form-control"}
               disabled={submitting}
               required
+              style={{ borderColor: errors.totalHours ? '#e74c3c' : '#7A1117', fontWeight: 700, fontSize: '1.05rem', color: '#1a1a2e', background: '#fff' }}
             />
             {errors.totalHours && <small className="error-text">{errors.totalHours}</small>}
-            <small className="form-hint">Mínimo 160 horas (Artículo 42)</small>
+            <small className="form-hint">Mínimo 160 horas requeridas</small>
           </div>
 
           {/* Mínimo de Participantes */}
           <div className="form-group">
             <label htmlFor="minParticipants">
-              Mínimo de Participantes <span className="required">*</span>
+              <span style={{ color: '#7A1117', fontWeight: 900, letterSpacing: '0.6px'  }}>Mínimo de Participantes <span className="required">*</span></span>
             </label>
             <input
               type="number"
@@ -315,15 +323,16 @@ export default function SeminarForm() {
               className={errors.minParticipants ? "form-control is-invalid" : "form-control"}
               disabled={submitting}
               required
+              style={{ borderColor: errors.minParticipants ? '#e74c3c' : '#7A1117', fontWeight: 700, fontSize: '1.05rem', color: '#1a1a2e', background: '#fff' }}
             />
             {errors.minParticipants && <small className="error-text">{errors.minParticipants}</small>}
-            <small className="form-hint">Mínimo 15 (Artículo 43)</small>
+            <small className="form-hint">Mínimo 15 participantes requeridos</small>
           </div>
 
           {/* Máximo de Participantes */}
           <div className="form-group">
             <label htmlFor="maxParticipants">
-              Máximo de Participantes <span className="required">*</span>
+              <span style={{ color: '#7A1117', fontWeight: 900, letterSpacing: '0.6px' }}>Máximo de Participantes <span className="required">*</span></span>
             </label>
             <input
               type="number"
@@ -337,19 +346,20 @@ export default function SeminarForm() {
               className={errors.maxParticipants ? "form-control is-invalid" : "form-control"}
               disabled={submitting}
               required
+              style={{ borderColor: errors.maxParticipants ? '#e74c3c' : '#7A1117', fontWeight: 700, fontSize: '1.05rem', color: '#1a1a2e', background: '#fff' }}
             />
             {errors.maxParticipants && <small className="error-text">{errors.maxParticipants}</small>}
-            <small className="form-hint">Máximo 35 (Artículo 43)</small>
+            <small className="form-hint">Máximo 35 participantes</small>
           </div>
         </div>
 
         {/* Información de Ayuda */}
         <div className="form-info-box">
-          <h4>📋 Requisitos del Seminario</h4>
+          <h4 style={{ color: '#7A1117', fontWeight: 900, fontSize: '1.15rem', letterSpacing: '0.5px' }}> Requisitos del Seminario</h4>
           <ul>
-            <li>✓ Mínimo 15 participantes para iniciar (Artículo 43)</li>
-            <li>✓ Máximo 35 participantes (Artículo 43)</li>
-            <li>✓ Mínimo 160 horas de intensidad (Artículo 42)</li>
+            <li> Mínimo 15 participantes para iniciar </li>
+            <li> Máximo 35 participantes </li>
+            <li> Mínimo 160 horas de intensidad</li>
           </ul>
         </div>
 
@@ -360,6 +370,7 @@ export default function SeminarForm() {
             className="btn btn-secondary"
             onClick={() => navigate(-1)}
             disabled={submitting}
+            style={{ fontWeight: 900, fontSize: '1.05rem', borderRadius: '12px', letterSpacing: '0.5px' }}
           >
             Cancelar
           </button>
@@ -368,6 +379,7 @@ export default function SeminarForm() {
             type="submit"
             className="btn btn-primary"
             disabled={submitting}
+            style={{ fontWeight: 900, fontSize: '1.08rem', borderRadius: '12px', letterSpacing: '0.5px', background: 'linear-gradient(135deg, #7A1117 0%, #5d0d12 100%)', color: '#fff', boxShadow: '0 8px 20px rgba(122, 17, 23, 0.18)' }}
           >
             {submitting
               ? "Guardando..."

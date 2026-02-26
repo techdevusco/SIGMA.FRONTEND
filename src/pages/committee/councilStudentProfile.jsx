@@ -244,41 +244,137 @@ export default function CommitteeStudentProfile() {
 
       {/* Student Info */}
       <div className="student-info-card">
-        <h3 className="card-section-title">👤 Información del Estudiante</h3>
-        <div className="student-info-grid">
-          <div className="student-info-item">
-            <span className="student-info-label">Nombre Completo</span>
-            <span className="student-info-value">{profile.studentName} {profile.studentLastName}</span>
+        <h3 className="card-section-title"> Información del Estudiante</h3>
+        {/* Si hay miembros, mostrar todos; si no, mostrar el estudiante principal */}
+        {Array.isArray(profile.members) && profile.members.length > 0 ? (
+          <div className="student-group-list">
+            {profile.members.map((member, idx) => (
+              <div
+                className="student-group-member-block"
+                key={member.studentCode || idx}
+                style={{
+                  marginBottom: "2rem",
+                  padding: "1.5rem",
+                  border: "2px solid #7A1117",
+                  borderRadius: "16px",
+                  background: "#fff",
+                  boxShadow: "0 2px 8px rgba(122,17,23,0.08)",
+                }}
+              >
+                <h4 style={{
+                  color: "#7A1117",
+                  marginBottom: "1rem",
+                  fontWeight: 700,
+                  fontSize: "1.15rem",
+                  letterSpacing: "0.02em",
+                }}>
+                  Estudiante {idx + 1}
+                </h4>
+                <div className="student-info-grid">
+                  <div className="student-info-item">
+                    <span className="student-info-label">Nombre Completo</span>
+                    <span className="student-info-value">
+                      {member.studentName} {member.studentLastName}
+                    </span>
+                  </div>
+                  <div className="student-info-item">
+                    <span className="student-info-label">Correo institucional</span>
+                    <span className="student-info-value">
+                      {member.studentEmail}
+                    </span>
+                  </div>
+                  <div className="student-info-item">
+                    <span className="student-info-label">Código Estudiantil</span>
+                    <span className="student-info-value">
+                      {member.studentCode || "N/A"}
+                    </span>
+                  </div>
+                  <div className="student-info-item">
+                    <span className="student-info-label">Programa Académico</span>
+                    <span className="student-info-value">
+                      {profile.academicProgramName}
+                    </span>
+                  </div>
+                  <div className="student-info-item">
+                    <span className="student-info-label">Facultad</span>
+                    <span className="student-info-value">
+                      {profile.facultyName}
+                    </span>
+                  </div>
+                  <div className="student-info-item">
+                    <span className="student-info-label">Créditos Aprobados</span>
+                    <span className="student-info-value">
+                      {member.approvedCredits || "N/A"}
+                    </span>
+                  </div>
+                  <div className="student-info-item">
+                    <span className="student-info-label">Promedio Ponderado Actual</span>
+                    <span className="student-info-value">
+                      {member.gpa || "N/A"}
+                    </span>
+                  </div>
+                  <div className="student-info-item">
+                    <span className="student-info-label">Semestre Cursado</span>
+                    <span className="student-info-value">
+                      {member.semester || "N/A"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
-          <div className="student-info-item">
-            <span className="student-info-label">Correo Institucional</span>
-            <span className="student-info-value email">{profile.studentEmail}</span>
+        ) : (
+          <div className="student-info-grid">
+            <div className="student-info-item">
+              <span className="student-info-label">Nombre Completo</span>
+              <span className="student-info-value">
+                {profile.studentName} {profile.studentLastName}
+              </span>
+            </div>
+            <div className="student-info-item">
+              <span className="student-info-label">Correo Institucional</span>
+              <span className="student-info-value email">
+                {profile.studentEmail}
+              </span>
+            </div>
+            <div className="student-info-item">
+              <span className="student-info-label">Código Estudiantil</span>
+              <span className="student-info-value">
+                {profile.studentCode || "N/A"}
+              </span>
+            </div>
+            <div className="student-info-item">
+              <span className="student-info-label">Programa Académico</span>
+              <span className="student-info-value">
+                {profile.academicProgramName}
+              </span>
+            </div>
+            <div className="student-info-item">
+              <span className="student-info-label">Facultad</span>
+              <span className="student-info-value">
+                {profile.facultyName}
+              </span>
+            </div>
+            <div className="student-info-item">
+              <span className="student-info-label">Créditos Aprobados</span>
+              <span className="student-info-value">
+                {profile.approvedCredits || "N/A"}
+              </span>
+            </div>
+            <div className="student-info-item">
+              <span className="student-info-label">Promedio Ponderado</span>
+              <span className="student-info-value">
+                {profile.gpa || "N/A"}
+              </span>
+            </div>
+            <div className="student-info-item">
+              <span className="student-info-label">Semestre Cursado</span>
+              <span className="student-info-value">
+                {profile.semester || "N/A"}
+              </span>
+            </div>
           </div>
-          <div className="student-info-item">
-            <span className="student-info-label">Código Estudiantil</span>
-            <span className="student-info-value">{profile.studentCode || "N/A"}</span>
-          </div>
-          <div className="student-info-item">
-            <span className="student-info-label">Programa Académico</span>
-            <span className="student-info-value">{profile.academicProgramName}</span>
-          </div>
-          <div className="student-info-item">
-            <span className="student-info-label">Facultad</span>
-            <span className="student-info-value">{profile.facultyName}</span>
-          </div>
-          <div className="student-info-item">
-            <span className="student-info-label">Créditos Aprobados</span>
-            <span className="student-info-value">{profile.approvedCredits || "N/A"}</span>
-          </div>
-          <div className="student-info-item">
-            <span className="student-info-label">Promedio Ponderado</span>
-            <span className="student-info-value">{profile.gpa || "N/A"}</span>
-          </div>
-          <div className="student-info-item">
-            <span className="student-info-label">Semestre Cursado</span>
-            <span className="student-info-value">{profile.semester || "N/A"}</span>
-          </div>
-        </div>
+        )}
       </div>
 
       {/* Modality Info */}
@@ -376,7 +472,7 @@ export default function CommitteeStudentProfile() {
 <div className="documents-card">
   <div className="documents-card-header">
     <div>
-      <h3 className="documents-title">Documentos de la Modalidad</h3>
+      <h3 className="documents-title" style={{ color: '#5d0d12' }}>Documentos de la Modalidad</h3>
       <p className="documents-subtitle">
         Revisión y validación de los soportes académicos presentados por el estudiante
       </p>
@@ -413,8 +509,8 @@ export default function CommitteeStudentProfile() {
                   </td>
 
                   <td>
-                    <span className={`mandatory-badge ${doc.mandatory ? "yes" : "no"}`}>
-                      {doc.mandatory ? "Sí" : "No"}
+                    <span className={`mandatory-badge ${doc.documentType === "MANDATORY" ? "yes" : "no"}`}>
+                      {doc.documentType === "MANDATORY" ? "Sí" : "No"}
                     </span>
                   </td>
 
@@ -546,6 +642,70 @@ export default function CommitteeStudentProfile() {
   </div>
 </div>
 
+
+
+
+      {/* Stepper de aprobación — solo para modalidades que NO son de decisión final */}
+      {!isFinalDecision && (
+        <div className="approve-all-section">
+          <h4 className="stepper-title">Pasos para aprobar la modalidad</h4>
+
+          {/* Paso 1: Documentos */}
+          <div className={`stepper-step ${step1Ok ? "step-done" : "step-pending"}`}>
+            <span className="step-icon">{step1Ok ? "✅" : "⏳"}</span>
+            <span className="step-label">Documentos obligatorios aceptados</span>
+            {!step1Ok && (
+              <div className="step-hint">
+                {uploadedMandatory.length < mandatoryDocs.length
+                  ? `El estudiante debe cargar todos los documentos (${uploadedMandatory.length}/${mandatoryDocs.length})`
+                  : "Debes aceptar todos los documentos obligatorios"}
+              </div>
+            )}
+          </div>
+
+          {/* Paso 2: Director */}
+          <div className={`stepper-step ${step2Ok ? "step-done" : "step-pending"}`}>
+            <div className="step-header">
+              <span className="step-icon">{step2Ok ? "✅" : "❌"}</span>
+              <span className="step-label">
+                Director de proyecto
+                {step2Ok && <em className="step-value"> — {profile.projectDirectorName}</em>}
+              </span>
+              {!step2Ok && (
+                <button
+                  onClick={() => setShowAssignDirectorModal(true)}
+                  className="step-action-btn"
+                >
+                  Asignar Director
+                </button>
+              )}
+              {step2Ok && (
+                <button
+                  onClick={() => setShowChangeDirectorModal(true)}
+                  className="step-action-btn step-action-secondary"
+                >
+                  Cambiar
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Botón final */}
+          <div className="approve-all-content" style={{ marginTop: "1.5rem" }}>
+            <button
+              onClick={handleApproveModality}
+              disabled={!canApproveModality || submitting}
+              className={`approve-all-btn ${canApproveModality ? "enabled" : "disabled"}`}
+            >
+              {submitting ? "Procesando..." : "Aprobar Modalidad Para Inicio"}
+            </button>
+            {!canApproveModality && (
+              <div className="approve-warning">⚠️ Completa todos los pasos requeridos antes de aprobar</div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Committee Actions */}
       <div className="council-actions-section">
         <div className="council-actions-premium-card">
@@ -564,7 +724,7 @@ export default function CommitteeStudentProfile() {
               <button
                 onClick={() => setShowAssignDirectorModal(true)}
                 className="council-action-btn assign-director premium"
-                style={{ background: 'linear-gradient(135deg, #D5CBA0 0%, #7A1117 100%)', color: '#fff', border: '1px solid #D5CBA0', borderRadius: '12px', boxShadow: '0 4px 16px rgba(122,17,23,0.10)' }}
+                style={{ background: 'linear-gradient(135deg, #5d0d12 0%, #7A1117 100%)', color: '#fff', border: '1px solid #D5CBA0', borderRadius: '12px', boxShadow: '0 4px 16px rgba(122,17,23,0.10)' }}
               >
                 <span className="action-text premium">Asignar Director</span>
               </button>
@@ -573,7 +733,7 @@ export default function CommitteeStudentProfile() {
               <button
                 onClick={() => setShowChangeDirectorModal(true)}
                 className="council-action-btn change-director premium"
-                style={{ background: 'linear-gradient(135deg, #D5CBA0 0%, #f59e0b 100%)', color: '#7A1117', border: '1px solid #D5CBA0', borderRadius: '12px', boxShadow: '0 4px 16px rgba(122,17,23,0.10)' }}
+                style={{ background: 'linear-gradient(135deg, #5d0d12 0%, #7A1117 100%)', color: '#fff', border: '1px solid #D5CBA0', borderRadius: '12px', boxShadow: '0 4px 16px rgba(122,17,23,0.10)' }}
               >
                 <span className="action-text premium">Cambiar Director</span>
               </button>
@@ -581,8 +741,8 @@ export default function CommitteeStudentProfile() {
             {!isFinalDecision && (
               <button
                 onClick={() => setShowAssignExaminersModal(true)}
-                className="council-action-btn premium"
-                style={{ background: 'linear-gradient(135deg, #D5CBA0 0%, #6d28d9 100%)', color: '#fff', border: '1px solid #D5CBA0', borderRadius: '12px', boxShadow: '0 4px 16px rgba(122,17,23,0.10)' }}
+                className="council-action-btn assign-director premium"
+                style={{ background: 'linear-gradient(135deg, #5d0d12 0%, #7A1117 100%)', color: '#fff', border: '1px solid #D5CBA0', borderRadius: '12px', boxShadow: '0 4px 16px rgba(122,17,23,0.10)' }}
               >
                 <span className="action-text premium">Asignar Jueces de Sustentación</span>
               </button>
@@ -590,8 +750,8 @@ export default function CommitteeStudentProfile() {
             {!isModalityClosed && (
               <button
                 onClick={() => setShowCloseModalityModal(true)}
-                className="council-action-btn close-modality premium"
-                style={{ background: 'linear-gradient(135deg, #dc2626 0%, #D5CBA0 100%)', color: '#fff', border: '1px solid #D5CBA0', borderRadius: '12px', boxShadow: '0 4px 16px rgba(122,17,23,0.10)' }}
+                className="council-action-btn assign-director premium"
+                style={{ background: 'linear-gradient(135deg, #5d0d12 0%, #7A1117 100%)', color: '#fff', border: '1px solid #D5CBA0', borderRadius: '12px', boxShadow: '0 4px 16px rgba(122,17,23,0.10)' }}
               >
                 <span className="action-text premium">Cerrar Modalidad</span>
               </button>
