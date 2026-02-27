@@ -489,7 +489,7 @@ function DocumentCard({
               >
                 {sendingDocId === doc.requiredDocumentId
                   ? "Actualizando..."
-                  : "🔄 Actualizar documento"}
+                  : " Actualizar documento"}
               </button>
             </div>
           ) : (

@@ -115,7 +115,7 @@ export default function ModalityStatus() {
       <div className="status-container">
         <div className="status-error-container">
           <div className="status-error-card">
-            <div className="status-error-icon">📋</div>
+            <div className="status-error-icon"></div>
             <h2 className="status-error-title">Estado de la modalidad</h2>
             <div className="status-error-message">{error}</div>
           </div>
@@ -125,103 +125,47 @@ export default function ModalityStatus() {
   }
 
   return (
+
     <div className="status-container">
-      {/* Header */}
-      <div className="status-header">
-        <h2 className="status-title">Estado de la Modalidad</h2>
+      {/* Header institucional simple */}
+      <div className="status-header status-header-clean" style={{background: '#5d0d12'}}>
+        <h2 className="status-title status-title-clean" style={{color: '#fff'}}>Estado de la Modalidad</h2>
       </div>
 
-      {/* Mensaje de feedback */}
+      {/* Mensaje de feedback profesional */}
       {message && (
-        <div className={`status-message ${message.includes("Error") || message.includes("error") ? "error" : "success"}`}>
-          {message}
+        <div className={`status-message status-message-clean ${message.includes("Error") || message.includes("error") ? "error" : "success"}`}>
+          <span className="status-message-icon">{message.includes("Error") || message.includes("error") ? "⚠️" : "✔️"}</span>
+          <span>{message}</span>
         </div>
       )}
 
-      {/* Información principal */}
-      <div className="status-main-card">
-        <div className="status-info-grid">
-          <div className="status-info-item">
-            <span className="status-label">Modalidad</span>
-            <span className="status-value">{data.modalityName}</span>
-          </div>
-
-          <div className="status-info-item">
-            <span className="status-label">Estado actual</span>
-            <span className="status-current-badge">{getStatusLabel(data.currentStatus)}</span>
-          </div>
-
-          {data.currentStatusDescription && (
-            <div className="status-description">
-              {data.currentStatusDescription}
-            </div>
-          )}
-
-          <div className="status-info-item">
-            <span className="status-label">Última actualización</span>
-            <span className="status-date">
-              {new Date(data.lastUpdatedAt).toLocaleString('es-CO', {
-                dateStyle: 'long',
-                timeStyle: 'short'
-              })}
-            </span>
-          </div>
-          {/* Información del Director de Proyecto */}
-      {data.projectDirectorName && (
-        <div className="status-section">
-          <h3 className="status-section-title">Director de Proyecto</h3>
-          <div className="status-info-card">
-            <div className="status-info-grid">
-              <div className="status-info-item">
-                <span className="status-label">Nombre</span>
-                <span className="status-value">{data.projectDirectorName}</span>
-              </div>
-              <div className="status-info-item">
-                <span className="status-label">Email</span>
-                <span className="status-value">{data.projectDirectorEmail}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-       {/* Información de Sustentación */}
-      <div className="status-section">
-        <h3 className="status-section-title">Información de Sustentación</h3>
-        <div className="status-info-card">
+      {/* Información principal en formato lista */}
+      <ul className="status-list">
+        <li><strong>Modalidad:</strong> {data.modalityName}</li>
+        <li><strong>Estado actual:</strong> <span className="status-current-badge">{getStatusLabel(data.currentStatus)}</span></li>
+        {data.currentStatusDescription && (
+          <li><strong>Descripción:</strong> {data.currentStatusDescription}</li>
+        )}
+        <li><strong>Última actualización:</strong> <span className="status-date">{new Date(data.lastUpdatedAt).toLocaleString('es-CO', {dateStyle: 'long', timeStyle: 'short'})}</span></li>
+        {data.projectDirectorName && (
+          <li><strong>Director de Proyecto:</strong> {data.projectDirectorName} <span style={{marginLeft: '1rem', color: '#888', fontSize: '0.95rem'}}>{data.projectDirectorEmail}</span></li>
+        )}
+        <li>
+          <strong>Información de Sustentación:</strong>
           {data.defenseDate ? (
-            <div className="status-info-grid">
-              <div className="status-info-item">
-                <span className="status-label">Fecha programada</span>
-                <span className="status-value">
-                  {new Date(data.defenseDate).toLocaleString('es-CO', {
-                    dateStyle: 'full',
-                    timeStyle: 'short'
-                  })}
-                </span>
-              </div>
-              <div className="status-info-item">
-                <span className="status-label">Lugar</span>
-                <span className="status-value">{data.defenseLocation || "No especificado"}</span>
-              </div>
+            <span style={{marginLeft: '0.5rem'}}>
+              <span><strong>Fecha:</strong> {new Date(data.defenseDate).toLocaleString('es-CO', {dateStyle: 'full', timeStyle: 'short'})}</span>
+              <span style={{marginLeft: '1rem'}}><strong>Lugar:</strong> {data.defenseLocation || "No especificado"}</span>
               {data.defenseProposedByProjectDirector && (
-                <div className="status-info-note">
-                  ℹ️ {data.defenseProposedByProjectDirector}
-                </div>
+                <span style={{marginLeft: '1rem', color: '#856404'}}>{data.defenseProposedByProjectDirector}</span>
               )}
-            </div>
+            </span>
           ) : (
-            <div className="status-info-empty">
-              <div className="status-info-empty-icon"></div>
-              <p>Aún no se ha programado la fecha de sustentación</p>
-              <small style={{ color: "#666", marginTop: "0.5rem" }}>
-                Se te notificará cuando tu director o el comité programen la sustentación
-              </small>
-            </div>
+            <span style={{marginLeft: '0.5rem', color: '#888'}}>Aún no se ha programado la fecha de sustentación. Se te notificará cuando tu director o el comité programen la sustentación.</span>
           )}
-        </div>
-      </div>
-        </div>
-      </div>
+        </li>
+      </ul>
 
       {/* Estadísticas de Documentos */}
       <div className="status-section">

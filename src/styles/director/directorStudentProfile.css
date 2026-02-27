@@ -1,3 +1,128 @@
+/* Sección institucional: Proponer Sustentación */
+.director-propose-defense-section {
+  background: #fff;
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2.5rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10);
+  border: 1.5px solid #B7A873;
+}
+
+.director-propose-defense-block {
+  background: linear-gradient(135deg, #f8f6ef 60%, #fdf6e3 100%);
+  border: 2.5px solid #B7A873;
+  border-radius: 18px;
+  box-shadow: 0 8px 24px rgba(183, 168, 115, 0.13);
+  padding: 2rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.2rem;
+}
+
+.director-propose-defense-header {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-size: 1.25rem;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-weight: 700;
+  color: #5d0d12;
+}
+
+.director-propose-defense-icon {
+  font-size: 1.5rem;
+}
+
+.director-propose-defense-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #5d0d12;
+}
+
+.director-propose-defense-message {
+  font-size: 1rem;
+  color: #222;
+  line-height: 1.7;
+}
+
+.director-propose-defense-btn {
+  background: #5d0d12;
+  color: #fff;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 1.1rem;
+  font-weight: 900;
+  padding: 0.9rem 2.2rem;
+  border-radius: 12px;
+  border: 2px solid #B7A873;
+  box-shadow: 0 2px 8px #7A111733;
+  transition: background 0.2s, border 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  letter-spacing: 0.03em;
+}
+.director-propose-defense-btn:disabled {
+  background: #9ca3af;
+  border: 2px solid #6b7280;
+  color: #fff;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.director-propose-defense-btn:hover:not(:disabled) {
+  background: #B7A873;
+  color: #7A1117;
+  border: 2px solid #7A1117;
+  box-shadow: 0 4px 16px #7A111733;
+}
+.director-notify-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 2.5rem 0 1.5rem 0;
+  gap: 0.7rem;
+}
+
+.director-notify-btn {
+  background: #1d4ed8;
+  color: #fff;
+  font-family: "Georgia", "Times New Roman", serif;
+  font-size: 1.25rem;
+  font-weight: 900;
+  padding: 1.1rem 2.5rem;
+  border-radius: 18px;
+  border: 3px solid #1e3a8a;
+  box-shadow: 0 4px 16px #1d4ed833;
+  transition: background 0.2s, border 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.03em;
+}
+.director-notify-btn.disabled {
+  background: #9ca3af;
+  border: 3px solid #6b7280;
+  color: #fff;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.director-notify-btn.loading {
+  background: #5d0d12;
+  color: #fff;
+  cursor: wait;
+}
+
+.director-notify-warning {
+  color: #dc2626;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-align: center;
+  margin-top: 0.2rem;
+  background: #fffbe6;
+  border-radius: 8px;
+  padding: 0.4rem 1rem;
+  border-left: 4px solid #dc2626;
+  box-shadow: 0 2px 8px #dc262633;
+}
 
 
 .director-profile-container {
@@ -263,7 +388,7 @@
 .director-documents-title {
   font-family: 'Georgia', 'Times New Roman', serif;
   font-size: 1.3rem;
-  color: #7A1117;
+  color: #5d0d12;
   margin: 0 0 1.5rem 0;
   font-weight: 700;
   display: flex;
@@ -301,7 +426,7 @@
   padding: 1rem 1rem;
   text-align: left;
   font-weight: 700;
-  text-transform: uppercase;
+  
   letter-spacing: 0.5px;
   font-size: 0.8rem;
 }
@@ -364,7 +489,7 @@
   border-radius: 20px;
   font-size: 0.8rem;
   font-weight: 700;
-  text-transform: uppercase;
+  
   letter-spacing: 0.3px;
 }
 
@@ -626,7 +751,7 @@
   font-weight: 700;
   color: #333;
   margin-bottom: 0.75rem;
-  text-transform: uppercase;
+  
   letter-spacing: 0.3px;
 }
 
@@ -679,8 +804,8 @@
 }
 
 .director-btn-cancel {
-  background: #B7A873;
-  color: #5d0d12;
+  background: #5d0d12;
+  color: #fff;
 }
 
 .director-btn-cancel:hover {

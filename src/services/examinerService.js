@@ -430,3 +430,22 @@ export const getSuggestedDecision = (grade) => {
   if (gradeNum < 4.5) return EXAMINER_DECISIONS.APPROVED_MERITORIOUS;
   return EXAMINER_DECISIONS.APPROVED_LAUREATE;
 };
+
+// ========================================
+// 📊 OBTENER EVALUACIÓN FINAL REGISTRADA (JUEZ)
+// ========================================
+/**
+ * Obtener la evaluación final registrada por el juez autenticado para una modalidad
+ * Endpoint: GET /modalities/{studentModalityId}/examiner-evaluation
+ *
+ * @param {number} studentModalityId - ID de la modalidad del estudiante
+ * @returns {Promise<Object>} Objeto con la evaluación registrada o success: false si no existe
+ *
+ * @example
+ * getExaminerEvaluation(24)
+ */
+export const getExaminerEvaluation = async (studentModalityId) => {
+  console.log("📊 Obteniendo evaluación registrada para modalidad:", studentModalityId);
+  const response = await axios.get(`/modalities/${studentModalityId}/examiner-evaluation`);
+  return response.data;
+};

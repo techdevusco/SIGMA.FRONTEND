@@ -1,0 +1,79 @@
+.examiner-doc-finalize-block {
+  background: linear-gradient(135deg, #f8f6ef 60%, #fdf6e3 100%);
+  border: 2px solid #B7A873;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(122, 17, 23, 0.08);
+  padding: 2rem 2.5rem;
+  margin: 2.5rem 0 1.5rem 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.2rem;
+}
+
+.examiner-doc-finalize-header {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-size: 1.25rem;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-weight: 700;
+  color: #7A1117;
+}
+
+.examiner-doc-finalize-icon {
+  font-size: 1.5rem;
+}
+
+.examiner-doc-finalize-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #7A1117;
+}
+
+.examiner-doc-finalize-message {
+  font-size: 1rem;
+  color: #222;
+  line-height: 1.7;
+}
+
+.examiner-doc-finalize-bold {
+  font-weight: 700;
+  color: #222;
+  font-size: 1.05rem;
+}
+
+.examiner-doc-finalize-alert {
+  color: #7A1117;
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.examiner-doc-finalize-btn {
+  background: #7A1117;
+  color: #fff;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 1.1rem;
+  font-weight: 900;
+  padding: 0.9rem 2.2rem;
+  border-radius: 12px;
+  border: 2px solid #B7A873;
+  box-shadow: 0 2px 8px #7A111733;
+  transition: background 0.2s, border 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  letter-spacing: 0.03em;
+}
+.examiner-doc-finalize-btn:disabled {
+  background: #9ca3af;
+  border: 2px solid #6b7280;
+  color: #fff;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.examiner-doc-finalize-btn:hover:not(:disabled) {
+  background: #B7A873;
+  color: #7A1117;
+  border: 2px solid #7A1117;
+  box-shadow: 0 4px 16px #7A111733;
+}

@@ -1,3 +1,4 @@
+import '../../styles/examiner/examinerStudentProfile.css';
 // Traducción de tipo de documento
 const translateDocumentType = (type) => {
   switch (type) {
@@ -49,15 +50,14 @@ import {
   registerEvaluation,
   finalizeReviewAsExaminer,
   approveModalityByExaminer,
-  getStatusLabel,
-  getDocumentStatusLabel,
   formatDate,
   getErrorMessage,
   EXAMINER_DOCUMENT_STATUS,
   EXAMINER_DECISIONS,
   isGradeConsistentWithDecision,
   getSuggestedDecision,
-  getExaminerTypeForModality
+  getExaminerTypeForModality,
+  getExaminerEvaluation
 } from "../../services/examinerService";
 import ConfirmModal from "../../components/ConfirmModal";
 import "../../styles/examiners/examinerstudentprofile.css";
@@ -95,6 +95,8 @@ const [examinerRoleError, setExaminerRoleError] = useState(null);
   const [submittingEvaluation, setSubmittingEvaluation] = useState(false);
   const [confirmAction, setConfirmAction] = useState(null);
 
+  const [registeredEvaluation, setRegisteredEvaluation] = useState(null);
+
   useEffect(() => {
   if (!studentModalityId) return;
 
@@ -128,10 +130,19 @@ const fetchExaminerRole = async () => {
       const data = await getExaminerStudentProfile(studentModalityId);
       console.log("📋 Perfil completo:", data);
       setProfile(data);
+      // Obtener evaluación registrada del backend
+      const evalData = await getExaminerEvaluation(studentModalityId);
+      if (evalData && evalData.success) {
+        setRegisteredEvaluation(evalData);
+      } else {
+        setRegisteredEvaluation(null);
+      }
     } catch (err) {
       console.error("Error:", err);
       setMessage("Error al cargar el perfil del estudiante");
       setMessageType("error");
+      setProfile(null);
+      setRegisteredEvaluation(null);
     } finally {
       setLoading(false);
     }
@@ -782,16 +793,23 @@ const fetchExaminerRole = async () => {
 
           {/* Botón Finalizar Revisión (READY_FOR_DEFENSE) */}
           {canFinalizeReview() && (
-            <div className="examiner-doc-finalize">
-              <p>
-                 Todos los documentos obligatorios han sido aprobados. Puedes finalizar la revisión para notificar al director.
-              </p>
+            <div className="examiner-doc-finalize-block">
+              <div className="examiner-doc-finalize-header">
+                <span className="examiner-doc-finalize-icon"></span>
+                <span className="examiner-doc-finalize-title">Finalizar Revisión de Documentos</span>
+              </div>
+              <div className="examiner-doc-finalize-message">
+                <span>Los documentos correspondientes a la modalidad de grado del estudiante han sido cargados en el sistema.</span><br />
+                <span className="examiner-doc-finalize-bold">Por favor realiza una revisión integral y detallada de cada uno, verificando que cumplan con los requisitos académicos y lineamientos establecidos.</span><br />
+                <span>Si los documentos se encuentran completos y alineados al marco institucional, puedes finalizar la revisión.</span><br />
+                <span className="examiner-doc-finalize-alert">Esto notificará al director y permitirá avanzar con la programación de la sustentación.</span>
+              </div>
               <button
                 onClick={handleFinalizeReview}
                 disabled={finalizingReview}
                 className="examiner-doc-finalize-btn"
               >
-                {finalizingReview ? "⏳ Finalizando..." : "📋 Listo para Sustentación"}
+                {finalizingReview ? "⏳ Finalizando..." : " Listo para Sustentación"}
               </button>
             </div>
           )}
@@ -807,115 +825,168 @@ const fetchExaminerRole = async () => {
       {/* Evaluation Section */}
       {canEvaluate() && (
         <div className="examiner-eval-section">
-          <h3 className="examiner-profile-card-title"> Evaluación de la Sustentación</h3>
-
-          {!showEvaluationForm ? (
-            <div className="examiner-eval-empty">
-              <div className="examiner-eval-icon">📊</div>
-              <h3 className="examiner-eval-title">Registrar Evaluación Final</h3>
-              <p className="examiner-eval-text">
-                Califica la sustentación del estudiante
-              </p>
-              <button
-                onClick={() => setShowEvaluationForm(true)}
-                className="examiner-form-submit"
-              >
-                ✍️ Registrar Evaluación
-              </button>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmitEvaluation}>
-              <div className="examiner-form-group">
-                <label className="examiner-form-label">Calificación (0.0 - 5.0) *</label>
-                <select
-                  value={evaluationData.grade}
-                  onChange={(e) => handleGradeChange(e.target.value)}
-                  className="examiner-form-select"
-                  disabled={submittingEvaluation}
-                  required
-                >
-                  <option value="">Seleccionar calificación...</option>
-                  <option value="0.0">0.0</option>
-                  <option value="0.5">0.5</option>
-                  <option value="1.0">1.0</option>
-                  <option value="1.5">1.5</option>
-                  <option value="2.0">2.0</option>
-                  <option value="2.5">2.5</option>
-                  <option value="3.0">3.0</option>
-                  <option value="3.5">3.5</option>
-                  <option value="4.0">4.0</option>
-                  <option value="4.5">4.5</option>
-                  <option value="5.0">5.0</option>
-                </select>
-              </div>
-
-              <div className="examiner-form-group">
-                <label className="examiner-form-label">Decisión *</label>
-                <select
-                  value={evaluationData.decision}
-                  onChange={(e) => setEvaluationData({ ...evaluationData, decision: e.target.value })}
-                  className="examiner-form-select"
-                  disabled={submittingEvaluation}
-                  required
-                >
-                  <option value="">Seleccionar...</option>
-                  <option value={EXAMINER_DECISIONS.REJECTED}>❌ Reprobado (0.0 - 2.9)</option>
-                  <option value={EXAMINER_DECISIONS.APPROVED_NO_DISTINCTION}>✅ Aprobado (3.0 - 3.9)</option>
-                  <option value={EXAMINER_DECISIONS.APPROVED_MERITORIOUS}>🏅 Meritorio (4.0 - 4.4)</option>
-                  <option value={EXAMINER_DECISIONS.APPROVED_LAUREATE}>🏆 Laureado (4.5 - 5.0)</option>
-                </select>
-              </div>
-
-              <div className="examiner-form-group">
-                <label className="examiner-form-label">Observaciones *</label>
-                <textarea
-                  value={evaluationData.observations}
-                  onChange={(e) => setEvaluationData({ ...evaluationData, observations: e.target.value })}
-                  rows="6"
-                  placeholder="Observaciones detalladas..."
-                  className="examiner-form-textarea"
-                  disabled={submittingEvaluation}
-                  required
-                />
-              </div>
-
-              <div className="examiner-form-actions">
+          <h3 className="examiner-profile-card-title">Evaluación de la Sustentación</h3>
+          <div className="examiner-eval-block">
+            {!showEvaluationForm ? (
+              <div className="examiner-eval-empty">
+                <div className="examiner-eval-icon">📝</div>
+                <h3 className="examiner-eval-title">Registrar Evaluación Final</h3>
+                <div className="examiner-eval-message">
+                  <span className="examiner-eval-alert">Todos los documentos han sido aprobados.</span><br/>
+                  Una vez realizada la sustentación, debes registrar en este apartado la calificación que fue otorgada al estudiante durante la sesión.<br/>
+                  <span style={{color:'#7A1117',fontWeight:600}}>Recuerda:</span> Asegúrate de consignar exactamente la nota definida y comunicada en el momento de la evaluación, junto con las observaciones correspondientes.<br/>
+                  <span style={{color:'#B7A873'}}>La información registrada debe reflejar fielmente la decisión adoptada y el desempeño evidenciado por el estudiante durante la sustentación.</span>
+                </div>
                 <button
-                  type="button"
-                  onClick={() => {
-                    setShowEvaluationForm(false);
-                    setEvaluationData({ grade: "", decision: "", observations: "" });
-                  }}
-                  className="examiner-doc-btn cancel"
-                  disabled={submittingEvaluation}
-                  style={{ flex: 1 }}
+                  onClick={() => setShowEvaluationForm(true)}
+                  className="examiner-eval-btn"
                 >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="examiner-form-submit"
-                  disabled={submittingEvaluation}
-                  style={{ flex: 1 }}
-                >
-                  {submittingEvaluation ? "Registrando..." : "Registrar Evaluación"}
+                 Registrar Evaluación
                 </button>
               </div>
-            </form>
-          )}
+            ) : (
+              <form onSubmit={handleSubmitEvaluation} className="examiner-eval-form">
+                <div className="examiner-form-group">
+                  <label className="examiner-form-label">Calificación (0.0 - 5.0) *</label>
+                  <select
+                    value={evaluationData.grade}
+                    onChange={(e) => handleGradeChange(e.target.value)}
+                    className="examiner-form-select"
+                    disabled={submittingEvaluation}
+                    required
+                  >
+                    <option value="">Seleccionar calificación...</option>
+                    <option value="0.0">0.0</option>
+                    <option value="0.5">0.5</option>
+                    <option value="1.0">1.0</option>
+                    <option value="1.5">1.5</option>
+                    <option value="2.0">2.0</option>
+                    <option value="2.5">2.5</option>
+                    <option value="3.0">3.0</option>
+                    <option value="3.5">3.5</option>
+                    <option value="4.0">4.0</option>
+                    <option value="4.5">4.5</option>
+                    <option value="5.0">5.0</option>
+                  </select>
+                </div>
+                <div className="examiner-form-group">
+                  <label className="examiner-form-label">Decisión *</label>
+                  <select
+                    value={evaluationData.decision}
+                    onChange={(e) => setEvaluationData({ ...evaluationData, decision: e.target.value })}
+                    className="examiner-form-select"
+                    disabled={submittingEvaluation}
+                    required
+                  >
+                    <option value="">Seleccionar...</option>
+                    <option value={EXAMINER_DECISIONS.REJECTED}> Reprobado (0.0 - 2.9)</option>
+                    <option value={EXAMINER_DECISIONS.APPROVED_NO_DISTINCTION}> Aprobado (3.0 - 3.9)</option>
+                    <option value={EXAMINER_DECISIONS.APPROVED_MERITORIOUS}> Meritorio (4.0 - 4.4)</option>
+                    <option value={EXAMINER_DECISIONS.APPROVED_LAUREATE}> Laureado (4.5 - 5.0)</option>
+                  </select>
+                </div>
+                <div className="examiner-form-group">
+                  <label className="examiner-form-label">Observaciones *</label>
+                  <textarea
+                    value={evaluationData.observations}
+                    onChange={(e) => setEvaluationData({ ...evaluationData, observations: e.target.value })}
+                    rows="6"
+                    placeholder="Observaciones detalladas..."
+                    className="examiner-form-textarea"
+                    disabled={submittingEvaluation}
+                    required
+                  />
+                </div>
+                <div className="examiner-form-actions">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowEvaluationForm(false);
+                      setEvaluationData({ grade: "", decision: "", observations: "" });
+                    }}
+                    className="examiner-doc-btn cancel"
+                    disabled={submittingEvaluation}
+                    style={{ flex: 1 }}
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    className="examiner-eval-btn"
+                    disabled={submittingEvaluation}
+                    style={{ flex: 1 }}
+                  >
+                    {submittingEvaluation ? "Registrando..." : "Registrar Evaluación"}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
         </div>
       )}
 
       {/* Already Evaluated */}
-      {hasEvaluated() && (
-        <div className="examiner-eval-completed">
-          <div className="examiner-eval-completed-icon">✅</div>
-          <h3 className="examiner-eval-completed-title">Evaluación Completada</h3>
-          <p className="examiner-eval-completed-text">
-            Ya registraste tu evaluación para esta sustentación
-          </p>
-        </div>
-      )}
+      {hasEvaluated() && registeredEvaluation && (() => {
+        let decisionLabel = '';
+        switch (registeredEvaluation.decision) {
+          case 'REJECTED':
+            decisionLabel = ' Reprobado';
+            break;
+          case 'APPROVED_NO_DISTINCTION':
+            decisionLabel = ' Aprobado';
+            break;
+          case 'APPROVED_MERITORIOUS':
+            decisionLabel = ' Meritorio';
+            break;
+          case 'APPROVED_LAUREATE':
+            decisionLabel = ' Laureado';
+            break;
+          default:
+            decisionLabel = registeredEvaluation.decision;
+        }
+        let examinerTypeLabel = '';
+        switch (registeredEvaluation.examinerType) {
+          case 'PRIMARY_EXAMINER_1':
+            examinerTypeLabel = 'Juez Principal 1';
+            break;
+          case 'PRIMARY_EXAMINER_2':
+            examinerTypeLabel = 'Juez Principal 2';
+            break;
+          case 'TIEBREAKER_EXAMINER':
+            examinerTypeLabel = 'Juez de Desempate';
+            break;
+          default:
+            examinerTypeLabel = registeredEvaluation.examinerType;
+        }
+        return (
+          <section className="examiner-eval-completed-block">
+            <h3 className="examiner-eval-completed-title">Evaluación Final Registrada</h3>
+            <div className="examiner-eval-completed-grid">
+              <div className="eval-row">
+                <span className="eval-label">Calificación:</span>
+                <span className="eval-value examiner-eval-date">{registeredEvaluation.grade}</span>
+              </div>
+              <div className="eval-row">
+                <span className="eval-label">Decisión:</span>
+                <span className="eval-value examiner-eval-date">{decisionLabel}</span>
+              </div>
+              <div className="eval-row">
+                <span className="eval-label">Observaciones:</span>
+                <span className="eval-value examiner-eval-date">{registeredEvaluation.observations}</span>
+              </div>
+              <div className="eval-row">
+                <span className="eval-label">Fecha de Evaluación:</span>
+                <span className="eval-value examiner-eval-date">{registeredEvaluation.evaluationDate ? new Date(registeredEvaluation.evaluationDate).toLocaleString("es-CO", { dateStyle: "medium", timeStyle: "short" }) : "-"}</span>
+              </div>
+              <div className="eval-row">
+                <span className="eval-label">Tipo de Jurado:</span>
+                <span className="eval-value examiner-eval-date">{examinerTypeLabel}</span>
+              </div>
+              
+            </div>
+          </section>
+        );
+      })()}
 
       <button
           onClick={() => navigate("/examiner")}

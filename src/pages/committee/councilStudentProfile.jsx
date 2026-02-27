@@ -656,7 +656,7 @@ export default function CommitteeStudentProfile() {
           {/* Paso 1: Documentos */}
           <div className="student-info-item stepper-step" style={{ marginBottom: '1.5rem' }}>
             
-            <span className={`student-info-value${step1Ok ? ' done' : ''}`}>Documentos obligatorios aceptados</span>
+            <span className={`student-info-value${step1Ok ? ' done' : ''}`}>1. Documentos obligatorios aceptados</span>
             {!step1Ok && (
               <div className="stepper-info-hint">
                 {uploadedMandatory.length < mandatoryDocs.length
@@ -671,7 +671,7 @@ export default function CommitteeStudentProfile() {
           <div className="student-info-item stepper-step" style={{ marginBottom: '1.5rem' }}>
             <div className="step-header">
               <span className={`student-info-value${step2Ok ? ' done' : ''}`}>
-                Asignar director de proyecto
+                2. Asignar director de proyecto
                 {step2Ok && <em className="step-value"> — {profile.projectDirectorName}</em>}
               </span>
               {!step2Ok && (
@@ -697,7 +697,7 @@ export default function CommitteeStudentProfile() {
           <div className="student-info-item stepper-step" style={{ marginBottom: '1.5rem' }}>
             <div className="step-header">
               <span className={`student-info-value${step3Ok ? ' done' : ''}`}>
-                Asignar jueces e iniciar modalidad
+                3. Asignar jueces e iniciar modalidad
                 {step3Ok && profile.examiners && profile.examiners.length > 0 && (
                   <em className="step-value"> — {profile.examiners.map(e => e.name).join(', ')}</em>
                 )}

@@ -1,3 +1,107 @@
+.status-list {
+  list-style: none;
+  padding: 2rem 2.5rem;
+  margin: 2rem 0;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px #7A111733;
+  font-family: "Georgia", "Times New Roman", serif;
+  font-size: 1.13rem;
+  color: #222;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.status-list li {
+  padding: 0.7rem 0.5rem;
+  border-bottom: 1px solid #f2e9d5;
+  display: flex;
+  align-items: center;
+  font-size: 1.13rem;
+}
+
+.status-list li:last-child {
+  border-bottom: none;
+}
+
+.status-list strong {
+  color: #7A1117;
+  font-weight: 900;
+  margin-right: 0.5rem;
+  font-size: 1.13rem;
+}
+
+.status-current-badge {
+  display: inline-block;
+  padding: 0.5rem 1.2rem;
+  background: linear-gradient(90deg, #D5CBA0 0%, #f9f6e7 100%);
+  color: #7A1117;
+  border-radius: 18px;
+  font-size: 1.08rem;
+  font-weight: 900;
+  margin-left: 0.5rem;
+  box-shadow: 0 2px 8px #D5CBA033;
+  border: 2px solid #B7A873;
+  letter-spacing: 0.5px;
+  font-family: "Georgia", "Times New Roman", serif;
+}
+.status-header-clean {
+  background: #fff;
+  color: #7A1117;
+  padding: 2.5rem 2rem 1.5rem 2rem;
+  border-radius: 24px 24px 0 0;
+  box-shadow: 0 8px 32px #7A111733;
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-bottom: 4px solid #D5CBA0;
+}
+
+.status-title-clean {
+  font-family: "Georgia", "Times New Roman", serif;
+  font-size: 2.3rem;
+  margin: 0;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-shadow: 0 2px 8px #D5CBA033;
+  color: #7A1117;
+  text-align: center;
+}
+
+.status-message-clean {
+  background: #f8f6ef;
+  color: #7A1117;
+  border-left: 6px solid #D5CBA0;
+  box-shadow: 0 2px 8px #D5CBA033;
+  font-size: 1.13rem;
+  font-family: "Georgia", "Times New Roman", serif;
+  font-weight: 700;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.status-message-clean.error {
+  background: #fde1e1;
+  color: #a01820;
+  border-left: 6px solid #a01820;
+}
+
+.status-message-clean.success {
+  background: #f8f6ef;
+  color: #7A1117;
+  border-left: 6px solid #D5CBA0;
+}
+
+.status-message-icon {
+  font-size: 1.5rem;
+  margin-right: 0.5rem;
+}
 /* ========================================
    MODALITY STATUS - STUDENT DASHBOARD
    ======================================== */

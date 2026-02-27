@@ -18,6 +18,7 @@ import {
 } from "../../services/directorService";
 import ConfirmModal from "../../components/ConfirmModal";
 import "../../styles/director/directorStudentProfile.css";
+import "../../styles/council/studentprofile.css";
 
 export default function DirectorStudentProfile() {
   const { studentModalityId } = useParams();
@@ -44,6 +45,9 @@ export default function DirectorStudentProfile() {
   });
   const [rejectReason, setRejectReason] = useState("");
   const [confirmAction, setConfirmAction] = useState(null); // { type, title, message, variant }
+
+  const [approvingCancellation, setApprovingCancellation] = useState(false);
+  const [rejectingCancellation, setRejectingCancellation] = useState(false);
 
   useEffect(() => {
     fetchStudentDetail();
@@ -164,12 +168,18 @@ export default function DirectorStudentProfile() {
   };
 
   const handleApproveCancellation = async () => {
-    setConfirmAction({
-      type: "approveCancellation",
-      title: "Aprobar Cancelación",
-      message: "¿Estás seguro de aprobar esta solicitud de cancelación?",
-      variant: "danger",
-    });
+    setApprovingCancellation(true);
+    try {
+      const response = await approveModalityCancellationByDirector(studentModalityId);
+      setMessage(response.message || "Cancelación aprobada. Será enviada al comité.");
+      fetchStudentDetail();
+      setTimeout(() => setMessage(""), 5000);
+    } catch (err) {
+      console.error("Error approving cancellation:", err);
+      setMessage("Error al aprobar cancelación: " + getErrorMessage(err));
+    } finally {
+      setApprovingCancellation(false);
+    }
   };
 
   const executeConfirmAction = async () => {
@@ -199,6 +209,7 @@ export default function DirectorStudentProfile() {
         setNotifyingExaminers(false);
       }
     } else if (action.type === "approveCancellation") {
+      setApprovingCancellation(true);
       try {
         const response = await approveModalityCancellationByDirector(studentModalityId);
         setMessage(response.message || "Cancelación aprobada. Será enviada al comité.");
@@ -207,18 +218,15 @@ export default function DirectorStudentProfile() {
       } catch (err) {
         console.error("Error approving cancellation:", err);
         setMessage("Error al aprobar cancelación: " + getErrorMessage(err));
+      } finally {
+        setApprovingCancellation(false);
       }
     }
   };
 
   const handleRejectCancellation = async (e) => {
     e.preventDefault();
-
-    if (!rejectReason.trim()) {
-      setMessage("Debe proporcionar un motivo para rechazar la cancelación");
-      return;
-    }
-
+    setRejectingCancellation(true);
     try {
       const response = await rejectModalityCancellationByDirector(studentModalityId, rejectReason);
       setMessage(response.message || "Cancelación rechazada. El estudiante continuará con la modalidad.");
@@ -230,6 +238,8 @@ export default function DirectorStudentProfile() {
     } catch (err) {
       console.error("Error rejecting cancellation:", err);
       setMessage("Error al rechazar cancelación: " + getErrorMessage(err));
+    } finally {
+      setRejectingCancellation(false);
     }
   };
 
@@ -296,54 +306,12 @@ export default function DirectorStudentProfile() {
       {/* Header */}
       <div className="director-profile-header">
         <div className="director-profile-header-content">
-          <button
-            onClick={() => navigate('/project-director')}
-            className="director-btn-cancel"
-            style={{ marginBottom: "1rem" }}
-          >
-            ← Volver al Dashboard
-          </button>
+          
           <h1 className="director-profile-title">Perfil del Estudiante</h1>
           <p className="director-profile-subtitle">Información completa sobre el estudiante, su progreso académico, modalidad de grado y estado de sus documentos.</p>
         </div>
        
-        <div className="director-profile-actions">
-          {canProposeDefense(student.currentStatus) && (
-            <button
-              onClick={() => setShowDefenseModal(true)}
-              className="director-btn-submit"
-              style={{ border: "3px solid #000" }}
-            >
-              📅 Proponer Sustentación
-            </button>
-          )}
-          {canNotifyExaminers(student.currentStatus) && (
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "0.25rem" }}>
-              <button
-                onClick={handleNotifyExaminers}
-                disabled={notifyingExaminers || !allRequiredDocsUploaded()}
-                className="director-btn-submit"
-                title={
-                  !allRequiredDocsUploaded()
-                    ? "El estudiante debe subir todos los documentos obligatorios antes de notificar al jurado"
-                    : "Notificar al jurado que la modalidad está lista para defensa"
-                }
-                style={{
-                  background: allRequiredDocsUploaded() ? "#1d4ed8" : "#9ca3af",
-                  border: `3px solid ${allRequiredDocsUploaded() ? "#1e3a8a" : "#6b7280"}`,
-                  cursor: allRequiredDocsUploaded() ? "pointer" : "not-allowed",
-                }}
-              >
-                {notifyingExaminers ? "⏳ Notificando..." : "🔔 Notificar al Jurado"}
-              </button>
-              {!allRequiredDocsUploaded() && (
-                <small style={{ color: "#dc2626", fontSize: "0.75rem", textAlign: "right" }}>
-                  ⚠️ Faltan documentos obligatorios
-                </small>
-              )}
-            </div>
-          )}
-        </div>
+       
       </div>
 
       {message && (
@@ -357,29 +325,137 @@ export default function DirectorStudentProfile() {
     
 
       {/* Información del Estudiante */}
-      <div className="director-profile-card">
-        <h3 className="director-profile-card-title"> Información del Estudiante</h3>
-        <div className="director-profile-grid">
-          <div className="director-profile-item">
-            <span className="director-profile-label">Nombre Completo</span>
-            <span className="director-profile-value">{student.studentName} {student.studentLastName}</span>
+      <div className="student-info-card">
+        <h3 className="card-section-title"> Información del Estudiante</h3>
+        {Array.isArray(student.members) && student.members.length > 0 ? (
+          <div className="student-group-list">
+            {student.members.map((member, idx) => (
+              <div
+                className="student-group-member-block"
+                key={member.studentCode || idx}
+                style={{
+                  marginBottom: "2rem",
+                  padding: "1.5rem",
+                  border: "2px solid #7A1117",
+                  borderRadius: "16px",
+                  background: "#fff",
+                  boxShadow: "0 2px 8px rgba(122,17,23,0.08)",
+                }}
+              >
+                <h4 style={{
+                  color: "#7A1117",
+                  marginBottom: "1rem",
+                  fontWeight: 700,
+                  fontSize: "1.15rem",
+                  letterSpacing: "0.02em",
+                }}>
+                  Estudiante {idx + 1}
+                </h4>
+                <div className="student-info-grid">
+                  <div className="student-info-item">
+                    <span className="student-info-label">Nombre Completo</span>
+                    <span className="student-info-value">
+                      {member.studentName} {member.studentLastName}
+                    </span>
+                  </div>
+                  <div className="student-info-item">
+                    <span className="student-info-label">Correo institucional</span>
+                    <span className="student-info-value">
+                      {member.studentEmail}
+                    </span>
+                  </div>
+                  <div className="student-info-item">
+                    <span className="student-info-label">Código Estudiantil</span>
+                    <span className="student-info-value">
+                      {member.studentCode || "N/A"}
+                    </span>
+                  </div>
+                  <div className="student-info-item">
+                    <span className="student-info-label">Programa Académico</span>
+                    <span className="student-info-value">
+                      {student.academicProgramName}
+                    </span>
+                  </div>
+                  <div className="student-info-item">
+                    <span className="student-info-label">Facultad</span>
+                    <span className="student-info-value">
+                      {student.facultyName}
+                    </span>
+                  </div>
+                  <div className="student-info-item">
+                    <span className="student-info-label">Créditos Aprobados</span>
+                    <span className="student-info-value">
+                      {member.approvedCredits || "N/A"}
+                    </span>
+                  </div>
+                  <div className="student-info-item">
+                    <span className="student-info-label">Promedio Ponderado Actual</span>
+                    <span className="student-info-value">
+                      {member.gpa || "N/A"}
+                    </span>
+                  </div>
+                  <div className="student-info-item">
+                    <span className="student-info-label">Semestre Cursado</span>
+                    <span className="student-info-value">
+                      {member.semester || "N/A"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
-          <div className="director-profile-item">
-            <span className="director-profile-label">Correo institucional</span>
-            <span className="director-profile-value">{student.studentEmail}</span>
+        ) : (
+          <div className="student-info-grid">
+            <div className="student-info-item">
+              <span className="student-info-label">Nombre Completo</span>
+              <span className="student-info-value">
+                {student.studentName} {student.studentLastName}
+              </span>
+            </div>
+            <div className="student-info-item">
+              <span className="student-info-label">Correo Institucional</span>
+              <span className="student-info-value email">
+                {student.studentEmail}
+              </span>
+            </div>
+            <div className="student-info-item">
+              <span className="student-info-label">Código Estudiantil</span>
+              <span className="student-info-value">
+                {student.studentCode || "N/A"}
+              </span>
+            </div>
+            <div className="student-info-item">
+              <span className="student-info-label">Programa Académico</span>
+              <span className="student-info-value">
+                {student.academicProgramName}
+              </span>
+            </div>
+            <div className="student-info-item">
+              <span className="student-info-label">Facultad</span>
+              <span className="student-info-value">
+                {student.facultyName}
+              </span>
+            </div>
+            <div className="student-info-item">
+              <span className="student-info-label">Créditos Aprobados</span>
+              <span className="student-info-value">
+                {student.approvedCredits || "N/A"}
+              </span>
+            </div>
+            <div className="student-info-item">
+              <span className="student-info-label">Promedio Ponderado</span>
+              <span className="student-info-value">
+                {student.gpa || "N/A"}
+              </span>
+            </div>
+            <div className="student-info-item">
+              <span className="student-info-label">Semestre Cursado</span>
+              <span className="student-info-value">
+                {student.semester || "N/A"}
+              </span>
+            </div>
           </div>
-          <div className="director-profile-item">
-            <span className="director-profile-label">Estado Actual</span>
-            <span className={`director-doc-status-badge ${getStatusBadgeClass(student.currentStatus)}`}>
-              {getStatusLabel(student.currentStatus)}
-            </span>
-          </div>
-          <div className="director-profile-item">
-            <span className="director-profile-label">Última Actualización</span>
-            <span className="director-profile-value">{formatDate(student.lastUpdatedAt)}</span>
-          </div>
-        </div>
-       
+        )}
         {student.currentStatusDescription && (
           <div className="director-profile-description">
             <strong className="director-profile-description-title">
@@ -393,27 +469,66 @@ export default function DirectorStudentProfile() {
       </div>
 
       {/* Información de la Modalidad */}
-      <div className="director-profile-card">
-        <h3 className="director-profile-card-title">📚 Información de la Modalidad</h3>
-        <div className="director-profile-grid">
-          <div className="director-profile-item">
-            <span className="director-profile-label">Modalidad de Grado</span>
-            <span className="director-profile-value">{student.modalityName}</span>
+      <div className="student-info-card">
+        <h3 className="card-section-title"> Información de la Modalidad</h3>
+        <div className="student-info-grid">
+          <div className="student-info-item">
+            <span className="student-info-label">Modalidad</span>
+            <span className="student-info-value">{student.modalityName}</span>
           </div>
-          <div className="director-profile-item">
-            <span className="director-profile-label">Programa Académico</span>
-            <span className="director-profile-value">{student.academicProgramName}</span>
+          <div className="student-info-item">
+            <span className="student-info-label">Estado Actual</span>
+            <span className={`student-info-value ${student.currentStatus === "MODALITY_CLOSED" ? "closed" : ""}`}>
+              {student.currentStatus === "MODALITY_CLOSED" && "🔒 "}{student.currentStatusDescription}
+            </span>
           </div>
-          <div className="director-profile-item">
-            <span className="director-profile-label">Facultad</span>
-            <span className="director-profile-value">{student.facultyName}</span>
+          <div className="student-info-item">
+            <span className="student-info-label">Última Actualización</span>
+            <span className="student-info-value">
+              {student.lastUpdatedAt
+                ? new Date(student.lastUpdatedAt).toLocaleString("es-CO", { dateStyle: "medium", timeStyle: "short" })
+                : "N/A"}
+            </span>
           </div>
-          <div className="director-profile-item">
-            <span className="director-profile-label">ID de Modalidad</span>
-            <span className="director-profile-value">#{student.studentModalityId}</span>
+          <div className="student-info-item">
+            <span className="student-info-label">Créditos Requeridos</span>
+            <span className="student-info-value">{student.creditsRequired || "N/A"}</span>
           </div>
+          {student.projectDirectorName && (
+            <>
+              <div className="student-info-item">
+                <span className="student-info-label">Director de Proyecto</span>
+                <span className="student-info-value">{student.projectDirectorName}</span>
+              </div>
+              <div className="student-info-item">
+                <span className="student-info-label">Email del Director</span>
+                <span className="student-info-value">{student.projectDirectorEmail}</span>
+              </div>
+            </>
+          )}
+          {student.defenseDate && (
+            <>
+              <div className="student-info-item">
+                <span className="student-info-label">Fecha de Sustentación</span>
+                <span className="student-info-value">
+                  {new Date(student.defenseDate).toLocaleString("es-CO", { dateStyle: "long", timeStyle: "short" })}
+                </span>
+              </div>
+              <div className="student-info-item">
+                <span className="student-info-label">Lugar de Sustentación</span>
+                <span className="student-info-value">{student.defenseLocation || "N/A"}</span>
+              </div>
+            </>
+          )}
+          {student.academicDistinction && (
+            <div className="student-info-item">
+              <span className="student-info-label">Resultado</span>
+              <span className="student-info-value distinction">{student.academicDistinction}</span>
+            </div>
+          )}
         </div>
       </div>
+
 
       {/* ✅ SECCIÓN DE DOCUMENTOS - NUEVA Y MEJORADA */}
       {student.documents && student.documents.length > 0 && (
@@ -557,13 +672,40 @@ export default function DirectorStudentProfile() {
                 </div>
               </>
             )}
+            {/* Botón y mensaje de notificación al jurado */}
+            {canNotifyExaminers(student.currentStatus) && (
+              <div className="director-notify-section" style={{marginTop: '2rem'}}>
+                <div className="director-notify-info-box" style={{background:'#f8f6ef',borderLeft:'4px solid #1d4ed8',borderRadius:'8px',padding:'0.8rem 1.2rem',marginBottom:'0.7rem'}}>
+                  <span style={{color:'#5d0d12',fontWeight:'600',fontSize:'0.9rem'}}>
+                    <strong>Nota:</strong>Es indispensable notificar formalmente a los jurados designados para que realicen la revisión integral de todos los documentos asociados a la modalidad de grado. El concepto y aval emitido por el jurado constituyen un requisito obligatorio para poder autorizar y programar la sustentación académica.
+                  </span>
+                </div>
+                <button
+                  onClick={handleNotifyExaminers}
+                  disabled={notifyingExaminers || !allRequiredDocsUploaded()}
+                  className={`director-btn-submit director-notify-btn ${notifyingExaminers ? "loading" : ""} ${!allRequiredDocsUploaded() ? "disabled" : ""}`}
+                  title={
+                    !allRequiredDocsUploaded()
+                      ? "El estudiante debe subir todos los documentos obligatorios antes de notificar al jurado"
+                      : "Notificar al jurado que la modalidad está lista para defensa"
+                  }
+                >
+                  {notifyingExaminers ? "⏳ Notificando..." : "Notificar al Jurado"}
+                </button>
+                {!allRequiredDocsUploaded() && (
+                  <small className="director-notify-warning">
+                    ⚠️ Faltan documentos obligatorios
+                  </small>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}
 
         {hasCancellationRequest(student.currentStatus) && (
         <div className="director-alert-warning">
-          <h3>⚠️ Solicitud de Cancelación Pendiente</h3>
+          <h3> Solicitud de Cancelación Pendiente</h3>
           <p>
             El estudiante ha solicitado cancelar esta modalidad. Como director de proyecto,
             debes revisar y decidir si apruebas o rechazas esta solicitud.
@@ -579,18 +721,53 @@ export default function DirectorStudentProfile() {
             <button
               onClick={handleApproveCancellation}
               className="btn-approve"
+              disabled={approvingCancellation}
             >
-              ✓ Aprobar Cancelación
+              {approvingCancellation ? "⏳ Enviando solicitud de cancelación..." : "✓ Aprobar Cancelación"}
             </button>
             <button
               onClick={() => setShowRejectModal(true)}
               className="btn-reject"
+              disabled={rejectingCancellation}
             >
-              ✕ Rechazar Cancelación
+              {rejectingCancellation ? "⏳ Rechazando solicitud..." : "✕ Rechazar Cancelación"}
+            </button>
+          </div>
+          {(approvingCancellation || rejectingCancellation) && (
+            <div className="director-profile-message" style={{marginTop:'1rem',background:'#fffbe6',color:'#92400e',borderLeft:'5px solid #B7A873'}}>
+              {approvingCancellation && "Enviando solicitud de cancelación al sistema..."}
+              {rejectingCancellation && "Rechazando solicitud de cancelación..."}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* SECCIÓN INSTITUCIONAL: PROPONER SUSTENTACIÓN */}
+      {canProposeDefense(student.currentStatus) && (
+        <div className="director-propose-defense-section" style={{margin: '2.5rem 0 1.5rem 0'}}>
+          <h3 className="director-documents-title" style={{marginBottom: '1.2rem'}}>Proponer Sustentación</h3>
+          <div className="director-propose-defense-block">
+            <div className="director-propose-defense-header">
+              <span className="director-propose-defense-icon"></span>
+              <span className="director-propose-defense-title">Proponer Sustentación</span>
+            </div>
+            <div className="director-propose-defense-message">
+              <span style={{fontWeight:700, color:'#5d0d12'}}>¡Todos los jurados han aprobado los documentos!</span><br/>
+              Ya puedes programar la sustentación de la modalidad.<br/>
+              <span style={{color:'#7A1117', fontWeight:600}}>Recuerda:</span> Antes de asignar la fecha y lugar, asegúrate de haber coordinado con los jurados y el estudiante.<br/>
+              <span style={{color:'#92400e'}}>No olvides realizar los trámites administrativos necesarios para la programación oficial.</span>
+            </div>
+            <button
+              onClick={() => setShowDefenseModal(true)}
+              className="director-propose-defense-btn"
+            >
+              📅 Asignar Sustentación
             </button>
           </div>
         </div>
       )}
+
+     
 
       {/* Historial de Cambios */}
       {student.history && student.history.length > 0 && (
@@ -639,12 +816,19 @@ export default function DirectorStudentProfile() {
         </div>
       )}
 
+        <button
+            onClick={() => navigate('/project-director')}
+            className="director-btn-cancel"
+            style={{ marginBottom: "1rem" }}
+          >
+            ← Volver al Dashboard
+          </button>
       {/* Modal Proponer Sustentación */}
       {showDefenseModal && (
         <div className="director-modal-overlay" onClick={() => !submitting && setShowDefenseModal(false)}>
           <div className="director-modal" onClick={(e) => e.stopPropagation()}>
             <div className="director-modal-header">
-              <h3>📅 Proponer Fecha de Sustentación</h3>
+              <h3>📅 Asignar Sustentación</h3>
               <button 
                 onClick={() => setShowDefenseModal(false)} 
                 className="director-modal-close"
@@ -660,7 +844,7 @@ export default function DirectorStudentProfile() {
                   <div className="director-success-icon">✅</div>
                   <div className="director-success-message">{successMessage}</div>
                   <div className="director-success-submessage">
-                    El comité revisará tu propuesta...
+                    Sustentación programada exitosamente. Este mensaje se cerrará automáticamente.
                   </div>
                 </div>
               ) : (
@@ -701,8 +885,7 @@ export default function DirectorStudentProfile() {
 
                   <div className="director-info-box">
                     <p>
-                      ℹ️ Esta propuesta será enviada al Comité de Currículo del Programa
-                      para su revisión y aprobación.
+                      La fecha programada para la sustentación no podrá ser modificada una vez registrada en el sistema. Antes de confirmarla, asegúrate de que los jurados, el estudiante y las demás personas involucradas hayan sido debidamente informados y cuenten con disponibilidad para asistir.
                     </p>
                   </div>
 
@@ -720,7 +903,7 @@ export default function DirectorStudentProfile() {
                       className="director-btn-submit"
                       disabled={submitting}
                     >
-                      {submitting ? "Enviando..." : "Enviar Propuesta"}
+                      {submitting ? "Enviando..." : "Programar Sustentación"}
                     </button>
                   </div>
                 </form>
