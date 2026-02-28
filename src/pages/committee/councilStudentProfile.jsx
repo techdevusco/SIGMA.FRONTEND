@@ -54,6 +54,16 @@ export default function CommitteeStudentProfile() {
       console.log("RESPUESTA BACKEND (comité):", res);
       console.log("Examiners data:", res.examiners, "| Status:", res.currentStatus);
       setProfile(res);
+
+      // Obtener jurado asignado desde endpoint dedicado
+      try {
+        const examiners = await getAssignedExaminers(studentModalityId);
+        console.log("Jurado asignado (endpoint):", examiners);
+        setAssignedExaminers(examiners);
+      } catch (exErr) {
+        console.log("No se pudo obtener jurado asignado:", exErr);
+        setAssignedExaminers([]);
+      }
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.message || "No se pudo cargar la información del estudiante");
@@ -200,9 +210,9 @@ export default function CommitteeStudentProfile() {
       "REJECTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW": "Rechazado por Comité",
       "CORRECTIONS_REQUESTED_BY_PROGRAM_CURRICULUM_COMMITTEE": "Correcciones solicitadas por Comité",
       "CORRECTION_RESUBMITTED": "Corrección reenviada",
-      "ACCEPTED_FOR_EXAMINER_REVIEW": "Aceptado por Juez",
-      "REJECTED_FOR_EXAMINER_REVIEW": "Rechazado por Juez",
-      "CORRECTIONS_REQUESTED_BY_EXAMINER": "Correcciones solicitadas por Juez",
+      "ACCEPTED_FOR_EXAMINER_REVIEW": "Aceptado por Jurado",
+      "REJECTED_FOR_EXAMINER_REVIEW": "Rechazado por Jurado",
+      "CORRECTIONS_REQUESTED_BY_EXAMINER": "Correcciones solicitadas por Jurado",
     };
     return labels[status] || status;
   };
@@ -228,15 +238,16 @@ export default function CommitteeStudentProfile() {
   );
   const isModalityClosed = profile.currentStatus === "MODALITY_CLOSED";
 
-  // ✅ Solo aplica para: Posgrado, Seminario de Grado, Producción Académica de Alto Nivel
+  // ✅ Solo aplica para: Posgrado, Diplomado, Producción Académica de Alto Nivel
   const isFinalDecision = isFinalDecisionModality(profile.modalityName);
 
   // Checklist: pasos para aprobar la modalidad
   const step1Ok = allMandatoryAccepted && uploadedMandatory.length === mandatoryDocs.length;
   const step2Ok = !!profile.projectDirectorName;
   
-  // Jueces: detectar por datos O por estado del proceso
-  const hasExaminersData = profile && Array.isArray(profile.examiners) && profile.examiners.length > 0;
+  // Jurado: detectar por datos O por estado del proceso
+  const hasExaminersData = assignedExaminers.length > 0 || (profile && Array.isArray(profile.examiners) && profile.examiners.length > 0);
+  const examinersToDisplay = assignedExaminers.length > 0 ? assignedExaminers : (profile?.examiners || []);
   const examinersAssignedStatuses = [
     "EXAMINERS_ASSIGNED", "READY_FOR_EXAMINERS", "CORRECTIONS_REQUESTED_EXAMINERS",
     "READY_FOR_DEFENSE", "DEFENSE_REQUESTED_BY_PROJECT_DIRECTOR", "DEFENSE_SCHEDULED",
@@ -685,7 +696,7 @@ export default function CommitteeStudentProfile() {
 
 
 
-      {/* Checklist de aprobación — modalidades con flujo completo (director + jueces) */}
+      {/* Checklist de aprobación — modalidades con flujo completo (director + jurado) */}
       {!isFinalDecision && (
         <div className="documents-card approve-all-section" style={{ border: '2.5px solid #7A1117', borderRadius: '18px', background: 'linear-gradient(135deg, #f7f7fa 0%, #e8ebf0 100%)', boxShadow: '0 8px 32px rgba(122, 17, 23, 0.10)', padding: '2rem' }}>
           <h3 className="documents-title institutional-title" style={{ color: '#7A1117', fontFamily: 'Georgia, Times New Roman, serif', fontWeight: 700, fontSize: '1.5rem', letterSpacing: '0.5px', textShadow: '0 2px 8px #7A111733', marginBottom: '2rem' }}>Checklist de Aprobación de la Modalidad</h3>
@@ -830,7 +841,7 @@ export default function CommitteeStudentProfile() {
             </div>
           </div>
 
-          {/* Paso 4: Asignar jueces (opcional) */}
+          {/* Paso 4: Asignar jurado (opcional) */}
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', padding: '1rem 1.25rem', borderRadius: '12px', background: step3Ok_examiners ? '#f0fdf4' : '#f9fafb', border: step3Ok_examiners ? '1.5px solid #bbf7d0' : '1.5px dashed #d1d5db', transition: 'all 0.3s ease' }}>
             <div style={{ fontSize: '1.5rem', flexShrink: 0, marginTop: '2px' }}>
               {step3Ok_examiners ? '✅' : '📋'}
@@ -838,7 +849,7 @@ export default function CommitteeStudentProfile() {
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
                 <span style={{ fontWeight: 700, fontSize: '1.05rem', color: step3Ok_examiners ? '#166534' : '#6b7280' }}>
-                  4. Asignar jueces evaluadores
+                  4. Asignar jurado evaluador
                 </span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                   <span style={{
@@ -856,19 +867,19 @@ export default function CommitteeStudentProfile() {
                     onClick={() => setShowAssignExaminersModal(true)}
                     style={{ background: '#f3f4f6', color: '#374151', border: '1px solid #d1d5db', borderRadius: '8px', padding: '0.4rem 1rem', fontWeight: 600, fontSize: '0.85rem', cursor: 'pointer' }}
                   >
-                    {step3Ok_examiners ? 'Cambiar Jueces' : 'Asignar Jueces'}
+                    {step3Ok_examiners ? 'Cambiar Jurado' : 'Asignar Jurado'}
                   </button>
                 </div>
               </div>
               {step3Ok_examiners && hasExaminersData && (
                 <div style={{ marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  {profile.examiners.map((examiner, idx) => (
-                    <div key={examiner.id || idx} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.4rem 0.75rem', background: '#fff', borderRadius: '8px', border: '1px solid #bbf7d0' }}>
+                  {examinersToDisplay.map((examiner, idx) => (
+                    <div key={examiner.id || examiner.examinerId || idx} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.4rem 0.75rem', background: '#fff', borderRadius: '8px', border: '1px solid #bbf7d0' }}>
                       <span style={{ fontSize: '0.85rem', color: '#6b7280' }}>
-                        {examiner.role === 'TIEBREAKER' ? '🔷 Desempate:' : `👨‍⚖️ Juez ${idx + 1}:`}
+                        {examiner.role === 'TIEBREAKER' ? '🔷 Desempate:' : `👨‍⚖️ Jurado ${idx + 1}:`}
                       </span>
                       <span style={{ fontSize: '0.9rem', fontWeight: 600, color: '#166534' }}>
-                        {examiner.name} {examiner.lastName || ''}
+                        {examiner.name || examiner.fullName || ''} {examiner.lastName || ''}
                       </span>
                       {examiner.email && (
                         <span style={{ fontSize: '0.8rem', color: '#6b7280', marginLeft: 'auto' }}>
@@ -881,12 +892,12 @@ export default function CommitteeStudentProfile() {
               )}
               {step3Ok_examiners && !hasExaminersData && (
                 <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: '#166534' }}>
-                  Jueces ya asignados (estado: {profile.currentStatusDescription || profile.currentStatus})
+                  Jurado ya asignado (estado: {profile.currentStatusDescription || profile.currentStatus})
                 </p>
               )}
               {!step3Ok_examiners && (
                 <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: '#9ca3af' }}>
-                  Los jueces pueden ser asignados ahora o en cualquier momento posterior
+                  El jurado puede ser asignado ahora o en cualquier momento posterior
                 </p>
               )}
             </div>
@@ -915,7 +926,7 @@ export default function CommitteeStudentProfile() {
 
           <div style={{ background: '#fffbea', border: '1.5px solid #D5CBA0', padding: '1rem 1.25rem', borderRadius: '10px', marginBottom: '1.5rem' }}>
             <p style={{ margin: 0, color: '#7A1117', fontSize: '0.95rem', lineHeight: '1.5' }}>
-              <strong>ℹ️ Modalidad simplificada:</strong> Esta modalidad (<strong>{profile.modalityName}</strong>) no requiere asignación de director de proyecto, jueces ni sustentación. Una vez los documentos estén aceptados, el comité puede aprobar o rechazar directamente.
+              <strong>ℹ️ Modalidad simplificada:</strong> Esta modalidad (<strong>{profile.modalityName}</strong>) no requiere asignación de director de proyecto, jurado ni sustentación. Una vez los documentos estén aceptados, el comité puede aprobar o rechazar directamente.
             </p>
           </div>
 
@@ -1110,7 +1121,7 @@ export default function CommitteeStudentProfile() {
           onClose={() => setShowAssignExaminersModal(false)}
           onSuccess={() => {
             setShowAssignExaminersModal(false);
-            setSuccessMessage("✅ Jueces asignados correctamente");
+            setSuccessMessage("✅ Jurado asignado correctamente");
             setTimeout(() => setSuccessMessage(""), 5000);
             fetchProfile();
           }}
@@ -1234,7 +1245,7 @@ export default function CommitteeStudentProfile() {
         </div>
       )}
 
-      {/* ✅ Modal: Decisión Final — Posgrado, Seminario de Grado, Producción Académica de Alto Nivel */}
+      {/* ✅ Modal: Decisión Final — Posgrado, Diplomado, Producción Académica de Alto Nivel */}
       {showFinalDecisionModal && (
         <FinalDecisionModal
           studentModalityId={studentModalityId}

@@ -54,7 +54,7 @@ export default function SeminarSelection() {
 
       setProfileComplete(isProfileComplete(profileRes));
 
-      // Buscar el ID de la modalidad de Seminario/Diplomado
+      // Buscar el ID de la modalidad de Diplomado
       const seminarMod = modalitiesRes.find(m =>
         m.name?.toUpperCase().includes("SEMINARIO")
       );

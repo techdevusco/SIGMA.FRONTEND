@@ -69,8 +69,8 @@ export default function DirectorStudentProfile() {
   const handleNotifyExaminers = async () => {
     setConfirmAction({
       type: "notifyExaminers",
-      title: "Notificar a Jurados",
-      message: "¿Confirmas que el estudiante ha entregado todos los documentos y quieres notificar a los jurados?",
+      title: "Notificar al Jurado",
+      message: "¿Confirmas que el estudiante ha entregado todos los documentos y quieres notificar al jurado?",
       variant: "primary",
     });
   };
@@ -190,11 +190,11 @@ export default function DirectorStudentProfile() {
       setNotifyingExaminers(true);
       try {
         const response = await notifyReadyForDefense(studentModalityId);
-        setMessage(response.message || "✅ Jurados notificados. Modalidad marcada como lista para defensa.");
+        setMessage(response.message || "✅ Jurado notificado. Modalidad marcada como lista para defensa.");
         fetchStudentDetail();
         setTimeout(() => setMessage(""), 8000);
       } catch (err) {
-        console.error("Error al notificar jurados:", err);
+        console.error("Error al notificar jurado:", err);
         const data = err.response?.data;
         const msg =
           (typeof data === "string" && data) ||
@@ -270,9 +270,9 @@ export default function DirectorStudentProfile() {
       REJECTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW: "Rechazado por Comité",
       CORRECTIONS_REQUESTED_BY_PROGRAM_CURRICULUM_COMMITTEE: "Correcciones solicitadas por Comité",
       CORRECTION_RESUBMITTED: "Corrección reenviada",
-      ACCEPTED_FOR_EXAMINER_REVIEW: "Aceptado por Juez",
-      REJECTED_FOR_EXAMINER_REVIEW: "Rechazado por Juez",
-      CORRECTIONS_REQUESTED_BY_EXAMINER: "Correcciones solicitadas por Juez",
+      ACCEPTED_FOR_EXAMINER_REVIEW: "Aceptado por Jurado",
+      REJECTED_FOR_EXAMINER_REVIEW: "Rechazado por Jurado",
+      CORRECTIONS_REQUESTED_BY_EXAMINER: "Correcciones solicitadas por Jurado",
     };
     return labels[status] || status;
   };
@@ -677,7 +677,7 @@ export default function DirectorStudentProfile() {
               <div className="director-notify-section" style={{marginTop: '2rem'}}>
                 <div className="director-notify-info-box" style={{background:'#f8f6ef',borderLeft:'4px solid #1d4ed8',borderRadius:'8px',padding:'0.8rem 1.2rem',marginBottom:'0.7rem'}}>
                   <span style={{color:'#5d0d12',fontWeight:'600',fontSize:'0.9rem'}}>
-                    <strong>Nota:</strong>Es indispensable notificar formalmente a los jurados designados para que realicen la revisión integral de todos los documentos asociados a la modalidad de grado. El concepto y aval emitido por el jurado constituyen un requisito obligatorio para poder autorizar y programar la sustentación académica.
+                    <strong>Nota:</strong>Es indispensable notificar formalmente a el jurado designado para que realice la revisión integral de todos los documentos asociados a la modalidad de grado. El concepto y aval emitido por el jurado constituyen un requisito obligatorio para poder autorizar y programar la sustentación académica.
                   </span>
                 </div>
                 <button
@@ -752,9 +752,9 @@ export default function DirectorStudentProfile() {
               <span className="director-propose-defense-title">Proponer Sustentación</span>
             </div>
             <div className="director-propose-defense-message">
-              <span style={{fontWeight:700, color:'#5d0d12'}}>¡Todos los jurados han aprobado los documentos!</span><br/>
+              <span style={{fontWeight:700, color:'#5d0d12'}}>¡Todo el jurado ha aprobado los documentos!</span><br/>
               Ya puedes programar la sustentación de la modalidad.<br/>
-              <span style={{color:'#7A1117', fontWeight:600}}>Recuerda:</span> Antes de asignar la fecha y lugar, asegúrate de haber coordinado con los jurados y el estudiante.<br/>
+              <span style={{color:'#7A1117', fontWeight:600}}>Recuerda:</span> Antes de asignar la fecha y lugar, asegúrate de haber coordinado con el jurado y el estudiante.<br/>
               <span style={{color:'#92400e'}}>No olvides realizar los trámites administrativos necesarios para la programación oficial.</span>
             </div>
             <button
@@ -885,7 +885,7 @@ export default function DirectorStudentProfile() {
 
                   <div className="director-info-box">
                     <p>
-                      La fecha programada para la sustentación no podrá ser modificada una vez registrada en el sistema. Antes de confirmarla, asegúrate de que los jurados, el estudiante y las demás personas involucradas hayan sido debidamente informados y cuenten con disponibilidad para asistir.
+                      La fecha programada para la sustentación no podrá ser modificada una vez registrada en el sistema. Antes de confirmarla, asegúrate de que el jurado, el estudiante y las demás personas involucradas hayan sido debidamente informados y cuenten con disponibilidad para asistir.
                     </p>
                   </div>
 

@@ -41,11 +41,11 @@ export default function SeminarDetail() {
       if (response.success) {
         setSeminar(response.seminar);
       } else {
-        setError(response.error || "Error al cargar el seminario");
+        setError(response.error || "Error al cargar el diplomado");
       }
     } catch (err) {
       console.error("❌ Error al cargar detalle:", err);
-      const errorMsg = err.response?.data?.error || "Error al cargar el seminario";
+      const errorMsg = err.response?.data?.error || "Error al cargar el diplomado";
       setError(errorMsg);
     } finally {
       setLoading(false);
@@ -55,8 +55,8 @@ export default function SeminarDetail() {
   const handleStartSeminar = () => {
     setConfirmAction({
       type: "start",
-      title: "Iniciar Seminario",
-      message: `¿Iniciar el seminario "${seminar.name}"?`,
+      title: "Iniciar Diplomado",
+      message: `¿Iniciar el diplomado "${seminar.name}"?`,
       variant: "primary",
     });
   };
@@ -83,7 +83,7 @@ export default function SeminarDetail() {
       }
     } catch (err) {
       console.error("❌ Error al cancelar seminario:", err);
-      const errorMsg = err.response?.data?.error || "Error al cancelar el seminario";
+      const errorMsg = err.response?.data?.error || "Error al cancelar el diplomado";
       setError(errorMsg);
     } finally {
       setActionLoading(false);
@@ -93,8 +93,8 @@ export default function SeminarDetail() {
   const handleCompleteSeminar = () => {
     setConfirmAction({
       type: "complete",
-      title: "Completar Seminario",
-      message: `¿Marcar como completado el seminario "${seminar.name}"?`,
+      title: "Completar Diplomado",
+      message: `¿Marcar como completado el diplomado "${seminar.name}"?`,
       variant: "primary",
     });
   };
@@ -118,7 +118,7 @@ export default function SeminarDetail() {
         }
       } catch (err) {
         console.error("❌ Error al iniciar seminario:", err);
-        const errorMsg = err.response?.data?.error || "Error al iniciar el seminario";
+        const errorMsg = err.response?.data?.error || "Error al iniciar el diplomado";
         setError(errorMsg);
       } finally {
         setActionLoading(false);
@@ -138,7 +138,7 @@ export default function SeminarDetail() {
         }
       } catch (err) {
         console.error("❌ Error al completar seminario:", err);
-        const errorMsg = err.response?.data?.error || "Error al completar el seminario";
+        const errorMsg = err.response?.data?.error || "Error al completar el diplomado";
         setError(errorMsg);
       } finally {
         setActionLoading(false);
@@ -178,7 +178,7 @@ export default function SeminarDetail() {
   if (!seminar) {
     return (
       <div className="seminar-detail-container">
-        <div className="alert alert-error">Seminario no encontrado</div>
+        <div className="alert alert-error">Diplomado no encontrado</div>
       </div>
     );
   }
@@ -349,7 +349,7 @@ export default function SeminarDetail() {
           </div>
         ) : (
           <div className="empty-state-small">
-            <p>No hay estudiantes inscritos en este seminario</p>
+            <p>No hay estudiantes inscritos en este diplomado</p>
           </div>
         )}
       </div>
@@ -365,7 +365,7 @@ export default function SeminarDetail() {
               onClick={handleStartSeminar}
               disabled={actionLoading}
             >
-              {actionLoading ? "Procesando..." : "▶️ Iniciar Seminario"}
+              {actionLoading ? "Procesando..." : "▶️ Iniciar Diplomado"}
             </button>
           )}
 
@@ -382,7 +382,7 @@ export default function SeminarDetail() {
               onClick={() => setShowCancelModal(true)}
               disabled={actionLoading}
             >
-              ❌ Cancelar Seminario
+              ❌ Cancelar Diplomado
             </button>
           )}
 
@@ -402,7 +402,7 @@ export default function SeminarDetail() {
       {showCancelModal && (
         <div className="modal-overlay" onClick={() => setShowCancelModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h3>Cancelar Seminario</h3>
+            <h3>Cancelar Diplomado</h3>
             <p>Por favor indica la razón de la cancelación:</p>
 
             <textarea

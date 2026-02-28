@@ -56,7 +56,7 @@ export default function ProgramHeadLayout() {
           </div>
 
           <div className="nav-section">
-            <p className="nav-section-title">Seminarios</p>
+            <p className="nav-section-title">Diplomados</p>
             
             <NavLink
               to="/jefeprograma/seminars"
@@ -65,7 +65,7 @@ export default function ProgramHeadLayout() {
               }
             >
               <span className="nav-icon"></span>
-              <span className="nav-label">Gestión de Seminarios</span>
+              <span className="nav-label">Gestión de Diplomados</span>
             </NavLink>
 
           </div>

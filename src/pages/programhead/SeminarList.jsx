@@ -33,12 +33,12 @@ export default function SeminarList() {
       if (response.success) {
         setSeminars(response.seminars || []);
       } else {
-        setError(response.error || "Error al cargar seminarios");
+        setError(response.error || "Error al cargar diplomados");
         setSeminars([]);
       }
     } catch (err) {
-      console.error("❌ Error al cargar seminarios:", err);
-      const errorMsg = err.response?.data?.error || "Error al cargar los seminarios";
+      console.error("❌ Error al cargar diplomados:", err);
+      const errorMsg = err.response?.data?.error || "Error al cargar los diplomados";
       setError(errorMsg);
       setSeminars([]);
     } finally {
@@ -79,7 +79,7 @@ export default function SeminarList() {
       <div className="seminar-list-container">
         <div className="loading-spinner">
           <div className="spinner"></div>
-          <p>Cargando seminarios...</p>
+          <p>Cargando diplomados...</p>
         </div>
       </div>
     );
@@ -90,14 +90,14 @@ export default function SeminarList() {
       {/* Header */}
       <div className="seminar-list-header">
         <div>
-          <h1 className="seminar-list-title">Gestión de Seminarios</h1>
-          <p className="seminar-list-subtitle">Administra, organiza y supervisa los seminarios académicos y sus participantes.</p>
+          <h1 className="seminar-list-title">Gestión de Diplomados</h1>
+          <p className="seminar-list-subtitle">Administra, organiza y supervisa los diplomados académicos y sus participantes.</p>
         </div>
         <button 
           className="btn btn-primary" 
           onClick={handleCreateSeminar}
         >
-          ➕ Crear Nuevo Seminario
+          ➕ Crear Nuevo Diplomado
         </button>
       </div>
 
@@ -182,10 +182,10 @@ export default function SeminarList() {
       {seminars.length === 0 ? (
         <div className="empty-state">
           <div className="empty-icon">📚</div>
-          <h3>No hay seminarios creados</h3>
-          <p>Comienza creando tu primer seminario</p>
+          <h3>No hay diplomados creados</h3>
+          <p>Comienza creando tu primer diplomado</p>
           <button className="btn btn-primary" onClick={handleCreateSeminar}>
-            ➕ Crear Seminario
+            ➕ Crear Diplomado
           </button>
         </div>
       ) : (

@@ -99,7 +99,7 @@ function AppRoutes() {
             path="students/:studentModalityId"
             element={<StudentProfileSecretary />}
           />
-          {/* ✅ RUTAS DE SEMINARIOS */}
+          {/* ✅ RUTAS DE DIPLOMADOS */}
           <Route path="seminars" element={<SeminarList />} />
           <Route path="seminars/create" element={<SeminarForm />} />
           <Route path="seminars/:seminarId" element={<SeminarDetail />} />

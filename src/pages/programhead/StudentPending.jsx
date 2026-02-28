@@ -20,16 +20,16 @@ const AVAILABLE_STATUSES = [
   { value: "PROPOSAL_APPROVED", label: "Propuesta Aprobada" },
   { value: "DEFENSE_REQUESTED_BY_PROJECT_DIRECTOR", label: "Sustentación Propuesta por Director" },
   { value: "DEFENSE_SCHEDULED", label: "Sustentación Programada" },
-  { value: "EXAMINERS_ASSIGNED", label: "Jueces Asignados" },
-  { value: "READY_FOR_EXAMINERS", label: "Listo para Jueces" },
-  { value: "CORRECTIONS_REQUESTED_EXAMINERS", label: "Correcciones Solicitadas por Jueces" },
+  { value: "EXAMINERS_ASSIGNED", label: "Jurado Asignado" },
+  { value: "READY_FOR_EXAMINERS", label: "Listo para Jurado" },
+  { value: "CORRECTIONS_REQUESTED_EXAMINERS", label: "Correcciones Solicitadas por Jurado" },
   { value: "READY_FOR_DEFENSE", label: "Listo para Sustentación" },
   { value: "FINAL_REVIEW_COMPLETED", label: "Revisión Final Completada" },
   { value: "DEFENSE_COMPLETED", label: "Sustentación Completada" },
 
-  { value: "UNDER_EVALUATION_PRIMARY_EXAMINERS", label: "En Evaluación por Jueces Principales" },
-  { value: "DISAGREEMENT_REQUIRES_TIEBREAKER", label: "Desacuerdo - Requiere Tercer Juez" },
-  { value: "UNDER_EVALUATION_TIEBREAKER", label: "En Evaluación por Tercer Juez" },
+  { value: "UNDER_EVALUATION_PRIMARY_EXAMINERS", label: "En Evaluación por Jurado Principal" },
+  { value: "DISAGREEMENT_REQUIRES_TIEBREAKER", label: "Desacuerdo - Requiere Tercer Jurado" },
+  { value: "UNDER_EVALUATION_TIEBREAKER", label: "En Evaluación por Tercer Jurado" },
   { value: "EVALUATION_COMPLETED", label: "Evaluación Completada" },
   { value: "GRADED_APPROVED", label: "Aprobado" },
   { value: "GRADED_FAILED", label: "Reprobado" },
@@ -42,8 +42,8 @@ const AVAILABLE_STATUSES = [
   { value: "CANCELLED_BY_CORRECTION_TIMEOUT", label: "Cancelada por Timeout de Correcciones" },
 
   { value: "MODALITY_CANCELLED", label: "Modalidad Cancelada" },
-  { value: "MODALITY_CLOSED", label: "Modalidad Cerrada" },
-  { value: "SEMINAR_CANCELED", label: "Seminario Cancelado" },
+  { value: "MODALITY_CLOSED", label: "Modalidad Cancelada" },
+  { value: "SEMINAR_CANCELED", label: "Diplomado Cancelado" },
 ];
 
 export default function StudentsPending() {
@@ -170,7 +170,7 @@ export default function StudentsPending() {
       case "DEFENSE_COMPLETED":
         return "completed";
 
-      // Jueces
+      // Jurado
       case "EXAMINERS_ASSIGNED":
       case "READY_FOR_EXAMINERS":
         return "in-review";

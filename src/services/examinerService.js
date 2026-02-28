@@ -1,8 +1,8 @@
 // ========================================
-// 🏅 OBTENER TIPO DE JUEZ (ExaminerType)
+// 🏅 OBTENER TIPO DE JURADO (ExaminerType)
 // ========================================
 /**
- * Obtener el tipo de juez asignado a la modalidad para el usuario autenticado
+ * Obtener el tipo de jurado asignado a la modalidad para el usuario autenticado
  * Endpoint: GET /modalities/examiner-type/{studentModalityId}
  *
  * @param {number} studentModalityId - ID de la modalidad del estudiante
@@ -12,17 +12,17 @@
  * getExaminerTypeForModality(24)
  */
 export const getExaminerTypeForModality = async (studentModalityId) => {
-  console.log("🏅 Obteniendo tipo de juez para modalidad:", studentModalityId);
+  console.log("🏅 Obteniendo tipo de jurado para modalidad:", studentModalityId);
   const response = await axios.get(`/modalities/examiner-type/${studentModalityId}`);
   return response.data;
 };
 import axios from "../api/axios";
 
 // ========================================
-// 📋 OBTENER MIS ASIGNACIONES COMO JUEZ
+// 📋 OBTENER MIS ASIGNACIONES COMO JURADO
 // ========================================
 /**
- * Obtener lista de modalidades asignadas al juez autenticado
+ * Obtener lista de modalidades asignadas al jurado autenticado
  * Endpoint: GET /modalities/students/examiner
  * 
  * @param {Object} params - Parámetros opcionales de filtrado
@@ -47,7 +47,7 @@ import axios from "../api/axios";
  * })
  */
 export const getMyExaminerAssignments = async (params = {}) => {
-  console.log("📋 Obteniendo mis asignaciones como juez", params);
+  console.log("📋 Obteniendo mis asignaciones como jurado", params);
   
   const queryParams = new URLSearchParams();
   
@@ -73,10 +73,10 @@ export const getMyExaminerAssignments = async (params = {}) => {
 };
 
 // ========================================
-// 👤 OBTENER PERFIL DEL ESTUDIANTE (JUEZ)
+// 👤 OBTENER PERFIL DEL ESTUDIANTE (JURADO)
 // ========================================
 /**
- * Obtener detalle completo de una modalidad asignada al juez
+ * Obtener detalle completo de una modalidad asignada al jurado
  * Endpoint: GET /modalities/students/{studentModalityId}/examiner
  * 
  * @param {number} studentModalityId - ID de la modalidad del estudiante
@@ -125,16 +125,16 @@ export const getDocumentBlobUrl = async (studentDocumentId) => {
 };
 
 // ========================================
-// 📝 REVISAR DOCUMENTO (JUEZ)
+// 📝 REVISAR DOCUMENTO (JURADO)
 // ========================================
 /**
- * Revisar documento como juez (aceptar, rechazar o solicitar correcciones)
+ * Revisar documento como jurado (aceptar, rechazar o solicitar correcciones)
  * Endpoint: PUT /modalities/documents/{studentDocumentId}/review-examiner
  * 
  * @param {number} studentDocumentId - ID del documento del estudiante
  * @param {Object} data - Datos de la revisión
  * @param {string} data.status - Estado del documento (ACCEPTED_FOR_EXAMINER_REVIEW, REJECTED_FOR_EXAMINER_REVIEW, CORRECTIONS_REQUESTED_BY_EXAMINER)
- * @param {string} data.notes - Notas del juez
+ * @param {string} data.notes - Notas del jurado
  * @returns {Promise<Object>} Respuesta de confirmación
  */
 export const reviewDocumentExaminer = async (studentDocumentId, data) => {
@@ -157,7 +157,7 @@ export const reviewDocumentExaminer = async (studentDocumentId, data) => {
  * @param {Object} evaluationData - Datos de la evaluación
  * @param {number} evaluationData.grade - Calificación (0.0 - 5.0)
  * @param {string} evaluationData.decision - Decisión (APPROVED_NO_DISTINCTION, APPROVED_MERITORIOUS, APPROVED_LAUREATE, REJECTED)
- * @param {string} evaluationData.observations - Observaciones del juez
+ * @param {string} evaluationData.observations - Observaciones del jurado
  * @returns {Promise<Object>} Respuesta con resultado (consenso, desacuerdo, etc.)
  */
 export const registerEvaluation = async (studentModalityId, evaluationData) => {
@@ -170,17 +170,17 @@ export const registerEvaluation = async (studentModalityId, evaluationData) => {
 };
 
 // ========================================
-// ✅ APROBAR MODALIDAD (JUEZ)
+// ✅ APROBAR MODALIDAD (JURADO)
 // ========================================
 /**
- * Aprobar modalidad como juez (todos los docs obligatorios deben estar aceptados)
+ * Aprobar modalidad como jurado (todos los docs obligatorios deben estar aceptados)
  * Endpoint: POST /modalities/{studentModalityId}/approve-examiners
  * 
  * @param {number} studentModalityId - ID de la modalidad del estudiante
  * @returns {Promise<Object>} Respuesta con confirmación
  */
 export const approveModalityByExaminer = async (studentModalityId) => {
-  console.log("✅ Aprobando modalidad como juez:", studentModalityId);
+  console.log("✅ Aprobando modalidad como jurado:", studentModalityId);
   const response = await axios.post(
     `/modalities/${studentModalityId}/approve-examiners`
   );
@@ -188,17 +188,17 @@ export const approveModalityByExaminer = async (studentModalityId) => {
 };
 
 // ========================================
-// ✅ FINALIZAR REVISIÓN (JUEZ)
+// ✅ FINALIZAR REVISIÓN (JURADO)
 // ========================================
 /**
- * Finalizar revisión de documentos como juez y marcar listo para sustentación
+ * Finalizar revisión de documentos como jurado y marcar listo para sustentación
  * Endpoint: POST /modalities/{studentModalityId}/final-review-completed
  * 
  * @param {number} studentModalityId - ID de la modalidad del estudiante
  * @returns {Promise<Object>} Respuesta con confirmación
  */
 export const finalizeReviewAsExaminer = async (studentModalityId) => {
-  console.log("✅ Finalizando revisión como juez:", studentModalityId);
+  console.log("✅ Finalizando revisión como jurado:", studentModalityId);
   const response = await axios.post(
     `/modalities/${studentModalityId}/final-review-completed`
   );
@@ -210,7 +210,7 @@ export const finalizeReviewAsExaminer = async (studentModalityId) => {
 // ========================================
 
 /**
- * Estados de documentos para jueces
+ * Estados de documentos para jurado
  */
 export const EXAMINER_DOCUMENT_STATUS = {
   ACCEPTED: "ACCEPTED_FOR_EXAMINER_REVIEW",
@@ -250,7 +250,7 @@ export const EXAMINER_MODALITY_STATUS = {
   DEFENSE_REQUESTED_BY_PROJECT_DIRECTOR: "DEFENSE_REQUESTED_BY_PROJECT_DIRECTOR",
   DEFENSE_SCHEDULED: "DEFENSE_SCHEDULED",
 
-  // Asignación de jueces
+  // Asignación de jurado
   EXAMINERS_ASSIGNED: "EXAMINERS_ASSIGNED",
   READY_FOR_EXAMINERS: "READY_FOR_EXAMINERS",
   CORRECTIONS_REQUESTED_EXAMINERS: "CORRECTIONS_REQUESTED_EXAMINERS",
@@ -315,25 +315,25 @@ export const getStatusLabel = (status) => {
     DEFENSE_REQUESTED_BY_PROJECT_DIRECTOR: "Sustentación Propuesta por Director",
     DEFENSE_SCHEDULED: "Sustentación Programada",
 
-    // Asignación de jueces
-    EXAMINERS_ASSIGNED: "Jueces Asignados",
-    READY_FOR_EXAMINERS: "Listo para Jueces",
-    CORRECTIONS_REQUESTED_EXAMINERS: "Correcciones Solicitadas por Jueces",
+    // Asignación de jurado
+    EXAMINERS_ASSIGNED: "Jurado Asignado",
+    READY_FOR_EXAMINERS: "Listo para Jurado",
+    CORRECTIONS_REQUESTED_EXAMINERS: "Correcciones Solicitadas por Jurado",
     READY_FOR_DEFENSE: "Listo para Sustentación",
     FINAL_REVIEW_COMPLETED: "Revisión Final Completada",
 
     // Sustentación y evaluación
     DEFENSE_COMPLETED: "Sustentación Completada",
-    UNDER_EVALUATION_PRIMARY_EXAMINERS: "En Evaluación - Jueces Principales",
+    UNDER_EVALUATION_PRIMARY_EXAMINERS: "En Evaluación - Jurado Principal",
     DISAGREEMENT_REQUIRES_TIEBREAKER: "Desacuerdo - Requiere Desempate",
-    UNDER_EVALUATION_TIEBREAKER: "En Evaluación - Juez de Desempate",
+    UNDER_EVALUATION_TIEBREAKER: "En Evaluación - Jurado de Desempate",
     EVALUATION_COMPLETED: "Evaluación Completada",
 
     // Resultado final
     GRADED_APPROVED: "Aprobado",
     GRADED_FAILED: "Reprobado",
-    MODALITY_CLOSED: "Modalidad Cerrada",
-    SEMINAR_CANCELED: "Seminario Cancelado",
+    MODALITY_CLOSED: "Modalidad Cancelada",
+    SEMINAR_CANCELED: "Diplomado Cancelado",
 
     // Cancelaciones
     MODALITY_CANCELLED: "Modalidad Cancelada",
@@ -432,10 +432,10 @@ export const getSuggestedDecision = (grade) => {
 };
 
 // ========================================
-// 📊 OBTENER EVALUACIÓN FINAL REGISTRADA (JUEZ)
+// 📊 OBTENER EVALUACIÓN FINAL REGISTRADA (JURADO)
 // ========================================
 /**
- * Obtener la evaluación final registrada por el juez autenticado para una modalidad
+ * Obtener la evaluación final registrada por el jurado autenticado para una modalidad
  * Endpoint: GET /modalities/{studentModalityId}/examiner-evaluation
  *
  * @param {number} studentModalityId - ID de la modalidad del estudiante

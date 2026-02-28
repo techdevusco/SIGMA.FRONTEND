@@ -49,11 +49,11 @@ export default function SeminarForm() {
           totalHours: seminar.totalHours || 160,
         });
       } else {
-        setErrors({ general: response.error || "Error al cargar el seminario" });
+        setErrors({ general: response.error || "Error al cargar el diplomado" });
       }
     } catch (err) {
       console.error("❌ Error al cargar seminario:", err);
-      const errorMsg = err.response?.data?.error || "Error al cargar el seminario";
+      const errorMsg = err.response?.data?.error || "Error al cargar el diplomado";
       setErrors({ general: errorMsg });
     } finally {
       setLoading(false);
@@ -97,7 +97,7 @@ export default function SeminarForm() {
     const newErrors = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = "El nombre del seminario es obligatorio";
+      newErrors.name = "El nombre del diplomado es obligatorio";
     }
 
     const minPart = parseInt(formData.minParticipants) || 0;
@@ -158,7 +158,7 @@ export default function SeminarForm() {
       }
 
       if (response.success) {
-        setSuccessMessage(response.message || "Seminario guardado exitosamente");
+        setSuccessMessage(response.message || "Diplomado guardado exitosamente");
         
         setTimeout(() => {
           if (isEditMode) {
@@ -168,11 +168,11 @@ export default function SeminarForm() {
           }
         }, 1500);
       } else {
-        setErrors({ general: response.error || "Error al guardar el seminario" });
+        setErrors({ general: response.error || "Error al guardar el diplomado" });
       }
     } catch (err) {
       console.error("❌ Error al guardar:", err);
-      const errorMsg = err.response?.data?.error || "Error al guardar el seminario";
+      const errorMsg = err.response?.data?.error || "Error al guardar el diplomado";
       setErrors({ general: errorMsg });
     } finally {
       setSubmitting(false);
@@ -184,7 +184,7 @@ export default function SeminarForm() {
       <div className="seminar-form-container">
         <div className="loading-spinner">
           <div className="spinner"></div>
-          <p>Cargando seminario...</p>
+          <p>Cargando diplomado...</p>
         </div>
       </div>
     );
@@ -202,7 +202,7 @@ export default function SeminarForm() {
           ← Volver
         </button>
         <h1 className="form-title">
-          {isEditMode ? "✏️ Editar Seminario" : "Crear Nuevo Seminario"}
+          {isEditMode ? "✏️ Editar Diplomado" : "Crear Nuevo Diplomado"}
         </h1>
       </div>
 
@@ -224,7 +224,7 @@ export default function SeminarForm() {
         <div className="form-group">
           <label htmlFor="name">
             <span style={{ color: '#7A1117', fontWeight: 900, letterSpacing: '0.6px' }}>
-              Nombre del Seminario <span className="required">*</span>
+              Nombre del Diplomado <span className="required">*</span>
             </span>
           </label>
           <input
@@ -233,7 +233,7 @@ export default function SeminarForm() {
             name="name"
             value={formData.name}
             onChange={handleChange}
-            placeholder="Ej: Seminario de Inteligencia Artificial"
+            placeholder="Ej: Diplomado de Inteligencia Artificial"
             className={errors.name ? "form-control is-invalid" : "form-control"}
             disabled={submitting}
             required
@@ -252,7 +252,7 @@ export default function SeminarForm() {
             name="description"
             value={formData.description}
             onChange={handleChange}
-            placeholder="Describe el objetivo y contenido del seminario..."
+            placeholder="Describe el objetivo y contenido del diplomado..."
             className="form-control"
             rows={4}
             disabled={submitting}
@@ -355,7 +355,7 @@ export default function SeminarForm() {
 
         {/* Información de Ayuda */}
         <div className="form-info-box">
-          <h4 style={{ color: '#7A1117', fontWeight: 900, fontSize: '1.15rem', letterSpacing: '0.5px' }}> Requisitos del Seminario</h4>
+          <h4 style={{ color: '#7A1117', fontWeight: 900, fontSize: '1.15rem', letterSpacing: '0.5px' }}> Requisitos del Diplomado</h4>
           <ul>
             <li> Mínimo 15 participantes para iniciar </li>
             <li> Máximo 35 participantes </li>
@@ -384,8 +384,8 @@ export default function SeminarForm() {
             {submitting
               ? "Guardando..."
               : isEditMode
-              ? "Actualizar Seminario"
-              : "Crear Seminario"}
+              ? "Actualizar Diplomado"
+              : "Crear Diplomado"}
           </button>
         </div>
       </form>

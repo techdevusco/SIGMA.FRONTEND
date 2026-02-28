@@ -89,20 +89,20 @@ export const MODALITY_STATUS_OPTIONS = [
   { value: "PROPOSAL_APPROVED", label: "Propuesta Aprobada" },
   { value: "DEFENSE_REQUESTED_BY_PROJECT_DIRECTOR", label: "Sustentación Propuesta por Director" },
   { value: "DEFENSE_SCHEDULED", label: "Sustentación Programada" },
-  { value: "EXAMINERS_ASSIGNED", label: "Jueces Asignados" },
-  { value: "READY_FOR_EXAMINERS", label: "Listo para Jueces" },
-  { value: "CORRECTIONS_REQUESTED_EXAMINERS", label: "Correcciones Solicitadas por Jueces" },
+  { value: "EXAMINERS_ASSIGNED", label: "Jurado Asignado" },
+  { value: "READY_FOR_EXAMINERS", label: "Listo para Jurado" },
+  { value: "CORRECTIONS_REQUESTED_EXAMINERS", label: "Correcciones Solicitadas por Jurado" },
   { value: "READY_FOR_DEFENSE", label: "Listo para Sustentación" },
   { value: "FINAL_REVIEW_COMPLETED", label: "Revisión Final Completada" },
   { value: "DEFENSE_COMPLETED", label: "Sustentación Completada" },
-  { value: "UNDER_EVALUATION_PRIMARY_EXAMINERS", label: "En Evaluación por Jueces Principales" },
-  { value: "DISAGREEMENT_REQUIRES_TIEBREAKER", label: "Desacuerdo - Requiere Tercer Juez" },
-  { value: "UNDER_EVALUATION_TIEBREAKER", label: "En Evaluación por Tercer Juez" },
+  { value: "UNDER_EVALUATION_PRIMARY_EXAMINERS", label: "En Evaluación por Jurado Principal" },
+  { value: "DISAGREEMENT_REQUIRES_TIEBREAKER", label: "Desacuerdo - Requiere Tercer Jurado" },
+  { value: "UNDER_EVALUATION_TIEBREAKER", label: "En Evaluación por Tercer Jurado" },
   { value: "EVALUATION_COMPLETED", label: "Evaluación Completada" },
   { value: "GRADED_APPROVED", label: "Aprobado" },
   { value: "GRADED_FAILED", label: "Reprobado" },
-  { value: "MODALITY_CLOSED", label: "Modalidad Cerrada" },
-  { value: "SEMINAR_CANCELED", label: "Seminario Cancelado" },
+  { value: "MODALITY_CLOSED", label: "Modalidad Cancelada" },
+  { value: "SEMINAR_CANCELED", label: "Diplomado Cancelado" },
   { value: "MODALITY_CANCELLED", label: "Modalidad Cancelada" },
   { value: "CANCELLATION_REQUESTED", label: "Cancelación Solicitada" },
   { value: "CANCELLATION_APPROVED_BY_PROJECT_DIRECTOR", label: "Cancelación Aprobada por Director" },
@@ -167,26 +167,26 @@ export const getStatusBadgeClass = (status) => {
 };
 
 // ==========================================
-// 📚 GESTIÓN DE SEMINARIOS (PROGRAM HEAD)
+// 📚 GESTIÓN DE DIPLOMADOS (PROGRAM HEAD)
 // ==========================================
 
 /**
- * Crear un nuevo seminario
+ * Crear un nuevo diplomado
  * POST /modalities/seminar/create
  */
 export const createSeminar = async (seminarData) => {
-  console.log("📤 Creando seminario:", seminarData);
+  console.log("📤 Creando diplomado:", seminarData);
   
   const response = await axios.post("/modalities/seminar/create", seminarData);
   return response.data;
 };
 
 /**
- * Listar todos los seminarios del programa
+ * Listar todos los diplomados del programa
  * GET /modalities/seminars?status={status}&active={active}
  */
 export const listSeminars = async (filters = {}) => {
-  console.log("📋 Listando seminarios con filtros:", filters);
+  console.log("📋 Listando diplomados con filtros:", filters);
   
   const params = new URLSearchParams();
   
@@ -206,33 +206,33 @@ export const listSeminars = async (filters = {}) => {
 };
 
 /**
- * Obtener detalle de un seminario específico
+ * Obtener detalle de un diplomado específico
  * GET /modalities/seminar/{seminarId}/detail
  */
 export const getSeminarDetail = async (seminarId) => {
-  console.log("🔍 Obteniendo detalle del seminario:", seminarId);
+  console.log("🔍 Obteniendo detalle del diplomado:", seminarId);
   
   const response = await axios.get(`/modalities/seminar/${seminarId}/detail`);
   return response.data;
 };
 
 /**
- * Iniciar un seminario
+ * Iniciar un diplomado
  * POST /modalities/seminar/{seminarId}/start
  */
 export const startSeminar = async (seminarId) => {
-  console.log("▶️ Iniciando seminario:", seminarId);
+  console.log("▶️ Iniciando diplomado:", seminarId);
   
   const response = await axios.post(`/modalities/seminar/${seminarId}/start`);
   return response.data;
 };
 
 /**
- * Cancelar un seminario
+ * Cancelar un diplomado
  * POST /modalities/seminar/{seminarId}/cancel
  */
 export const cancelSeminar = async (seminarId, reason = "") => {
-  console.log("❌ Cancelando seminario:", seminarId, "Razón:", reason);
+  console.log("❌ Cancelando diplomado:", seminarId, "Razón:", reason);
   
   const response = await axios.post(`/modalities/seminar/${seminarId}/cancel`, {
     reason
@@ -241,22 +241,22 @@ export const cancelSeminar = async (seminarId, reason = "") => {
 };
 
 /**
- * Completar un seminario
+ * Completar un diplomado
  * POST /modalities/seminar/{seminarId}/complete
  */
 export const completeSeminar = async (seminarId) => {
-  console.log("✅ Completando seminario:", seminarId);
+  console.log("✅ Completando diplomado:", seminarId);
   
   const response = await axios.post(`/modalities/seminar/${seminarId}/complete`);
   return response.data;
 };
 
 /**
- * Actualizar un seminario
+ * Actualizar un diplomado
  * PUT /modalities/seminar/{seminarId}
  */
 export const updateSeminar = async (seminarId, seminarData) => {
-  console.log("📝 Actualizando seminario:", seminarId, seminarData);
+  console.log("📝 Actualizando diplomado:", seminarId, seminarData);
   
   const response = await axios.put(`/modalities/seminar/${seminarId}`, seminarData);
   return response.data;
@@ -267,7 +267,7 @@ export const updateSeminar = async (seminarId, seminarData) => {
 // ==========================================
 
 /**
- * Estados de seminarios traducidos
+ * Estados de diplomados traducidos
  */
 export const SEMINAR_STATUS_OPTIONS = [
   { value: "OPEN", label: "Abierto", color: "success" },
@@ -277,7 +277,7 @@ export const SEMINAR_STATUS_OPTIONS = [
 ];
 
 /**
- * Obtener etiqueta del estado del seminario
+ * Obtener etiqueta del estado del diplomado
  */
 export const getSeminarStatusLabel = (status) => {
   const option = SEMINAR_STATUS_OPTIONS.find(opt => opt.value === status);
@@ -285,7 +285,7 @@ export const getSeminarStatusLabel = (status) => {
 };
 
 /**
- * Obtener clase CSS del estado del seminario
+ * Obtener clase CSS del estado del diplomado
  */
 export const getSeminarStatusClass = (status) => {
   const option = SEMINAR_STATUS_OPTIONS.find(opt => opt.value === status);

@@ -1844,7 +1844,7 @@ onChange={() => handleCheckboxChange('filtered', 'degreeModalityIds', type.id)}
 </h3>
           </div>
           <p className="report-description" style={{ fontWeight: 500, color: '#5d0d12' }}>
-            Genera un reporte institucional completo del calendario de sustentaciones de modalidades de grado, mostrando fechas programadas, estado de cada defensa, jurados asignados y alertas importantes.
+            Genera un reporte institucional completo del calendario de sustentaciones de modalidades de grado, mostrando fechas programadas, estado de cada defensa, jurado asignado y alertas importantes.
           </p>
           <div className="report-stats">
             

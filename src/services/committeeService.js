@@ -289,34 +289,34 @@ export const rescheduleDefense = async (studentModalityId, defenseData) => {
 };
 
 // ==========================================
-// 👨‍⚖️ FUNCIONES PARA JUECES/EXAMINERS
+// 👨‍⚖️ FUNCIONES PARA JURADO/EXAMINERS
 // ==========================================
 
 /**
- * Obtener lista de jueces disponibles para el comité
- * Solo muestra jueces del programa académico del comité
- * @returns {Promise<Array>} Lista de jueces
+ * Obtener lista de jurado disponible para el comité
+ * Solo muestra jurado del programa académico del comité
+ * @returns {Promise<Array>} Lista de jurado
  */
 export const getExaminersForCommittee = async () => {
-  console.log("👨‍⚖️ Obteniendo jueces disponibles para el comité");
+  console.log("👨‍⚖️ Obteniendo jurado disponible para el comité");
   const response = await axios.get("/modalities/examiners/for-committee");
   return response.data;
 };
 
 /**
- * Obtener los jueces asignados a una modalidad específica
+ * Obtener el jurado asignado a una modalidad específica
  * @param {number} studentModalityId - ID de la modalidad del estudiante
- * @returns {Promise<Array>} Lista de jueces asignados con nombre, email y rol
+ * @returns {Promise<Array>} Lista de jurado asignado con nombre, email y rol
  */
 export const getAssignedExaminers = async (studentModalityId) => {
-  console.log("👨‍⚖️ Obteniendo jueces asignados para modalidad:", studentModalityId);
+  console.log("👨‍⚖️ Obteniendo jurado asignado para modalidad:", studentModalityId);
   try {
     const response = await axios.get(`/modalities/${studentModalityId}/examiners`);
     return response.data;
   } catch (error) {
-    // Si el endpoint no existe o no hay jueces asignados, retornar array vacío
+    // Si el endpoint no existe o no hay jurado asignado, retornar array vacío
     if (error.response?.status === 404 || error.response?.status === 400) {
-      console.log("ℹ️ No hay jueces asignados o endpoint no disponible");
+      console.log("ℹ️ No hay jurado asignado o endpoint no disponible");
       return [];
     }
     throw error;
@@ -324,16 +324,16 @@ export const getAssignedExaminers = async (studentModalityId) => {
 };
 
 /**
- * Asignar jueces a una modalidad
+ * Asignar jurado a una modalidad
  * @param {number} studentModalityId - ID de la modalidad del estudiante
- * @param {Object} examinersData - Datos de los jueces
- * @param {number} examinersData.primaryExaminer1Id - ID del juez principal 1
- * @param {number} examinersData.primaryExaminer2Id - ID del juez principal 2
- * @param {number|null} examinersData.tiebreakerExaminerId - ID del juez de desempate (opcional)
+ * @param {Object} examinersData - Datos del jurado
+ * @param {number} examinersData.primaryExaminer1Id - ID del jurado principal 1
+ * @param {number} examinersData.primaryExaminer2Id - ID del jurado principal 2
+ * @param {number|null} examinersData.tiebreakerExaminerId - ID del jurado de desempate (opcional)
  * @returns {Promise<Object>} Respuesta de confirmación
  */
 export const assignExaminers = async (studentModalityId, examinersData) => {
-  console.log("👨‍⚖️ Asignando jueces:", { studentModalityId, examinersData });
+  console.log("👨‍⚖️ Asignando jurado:", { studentModalityId, examinersData });
   const response = await axios.post(
     `/modalities/${studentModalityId}/examiners/assign`,
     examinersData
@@ -342,15 +342,15 @@ export const assignExaminers = async (studentModalityId, examinersData) => {
 };
 
 // ==========================================
-// 🔒 CERRAR MODALIDAD (COMITÉ)
+// 🔒 CANCELAR MODALIDAD (COMITÉ)
 // =========================================
 
 export const closeModalityByCommittee = async (studentModalityId, reason) => {
   if (!reason || reason.trim() === "") {
-    throw new Error("El motivo del cierre es obligatorio");
+    throw new Error("El motivo de la cancelaci");
   }
   
-  console.log("🔒 Cerrando modalidad por decisión del comité:", { 
+  console.log("🔒 Cancelando modalidad por decisión del comité:", { 
     studentModalityId, 
     reason: reason.substring(0, 50) + "..." 
   });
@@ -360,18 +360,18 @@ export const closeModalityByCommittee = async (studentModalityId, reason) => {
     { reason: reason.trim() }
   );
   
-  console.log("✅ Modalidad cerrada:", response.data);
+  console.log("✅ Modalidad cancelada:", response.data);
   return response.data;
 };
 
 // ==========================================
 // ✅ APROBAR MODALIDAD FINAL (COMITÉ)
-// Para modalidades simplificadas sin director/jueces
+// Para modalidades simplificadas sin director/jurado
 // ==========================================
 
 /**
- * Aprobar modalidad de forma final (sin proceso de director/jueces)
- * Aplica para: Pasantía, Posgrado, Seminario, Producción Académica, etc.
+ * Aprobar modalidad de forma final (sin proceso de director/jurado)
+ * Aplica para: Pasantía, Posgrado, Diplomado, Producción Académica, etc.
  * @param {number} studentModalityId - ID de la modalidad del estudiante
  * @param {string} observations - Observaciones opcionales del comité
  * @returns {Promise<Object>} Respuesta de confirmación
@@ -393,12 +393,12 @@ export const approveFinalModalityByCommittee = async (studentModalityId, observa
 
 // ==========================================
 // ❌ RECHAZAR MODALIDAD FINAL (COMITÉ)
-// Para modalidades simplificadas sin director/jueces
+// Para modalidades simplificadas sin director/jurado
 // ==========================================
 
 /**
- * Rechazar modalidad de forma final (sin proceso de director/jueces)
- * Aplica para: Pasantía, Posgrado, Seminario, Producción Académica, etc.
+ * Rechazar modalidad de forma final (sin proceso de director/jurado)
+ * Aplica para: Pasantía, Posgrado, Diplomado, Producción Académica, etc.
  * @param {number} studentModalityId - ID de la modalidad del estudiante
  * @param {string} reason - Razón del rechazo (obligatorio)
  * @returns {Promise<Object>} Respuesta de confirmación
@@ -428,7 +428,7 @@ export const rejectFinalModalityByCommittee = async (studentModalityId, reason) 
 
 /**
  * Determina si una modalidad usa el proceso simplificado
- * (sin director/jueces/sustentación)
+ * (sin director/jurado/sustentación)
  * @param {string} modalityName - Nombre de la modalidad
  * @returns {boolean} true si es modalidad simplificada
  */

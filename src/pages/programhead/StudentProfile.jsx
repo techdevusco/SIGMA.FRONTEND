@@ -177,25 +177,25 @@ export default function StudentProfileProgramHead() {
       "DEFENSE_REQUESTED_BY_PROJECT_DIRECTOR": "Sustentación solicitada por Director",
       "DEFENSE_SCHEDULED": "Sustentación programada",
 
-      // ========== ASIGNACIÓN DE JUECES (NUEVO) ========== 
-      "EXAMINERS_ASSIGNED": "Jueces asignados",
-      "READY_FOR_EXAMINERS": "Listo para jueces",
-      "CORRECTIONS_REQUESTED_EXAMINERS": "Correcciones solicitadas por jueces",
+      // ========== ASIGNACIÓN DE JURADO (NUEVO) ========== 
+      "EXAMINERS_ASSIGNED": "Jurado asignado",
+      "READY_FOR_EXAMINERS": "Listo para jurado",
+      "CORRECTIONS_REQUESTED_EXAMINERS": "Correcciones solicitadas por jurado",
       "READY_FOR_DEFENSE": "Listo para sustentación",
       "FINAL_REVIEW_COMPLETED": "Revisión final completada",
 
       // ========== SUSTENTACIÓN Y EVALUACIÓN ========== 
       "DEFENSE_COMPLETED": "Sustentación realizada",
-      "UNDER_EVALUATION_PRIMARY_EXAMINERS": "En evaluación por jueces principales",
-      "DISAGREEMENT_REQUIRES_TIEBREAKER": "Desacuerdo, requiere juez desempate",
-      "UNDER_EVALUATION_TIEBREAKER": "En evaluación por juez desempate",
+      "UNDER_EVALUATION_PRIMARY_EXAMINERS": "En evaluación por jurado principal",
+      "DISAGREEMENT_REQUIRES_TIEBREAKER": "Desacuerdo, requiere jurado de desempate",
+      "UNDER_EVALUATION_TIEBREAKER": "En evaluación por jurado de desempate",
       "EVALUATION_COMPLETED": "Evaluación completada",
 
       // ========== RESULTADO FINAL ========== 
       "GRADED_APPROVED": "Aprobado",
       "GRADED_FAILED": "Reprobado",
-      "MODALITY_CLOSED": "Modalidad cerrada",
-      "SEMINAR_CANCELED": "Seminario cancelado",
+      "MODALITY_CLOSED": "Modalidad cancelada",
+      "SEMINAR_CANCELED": "Diplomado cancelado",
 
       // ========== CANCELACIONES ========== 
       "MODALITY_CANCELLED": "Modalidad cancelada",
@@ -215,9 +215,9 @@ export default function StudentProfileProgramHead() {
       "REJECTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW": "Rechazado por Comité",
       "CORRECTIONS_REQUESTED_BY_PROGRAM_CURRICULUM_COMMITTEE": "Correcciones solicitadas por Comité",
       "CORRECTION_RESUBMITTED": "Corrección reenviada",
-      "ACCEPTED_FOR_EXAMINER_REVIEW": "Aceptado por Juez",
-      "REJECTED_FOR_EXAMINER_REVIEW": "Rechazado por Juez",
-      "CORRECTIONS_REQUESTED_BY_EXAMINER": "Correcciones solicitadas por Juez",
+      "ACCEPTED_FOR_EXAMINER_REVIEW": "Aceptado por Jurado",
+      "REJECTED_FOR_EXAMINER_REVIEW": "Rechazado por Jurado",
+      "CORRECTIONS_REQUESTED_BY_EXAMINER": "Correcciones solicitadas por Jurado",
     };
     return statusLabels[status] || status;
   };

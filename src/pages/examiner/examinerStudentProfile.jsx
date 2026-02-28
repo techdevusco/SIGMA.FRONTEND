@@ -32,11 +32,11 @@ const translateDocumentStatus = (status) => {
     case "CORRECTIONS_REQUESTED_BY_PROGRAM_CURRICULUM_COMMITTEE":
       return "Correcciones solicitadas por comité curricular";
     case "ACCEPTED_FOR_EXAMINER_REVIEW":
-      return "Aceptado por revisión de juez";
+      return "Aceptado por revisión del jurado";
     case "REJECTED_FOR_EXAMINER_REVIEW":
-      return "Rechazado por juez";
+      return "Rechazado por jurado";
     case "CORRECTIONS_REQUESTED_BY_EXAMINER":
-      return "Correcciones solicitadas por juez";
+      return "Correcciones solicitadas por jurado";
     default:
       return status;
   }
@@ -118,7 +118,7 @@ const fetchExaminerRole = async () => {
     }
 
   } catch (err) {
-    console.error("Error obteniendo rol del juez:", err);
+    console.error("Error obteniendo rol del jurado:", err);
     setExaminerRoleError("No se pudo cargar la información del rol.");
   } finally {
     setLoadingExaminerRole(false);
@@ -641,26 +641,26 @@ const fetchExaminerRole = async () => {
       {/* Examiner Role */}
 {loadingExaminerRole && (
   <div className="examiner-profile-card examiner-profile-card-student">
-    <h3 className="examiner-role-title"> Mi Rol como Juez</h3>
+    <h3 className="examiner-role-title"> Mi Rol como Jurado</h3>
     <div>Cargando información del rol...</div>
   </div>
 )}
 
 {examinerRoleError && (
   <div className="examiner-profile-card examiner-profile-card-student">
-    <h3 className="examiner-role-title"> Mi Rol como Juez</h3>
+    <h3 className="examiner-role-title"> Mi Rol como Jurado</h3>
     <div style={{ color: "red" }}>{examinerRoleError}</div>
   </div>
 )}
 
 {examinerRoleInfo && !loadingExaminerRole && (
   <div className="student-info-card">
-    <h3 className="examiner-profile-card-title"> Mi Rol como Juez</h3>
+    <h3 className="examiner-profile-card-title"> Mi Rol como Jurado</h3>
 
     <div className="examiner-profile-value email">
-      {examinerRoleInfo.examinerType === "PRIMARY_EXAMINER_1" && " Juez Principal 1"}
-      {examinerRoleInfo.examinerType === "PRIMARY_EXAMINER_2" && " Juez Principal 2"}
-      {examinerRoleInfo.examinerType === "TIEBREAKER_EXAMINER" && " Juez de Desempate"}
+      {examinerRoleInfo.examinerType === "PRIMARY_EXAMINER_1" && " Jurado Principal 1"}
+      {examinerRoleInfo.examinerType === "PRIMARY_EXAMINER_2" && " Jurado Principal 2"}
+      {examinerRoleInfo.examinerType === "TIEBREAKER_EXAMINER" && " Jurado de Desempate"}
     </div>
 
     {examinerRoleInfo.assignmentDate && (
@@ -947,13 +947,13 @@ const fetchExaminerRole = async () => {
         let examinerTypeLabel = '';
         switch (registeredEvaluation.examinerType) {
           case 'PRIMARY_EXAMINER_1':
-            examinerTypeLabel = 'Juez Principal 1';
+            examinerTypeLabel = 'Jurado Principal 1';
             break;
           case 'PRIMARY_EXAMINER_2':
-            examinerTypeLabel = 'Juez Principal 2';
+            examinerTypeLabel = 'Jurado Principal 2';
             break;
           case 'TIEBREAKER_EXAMINER':
-            examinerTypeLabel = 'Juez de Desempate';
+            examinerTypeLabel = 'Jurado de Desempate';
             break;
           default:
             examinerTypeLabel = registeredEvaluation.examinerType;

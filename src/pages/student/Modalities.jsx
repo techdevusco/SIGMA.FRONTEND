@@ -196,7 +196,7 @@ export default function Modalities() {
   return {
     canStart: false,
     canRestart: false,
-    message: "Esta modalidad ha sido cerrada y no puede reiniciarse. Puedes revisar otras modalidades disponibles que se ajusten a tu perfil académico."
+    message: "Esta modalidad ha sido cancelada y no puede reiniciarse. Puedes revisar otras modalidades disponibles que se ajusten a tu perfil académico."
   };
 }
 

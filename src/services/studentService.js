@@ -429,20 +429,20 @@ export const MODALITY_STATUS_OPTIONS = [
   { value: "PROPOSAL_APPROVED", label: "Propuesta Aprobada" },
   { value: "DEFENSE_REQUESTED_BY_PROJECT_DIRECTOR", label: "Sustentación Propuesta por Director" },
   { value: "DEFENSE_SCHEDULED", label: "Sustentación Programada" },
-  { value: "EXAMINERS_ASSIGNED", label: "Jueces Asignados" },
-  { value: "READY_FOR_EXAMINERS", label: "Listo para Jueces" },
-  { value: "CORRECTIONS_REQUESTED_EXAMINERS", label: "Correcciones Solicitadas por Jueces" },
+  { value: "EXAMINERS_ASSIGNED", label: "Jurado Asignado" },
+  { value: "READY_FOR_EXAMINERS", label: "Listo para Jurado" },
+  { value: "CORRECTIONS_REQUESTED_EXAMINERS", label: "Correcciones Solicitadas por Jurado" },
   { value: "READY_FOR_DEFENSE", label: "Listo para Sustentación" },
   { value: "FINAL_REVIEW_COMPLETED", label: "Revisión Final Completada" },
   { value: "DEFENSE_COMPLETED", label: "Sustentación Completada" },
-  { value: "UNDER_EVALUATION_PRIMARY_EXAMINERS", label: "En Evaluación por Jueces Principales" },
-  { value: "DISAGREEMENT_REQUIRES_TIEBREAKER", label: "Desacuerdo - Requiere Tercer Juez" },
-  { value: "UNDER_EVALUATION_TIEBREAKER", label: "En Evaluación por Tercer Juez" },
+  { value: "UNDER_EVALUATION_PRIMARY_EXAMINERS", label: "En Evaluación por Jurado Principal" },
+  { value: "DISAGREEMENT_REQUIRES_TIEBREAKER", label: "Desacuerdo - Requiere Tercer Jurado" },
+  { value: "UNDER_EVALUATION_TIEBREAKER", label: "En Evaluación por Tercer Jurado" },
   { value: "EVALUATION_COMPLETED", label: "Evaluación Completada" },
   { value: "GRADED_APPROVED", label: "Aprobado" },
   { value: "GRADED_FAILED", label: "Reprobado" },
-  { value: "MODALITY_CLOSED", label: "Modalidad Cerrada" },
-  { value: "SEMINAR_CANCELED", label: "Seminario Cancelado" },
+  { value: "MODALITY_CLOSED", label: "Modalidad Cancelada" },
+  { value: "SEMINAR_CANCELED", label: "Diplomado Cancelado" },
   { value: "MODALITY_CANCELLED", label: "Modalidad Cancelada" },
   { value: "CANCELLATION_REQUESTED", label: "Cancelación Solicitada" },
   { value: "CANCELLATION_APPROVED_BY_PROJECT_DIRECTOR", label: "Cancelación Aprobada por Director" },
@@ -507,16 +507,16 @@ export const getStatusBadgeClass = (status) => {
 };
 
 // ========================================
-// 📚 SEMINARIOS
+// 📚 DIPLOMADOS
 // ========================================
 
-// Obtener seminarios disponibles para el estudiante
+// Obtener diplomados disponibles para el estudiante
 export const getAvailableSeminars = async () => {
   const res = await api.get("/modalities/seminar/available");
   return res.data;
 };
 
-// Inscribirse en un seminario específico
+// Inscribirse en un diplomado específico
 export const enrollInSeminar = async (seminarId) => {
   const res = await api.post(`/modalities/seminar/${seminarId}/enroll`);
   return res.data;

@@ -220,13 +220,13 @@ export const rejectModalityCancellationByDirector = async (studentModalityId, re
 };
 
 /**
- * Marcar modalidad como lista para defensa y notificar a los jurados
+ * Marcar modalidad como lista para defensa y notificar al jurado
  * POST /modalities/{studentModalityId}/ready-for-defense
  * @param {number} studentModalityId
  * @returns {Promise<Object>}
  */
 export const notifyReadyForDefense = async (studentModalityId) => {
-  console.log("📣 Notificando jurados - READY_FOR_DEFENSE:", studentModalityId);
+  console.log("📣 Notificando jurado - READY_FOR_DEFENSE:", studentModalityId);
   const response = await axios.post(`/modalities/${studentModalityId}/ready-for-defense`);
   return response.data;
 };
@@ -271,20 +271,20 @@ export const DIRECTOR_STATUS_OPTIONS = [
   { value: "PROPOSAL_APPROVED", label: "Propuesta Aprobada" },
   { value: "DEFENSE_REQUESTED_BY_PROJECT_DIRECTOR", label: "Sustentación Propuesta por Director" },
   { value: "DEFENSE_SCHEDULED", label: "Sustentación Programada" },
-  { value: "EXAMINERS_ASSIGNED", label: "Jueces Asignados" },
-  { value: "READY_FOR_EXAMINERS", label: "Listo para Jueces" },
-  { value: "CORRECTIONS_REQUESTED_EXAMINERS", label: "Correcciones Solicitadas por Jueces" },
+  { value: "EXAMINERS_ASSIGNED", label: "Jurado Asignado" },
+  { value: "READY_FOR_EXAMINERS", label: "Listo para Jurado" },
+  { value: "CORRECTIONS_REQUESTED_EXAMINERS", label: "Correcciones Solicitadas por Jurado" },
   { value: "READY_FOR_DEFENSE", label: "Listo para Sustentación" },
   { value: "FINAL_REVIEW_COMPLETED", label: "Revisión Final Completada" },
   { value: "DEFENSE_COMPLETED", label: "Sustentación Completada" },
-  { value: "UNDER_EVALUATION_PRIMARY_EXAMINERS", label: "En Evaluación por Jueces Principales" },
-  { value: "DISAGREEMENT_REQUIRES_TIEBREAKER", label: "Desacuerdo - Requiere Tercer Juez" },
-  { value: "UNDER_EVALUATION_TIEBREAKER", label: "En Evaluación por Tercer Juez" },
+  { value: "UNDER_EVALUATION_PRIMARY_EXAMINERS", label: "En Evaluación por Jurado Principal" },
+  { value: "DISAGREEMENT_REQUIRES_TIEBREAKER", label: "Desacuerdo - Requiere Tercer Jurado" },
+  { value: "UNDER_EVALUATION_TIEBREAKER", label: "En Evaluación por Tercer Jurado" },
   { value: "EVALUATION_COMPLETED", label: "Evaluación Completada" },
   { value: "GRADED_APPROVED", label: "Aprobado" },
   { value: "GRADED_FAILED", label: "Reprobado" },
-  { value: "MODALITY_CLOSED", label: "Modalidad Cerrada" },
-  { value: "SEMINAR_CANCELED", label: "Seminario Cancelado" },
+  { value: "MODALITY_CLOSED", label: "Modalidad Cancelada" },
+  { value: "SEMINAR_CANCELED", label: "Diplomado Cancelado" },
   { value: "MODALITY_CANCELLED", label: "Modalidad Cancelada" },
   { value: "CANCELLATION_REQUESTED", label: "Cancelación Solicitada" },
   { value: "CANCELLATION_APPROVED_BY_PROJECT_DIRECTOR", label: "Cancelación Aprobada por Director" },
@@ -372,7 +372,7 @@ export const formatDate = (dateString) => {
 
 /**
  * Verificar si se puede proponer/programar sustentación
- * Solo disponible cuando los jurados completaron la revisión final
+ * Solo disponible cuando el jurado completo la revisión final
  * @param {string} status - Estado actual de la modalidad
  * @returns {boolean} True si se puede proponer
  */
@@ -381,8 +381,8 @@ export const canProposeDefense = (status) => {
 };
 
 /**
- * Verificar si se puede notificar a los jurados (READY_FOR_DEFENSE)
- * Disponible cuando los jurados aprobaron la modalidad y el estudiante cargó docs secundarios
+ * Verificar si se puede notificar al jurado (READY_FOR_DEFENSE)
+ * Disponible cuando el jurado aprobo la modalidad y el estudiante cargó docs secundarios
  * @param {string} status - Estado actual
  * @returns {boolean}
  */

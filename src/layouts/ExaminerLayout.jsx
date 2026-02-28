@@ -30,7 +30,7 @@ export default function ExaminerLayout() {
       <aside className="council-sidebar">
         <div className="sidebar-header">
           <div className="sidebar-header-top">
-            <h2>Portal de Jueces</h2>
+            <h2>Portal del Jurado</h2>
             <div className="sidebar-bell"><NotificationBell viewAllLink="/examiner/notifications" navigateOnly /></div>
           </div>
           <p className="user-info">{user?.email || "Cargando..."}</p>

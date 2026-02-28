@@ -27,25 +27,25 @@ export const PROCESS_STATUSES = [
   { value: 'DEFENSE_REQUESTED_BY_PROJECT_DIRECTOR', label: 'Sustentación Solicitada por Director de Proyecto' },
   { value: 'DEFENSE_SCHEDULED', label: 'Sustentación Programada' },
 
-  // ========== ASIGNACIÓN DE JUECES (NUEVO) ========== 
-  { value: 'EXAMINERS_ASSIGNED', label: 'Jurados Asignados' },
-  { value: 'READY_FOR_EXAMINERS', label: 'Listo para Jurados' },
-  { value: 'CORRECTIONS_REQUESTED_EXAMINERS', label: 'Correcciones Solicitadas por Jurados' },
+  // ========== ASIGNACIÓN DE JURADO (NUEVO) ========== 
+  { value: 'EXAMINERS_ASSIGNED', label: 'Jurado Asignado' },
+  { value: 'READY_FOR_EXAMINERS', label: 'Listo para Jurado' },
+  { value: 'CORRECTIONS_REQUESTED_EXAMINERS', label: 'Correcciones Solicitadas por Jurado' },
   { value: 'READY_FOR_DEFENSE', label: 'Listo para Sustentación' },
   { value: 'FINAL_REVIEW_COMPLETED', label: 'Revisión Final Completada' },
 
   // ========== SUSTENTACIÓN Y EVALUACIÓN ========== 
   { value: 'DEFENSE_COMPLETED', label: 'Sustentación Completada' },
-  { value: 'UNDER_EVALUATION_PRIMARY_EXAMINERS', label: 'Evaluación Jurados Principales' },
+  { value: 'UNDER_EVALUATION_PRIMARY_EXAMINERS', label: 'Evaluación Jurado Principal' },
   { value: 'DISAGREEMENT_REQUIRES_TIEBREAKER', label: 'Desacuerdo - Requiere Desempate' },
-  { value: 'UNDER_EVALUATION_TIEBREAKER', label: 'Evaluación Juez de Desempate' },
+  { value: 'UNDER_EVALUATION_TIEBREAKER', label: 'Evaluación Jurado de Desempate' },
   { value: 'EVALUATION_COMPLETED', label: 'Evaluación Completada' },
 
   // ========== RESULTADO FINAL ========== 
   { value: 'GRADED_APPROVED', label: 'Calificado - Aprobado' },
   { value: 'GRADED_FAILED', label: 'Calificado - Reprobado' },
-  { value: 'MODALITY_CLOSED', label: 'Modalidad Cerrada' },
-  { value: 'SEMINAR_CANCELED', label: 'Seminario Cancelado' },
+  { value: 'MODALITY_CLOSED', label: 'Modalidad Cancelada' },
+  { value: 'SEMINAR_CANCELED', label: 'Diplomado Cancelado' },
 
   // ========== CANCELACIONES ========== 
   { value: 'MODALITY_CANCELLED', label: 'Modalidad Cancelada' },

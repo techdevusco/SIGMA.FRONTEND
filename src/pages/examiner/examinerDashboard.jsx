@@ -44,7 +44,7 @@ export default function ExaminerDashboard() {
       setAssignments(data);
     } catch (err) {
       console.error("Error:", err);
-      setError("Error al cargar tus asignaciones como juez");
+      setError("Error al cargar tus asignaciones como jurado");
     } finally {
       setLoading(false);
     }
@@ -97,7 +97,7 @@ export default function ExaminerDashboard() {
     return (
       <div className="examiner-dashboard-container">
         <div className="examiner-loading">
-          Cargando tus asignaciones como juez...
+          Cargando tus asignaciones como jurado...
         </div>
       </div>
     );
@@ -223,7 +223,7 @@ export default function ExaminerDashboard() {
           <p className="examiner-empty-text">
             {filters.statuses.length > 0 || filters.name.trim()
               ? "Intenta ajustar los filtros de búsqueda"
-              : "Cuando el comité te asigne como juez de una sustentación, aparecerá aquí."}
+              : "Cuando el comité te asigne como jurado de una sustentación, aparecerá aquí."}
           </p>
           {(filters.statuses.length > 0 || filters.name.trim()) && (
             <button
