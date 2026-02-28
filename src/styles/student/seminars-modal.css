@@ -1,6 +1,51 @@
 /* ========================================
-   SEMINARIOS MODAL - ESTILOS PRINCIPALES
+   SEMINARIOS - ESTILOS PRINCIPALES
    ======================================== */
+
+/* Contenedor de página de seminarios */
+.seminars-page-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.seminars-page-header {
+  margin-bottom: 1.5rem;
+}
+
+.seminars-page-header h2 {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  color: #7A1117;
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin: 0 0 0.5rem 0;
+}
+
+.seminar-message {
+  padding: 0.8rem 1.2rem;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.seminar-message.success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.seminar-message.error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.seminar-message.info {
+  background: #d1ecf1;
+  color: #0c5460;
+  border: 1px solid #bee5eb;
+}
 
 /* Modal principal de seminarios */
 .modal-seminar {

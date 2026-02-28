@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   getModalidades,
   startModality,
@@ -6,8 +7,6 @@ import {
   getCurrentModalityStatus,
   getModalityById,
   getCompletedModalitiesHistory,
-  getAvailableSeminars,
-  enrollInSeminar,
 } from "../../services/studentService";
 import {
   startGroupModality,
@@ -15,9 +14,9 @@ import {
   inviteStudent,
 } from "../../services/ModalitiesGroupService";
 import "../../styles/student/modalities.css";
-import "../../styles/student/seminars-modal.css";
 
 export default function Modalities() {
+  const navigate = useNavigate();
   const [modalities, setModalities] = useState([]);
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -45,15 +44,6 @@ export default function Modalities() {
   const [selectedStudents, setSelectedStudents] = useState([]);
   const [loadingStudents, setLoadingStudents] = useState(false);
   const [groupStudentModalityId, setGroupStudentModalityId] = useState(null);
-
-  // ✅ NUEVO: Estados para el modal de seminarios
-  const [showSeminarModal, setShowSeminarModal] = useState(false);
-  const [seminars, setSeminars] = useState([]);
-  const [loadingSeminars, setLoadingSeminars] = useState(false);
-  const [selectedSeminar, setSelectedSeminar] = useState(null);
-  const [showSeminarConfirmModal, setShowSeminarConfirmModal] = useState(false);
-  const [enrollingSeminar, setEnrollingSeminar] = useState(null);
-  const [isSeminarioSelection, setIsSeminarioSelection] = useState(false);
 
   const modalityRefs = useRef({});
 
@@ -241,76 +231,10 @@ return {
 };
   };
 
-  // ✅ NUEVA FUNCIÓN: Detectar si es Seminario
+  // Detectar si es Seminario
   const isSeminarioModality = (modality) => {
     if (!modality) return false;
     return modality.name?.toUpperCase().includes("SEMINARIO");
-  };
-
-  // ✅ NUEVA FUNCIÓN: Cargar seminarios disponibles
-  const loadAvailableSeminars = async () => {
-    try {
-      setLoadingSeminars(true);
-      const response = await getAvailableSeminars();
-      
-      if (response.success) {
-        setSeminars(response.seminars || []);
-      } else {
-        setGlobalMessage("No se pudieron cargar los seminarios disponibles");
-      }
-    } catch (err) {
-      console.error("❌ Error al cargar seminarios:", err);
-      
-      if (err.response?.status === 400) {
-        setGlobalMessage(
-          err.response?.data?.error || 
-          "Para ver seminarios, debes tener iniciada la modalidad 'SEMINARIO DE GRADO'."
-        );
-      } else {
-        setGlobalMessage("Error al cargar los seminarios disponibles");
-      }
-    } finally {
-      setLoadingSeminars(false);
-    }
-  };
-
-  // ✅ NUEVA FUNCIÓN: Inscribirse en seminario
-  const handleEnrollInSeminar = async () => {
-    if (!selectedSeminar) return;
-
-    try {
-      setEnrollingSeminar(selectedSeminar.id);
-
-      const response = await enrollInSeminar(selectedSeminar.id);
-
-      if (response.success) {
-        setModalityMessages({
-          [pendingModalityId]: {
-            type: 'success',
-            text: `🎉 ${response.message || "Te has inscrito exitosamente en el seminario"}`
-          }
-        });
-
-        setShowSeminarConfirmModal(false);
-        setShowSeminarModal(false);
-        setShowDetailModal(false);
-
-        // Recargar seminarios
-        await loadAvailableSeminars();
-      } else {
-        setGlobalMessage(response.error || "Error al inscribirse en el seminario");
-      }
-    } catch (err) {
-      console.error("❌ Error al inscribirse:", err);
-      
-      const errorMsg = err.response?.data?.error || 
-                       err.response?.data?.message ||
-                       "Error al inscribirse en el seminario";
-      
-      setGlobalMessage(errorMsg);
-    } finally {
-      setEnrollingSeminar(null);
-    }
   };
 
   const handleStartModalitySelection = (modalityId) => {
@@ -349,11 +273,9 @@ return {
     setPendingModalityId(modalityId);
     setShowDetailModal(false);
 
-    // ✅ NUEVO: Verificar si es Seminario - ahora también pasa por confirmación
+    // Si es Seminario, redirigir a la página de seminarios
     if (isSeminarioModality(modalityDetail)) {
-      setIsSeminarioSelection(true);
-      setModalityType("INDIVIDUAL");
-      setShowConfirmModal(true);
+      navigate("/student/seminars");
       return;
     }
     
@@ -432,34 +354,6 @@ return {
   };
 
   const handleFinalConfirm = async () => {
-    // ✅ NUEVO: Si es Seminario, primero confirma la modalidad y luego abre los seminarios
-    if (isSeminarioSelection) {
-      try {
-        setSendingId(pendingModalityId);
-        const res = await startModality(pendingModalityId);
-
-        setStudentModalityId(res.studentModalityId);
-        setSelectedModalityId(pendingModalityId);
-        
-        // Cerrar modal de confirmación y abrir modal de seminarios
-        setShowConfirmModal(false);
-        setIsSeminarioSelection(false);
-        setModalityType(null);
-        
-        // Abrir modal de seminarios después de confirmar
-        setShowSeminarModal(true);
-        await loadAvailableSeminars();
-        
-      } catch (err) {
-        console.error("❌ Error al iniciar modalidad seminario:", err);
-        handleModalityError(pendingModalityId, err);
-        setShowConfirmModal(false);
-      } finally {
-        setSendingId(null);
-      }
-      return;
-    }
-    
     if (modalityType === "INDIVIDUAL") {
       await handleSelectIndividualModality(pendingModalityId);
     } else {
@@ -521,25 +415,7 @@ return {
     }
   };
 
-  // ✅ NUEVO: Abrir modal de seminarios si la modalidad está activa (acceso desde página principal)
-  const openSeminarModalIfActive = async () => {
-    const hasSeminarioModality = modalityHistory.some(m => 
-      m.name && m.name.toUpperCase().includes('SEMINARIO DE GRADO') && 
-      isModalityActive(m.currentStatus)
-    );
-    
-    if (hasSeminarioModality) {
-      setShowSeminarModal(true);
-      await loadAvailableSeminars();
-    } else {
-      setModalityMessages({
-        general: {
-          type: 'error',
-          text: 'Para acceder a seminarios, debes tener iniciada la modalidad "SEMINARIO DE GRADO".'
-        }
-      });
-    }
-  };
+
 
   const handleModalityError = (modalityId, err) => {
     let errorContent = null;
@@ -625,31 +501,6 @@ return {
     } finally {
       setLoadingDetail(false);
     }
-  };
-
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("es-CO", {
-      style: "currency",
-      currency: "COP",
-      minimumFractionDigits: 0,
-    }).format(amount);
-  };
-
-  const getStatusBadge = (status) => {
-    const badges = {
-      OPEN: { text: "Abierto", class: "open" },
-      CLOSED: { text: "Cerrado", class: "closed" },
-      IN_PROGRESS: { text: "En Curso", class: "in-progress" },
-      COMPLETED: { text: "Completado", class: "completed" },
-    };
-
-    const badge = badges[status] || { text: status, class: "default" };
-
-    return (
-      <span className={`seminar-status-badge ${badge.class}`}>
-        {badge.text}
-      </span>
-    );
   };
 
   if (loading) {
@@ -759,31 +610,29 @@ return {
         ))}
       </ul>
 
-      {/* ✅ NUEVO: ACCESO A SEMINARIOS DESDE PÁGINA PRINCIPAL */}
-      {modalityHistory.some(m => m.name && m.name.toUpperCase().includes('SEMINARIO DE GRADO') && isModalityActive(m.currentStatus)) && (
-        <div style={{ 
-          marginTop: '2rem', 
-          padding: '1.5rem', 
-          backgroundColor: '#f0f4ff', 
-          borderLeft: '4px solid #7A1117',
-          borderRadius: '6px',
-          textAlign: 'center'
-        }}>
-          <h3 style={{ marginBottom: '0.5rem', color: '#7A1117' }}>
-            📚 Selecciona tu Seminario
-          </h3>
-          <p style={{ marginBottom: '1rem', color: '#666' }}>
-            Ya tienes la modalidad "SEMINARIO DE GRADO" activa. Entra y selecciona el seminario que deseas.
-          </p>
-          <button
-            className="modality-button"
-            onClick={openSeminarModalIfActive}
-            style={{ backgroundColor: '#7A1117' }}
-          >
-            Acceder a Seminarios →
-          </button>
-        </div>
-      )}
+      {/* ACCESO A SEMINARIOS */}
+      <div style={{ 
+        marginTop: '2rem', 
+        padding: '1.5rem', 
+        backgroundColor: '#f0f4ff', 
+        borderLeft: '4px solid #7A1117',
+        borderRadius: '6px',
+        textAlign: 'center'
+      }}>
+        <h3 style={{ marginBottom: '0.5rem', color: '#7A1117' }}>
+          📚 Diplomados de Grado
+        </h3>
+        <p style={{ marginBottom: '1rem', color: '#666' }}>
+          Consulta los diplomados disponibles para tu programa e inscríbete directamente.
+        </p>
+        <button
+          className="modality-button"
+          onClick={() => navigate("/student/seminars")}
+          style={{ backgroundColor: '#7A1117' }}
+        >
+          Ver Diplomados →
+        </button>
+      </div>
 
       {/* MODAL DETALLES */}
       {showDetailModal && modalityDetail && (
@@ -875,149 +724,6 @@ return {
                 </button>
               </>
             )}
-          </div>
-        </div>
-      )}
-
-      {/* ✅ NUEVO: MODAL DE SEMINARIOS */}
-      {showSeminarModal && (
-        <div className="modal-overlay" onClick={() => setShowSeminarModal(false)}>
-          <div className="modal-seminar" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-detail-header">
-              <h3>Seminarios Disponibles</h3>
-              <button className="modal-close-btn" onClick={() => setShowSeminarModal(false)}>
-                ✕
-              </button>
-            </div>
-
-            <p className="seminar-modal-subtitle">
-              Selecciona el seminario en el que deseas inscribirte
-            </p>
-
-            {loadingSeminars ? (
-              <div className="seminar-modal-loading">
-                <div className="spinner"></div>
-                <p>Cargando seminarios disponibles...</p>
-              </div>
-            ) : seminars.length === 0 ? (
-              <div className="seminar-modal-empty">
-                <p>📭 No hay seminarios disponibles para tu programa en este momento.</p>
-              </div>
-            ) : (
-              <div className="seminar-table-wrapper">
-                <table className="seminar-table">
-                  <thead>
-                    <tr>
-                      <th>Nombre</th>
-                      <th>Descripción</th>
-                      <th>Participantes</th>
-                      <th>Espacios</th>
-                      <th>Precio</th>
-                      <th>Estado</th>
-                      <th>Acciones</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {seminars.map((seminar) => (
-                      <tr key={seminar.id}>
-                        <td>
-                          <div className="seminar-name">{seminar.name}</div>
-                          <small className="seminar-program">{seminar.academicProgramName}</small>
-                        </td>
-                        <td className="seminar-description">{seminar.description}</td>
-                        <td className="text-center">
-                          {seminar.minParticipants} - {seminar.maxParticipants}
-                        </td>
-                        <td className="text-center">
-                          <span className={`available-spots ${seminar.availableSpots === 0 ? 'full' : ''}`}>
-                            {seminar.availableSpots}
-                          </span>
-                        </td>
-                        <td className="seminar-cost">{formatCurrency(seminar.totalCost)}</td>
-                        <td>{getStatusBadge(seminar.status)}</td>
-                        <td>
-                          <button
-                            className="enroll-button"
-                            onClick={() => {
-                              setSelectedSeminar(seminar);
-                              setShowSeminarConfirmModal(true);
-                            }}
-                            disabled={
-                              seminar.status !== "OPEN" ||
-                              seminar.availableSpots === 0 ||
-                              enrollingSeminar === seminar.id
-                            }
-                          >
-                            {enrollingSeminar === seminar.id
-                              ? "Inscribiendo..."
-                              : seminar.availableSpots === 0
-                              ? "Sin cupos"
-                              : "Unirse"}
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ✅ NUEVO: MODAL CONFIRMACIÓN SEMINARIO */}
-      {showSeminarConfirmModal && selectedSeminar && (
-        <div className="modal-overlay" onClick={() => setShowSeminarConfirmModal(false)}>
-          <div className="modal-confirm" onClick={(e) => e.stopPropagation()}>
-            <h3>Confirmar Inscripción en Seminario</h3>
-
-            <div className="seminar-confirm-warning">
-              ⚠️ <strong>IMPORTANTE: Al confirmar, quedarás inscrito en este seminario 
-              y deberás completar con el pago del seminario. </strong>
-            </div>
-
-            <div className="seminar-confirm-details">
-              <h4>{selectedSeminar.name}</h4>
-              <p>{selectedSeminar.description}</p>
-
-              <div className="detail-row">
-                <span>Horas totales:</span>
-                <strong>{selectedSeminar.totalHours} horas</strong>
-              </div>
-
-              <div className="detail-row">
-                <span>Costo:</span>
-                <strong className="cost-highlight">{formatCurrency(selectedSeminar.totalCost)}</strong>
-              </div>
-
-              <div className="detail-row">
-                <span>Cupos disponibles:</span>
-                <strong className={selectedSeminar.availableSpots < 5 ? "low-spots" : ""}>
-                  {selectedSeminar.availableSpots} / {selectedSeminar.maxParticipants}
-                </strong>
-              </div>
-            </div>
-
-            <p className="seminar-confirm-question">
-              ¿Estás seguro de que deseas inscribirte en este seminario?
-            </p>
-
-            <div className="modal-confirm-actions">
-              <button
-                className="modality-button secondary"
-                onClick={() => setShowSeminarConfirmModal(false)}
-                disabled={enrollingSeminar}
-              >
-                Cancelar
-              </button>
-              <button
-                className="modality-button"
-                onClick={handleEnrollInSeminar}
-                disabled={enrollingSeminar}
-              >
-                {enrollingSeminar ? "Inscribiendo..." : "Confirmar"}
-              </button>
-            </div>
           </div>
         </div>
       )}
@@ -1236,23 +942,7 @@ return {
               marginBottom: '1.2rem',
             }}>Confirmar selección</h3>
 
-            {isSeminarioSelection ? (
-              <div style={{
-                background: '#fffbe6',
-                borderLeft: '4px solid #D5CBA0',
-                borderRadius: '8px',
-                padding: '1.2rem',
-                marginBottom: '1.5rem',
-                color: '#7A1117',
-                fontWeight: 600,
-                fontSize: '1.08rem',
-                boxShadow: '0 2px 12px #7A111733',
-              }}>
-                ¿Estás seguro que deseas activar la modalidad <strong>SEMINARIO DE GRADO</strong>?
-                <br />Después de confirmar, podrás seleccionar el seminario en el que deseas inscribirte.
-                <br /><strong>Esta acción no se puede deshacer.</strong>
-              </div>
-            ) : modalityType === "INDIVIDUAL" ? (
+            {modalityType === "INDIVIDUAL" ? (
               <div style={{
                 background: '#fffbe6',
                 borderLeft: '4px solid #D5CBA0',
