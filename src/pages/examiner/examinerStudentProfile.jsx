@@ -72,6 +72,8 @@ export default function ExaminerStudentProfile() {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("");
+  const [approveModalityMsg, setApproveModalityMsg] = useState("");
+  const [approveModalityMsgType, setApproveModalityMsgType] = useState("");
 
   const [examinerRoleInfo, setExaminerRoleInfo] = useState(null);
 const [loadingExaminerRole, setLoadingExaminerRole] = useState(false);
@@ -319,17 +321,17 @@ const fetchExaminerRole = async () => {
       setApprovingModality(true);
       try {
         const response = await approveModalityByExaminer(studentModalityId);
-        setMessage(response.message || "✅ Modalidad aprobada correctamente.");
-        setMessageType("success");
+        setApproveModalityMsg(response.message || "✅ Modalidad aprobada correctamente.");
+        setApproveModalityMsgType("success");
         await fetchProfile();
         setTimeout(() => {
-          setMessage("");
-          setMessageType("");
+          setApproveModalityMsg("");
+          setApproveModalityMsgType("");
         }, 8000);
       } catch (err) {
         console.error("Error aprobando modalidad:", err);
-        setMessage(getErrorMessage(err));
-        setMessageType("error");
+        setApproveModalityMsg(getErrorMessage(err));
+        setApproveModalityMsgType("error");
       } finally {
         setApprovingModality(false);
       }
@@ -781,6 +783,17 @@ const fetchExaminerRole = async () => {
               >
                 {approvingModality ? " Aprobando..." : " Aprobar Propuesta"}
               </button>
+              {approveModalityMsg && (
+                <div className={`examiner-profile-message ${approveModalityMsgType}`} style={{ marginTop: "0.75rem" }}>
+                  {approveModalityMsg}
+                  <button
+                    onClick={() => setApproveModalityMsg("")}
+                    className="examiner-profile-close-btn"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
             </div>
           )}
 

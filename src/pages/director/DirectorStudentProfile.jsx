@@ -48,6 +48,8 @@ export default function DirectorStudentProfile() {
 
   const [approvingCancellation, setApprovingCancellation] = useState(false);
   const [rejectingCancellation, setRejectingCancellation] = useState(false);
+  const [cancellationMsg, setCancellationMsg] = useState("");
+  const [cancellationMsgType, setCancellationMsgType] = useState("");
 
   useEffect(() => {
     fetchStudentDetail();
@@ -171,12 +173,14 @@ export default function DirectorStudentProfile() {
     setApprovingCancellation(true);
     try {
       const response = await approveModalityCancellationByDirector(studentModalityId);
-      setMessage(response.message || "Cancelación aprobada. Será enviada al comité.");
+      setCancellationMsg(response.message || "Cancelación aprobada. Será enviada al comité.");
+      setCancellationMsgType("success");
       fetchStudentDetail();
-      setTimeout(() => setMessage(""), 5000);
+      setTimeout(() => { setCancellationMsg(""); setCancellationMsgType(""); }, 5000);
     } catch (err) {
       console.error("Error approving cancellation:", err);
-      setMessage("Error al aprobar cancelación: " + getErrorMessage(err));
+      setCancellationMsg("Error al aprobar cancelación: " + getErrorMessage(err));
+      setCancellationMsgType("error");
     } finally {
       setApprovingCancellation(false);
     }
@@ -212,12 +216,14 @@ export default function DirectorStudentProfile() {
       setApprovingCancellation(true);
       try {
         const response = await approveModalityCancellationByDirector(studentModalityId);
-        setMessage(response.message || "Cancelación aprobada. Será enviada al comité.");
+        setCancellationMsg(response.message || "Cancelación aprobada. Será enviada al comité.");
+        setCancellationMsgType("success");
         fetchStudentDetail();
-        setTimeout(() => setMessage(""), 5000);
+        setTimeout(() => { setCancellationMsg(""); setCancellationMsgType(""); }, 5000);
       } catch (err) {
         console.error("Error approving cancellation:", err);
-        setMessage("Error al aprobar cancelación: " + getErrorMessage(err));
+        setCancellationMsg("Error al aprobar cancelación: " + getErrorMessage(err));
+        setCancellationMsgType("error");
       } finally {
         setApprovingCancellation(false);
       }
@@ -229,15 +235,16 @@ export default function DirectorStudentProfile() {
     setRejectingCancellation(true);
     try {
       const response = await rejectModalityCancellationByDirector(studentModalityId, rejectReason);
-      setMessage(response.message || "Cancelación rechazada. El estudiante continuará con la modalidad.");
+      setCancellationMsg(response.message || "Cancelación rechazada. El estudiante continuará con la modalidad.");
+      setCancellationMsgType("success");
       setShowRejectModal(false);
       setRejectReason("");
       fetchStudentDetail();
-     
-      setTimeout(() => setMessage(""), 5000);
+      setTimeout(() => { setCancellationMsg(""); setCancellationMsgType(""); }, 5000);
     } catch (err) {
       console.error("Error rejecting cancellation:", err);
-      setMessage("Error al rechazar cancelación: " + getErrorMessage(err));
+      setCancellationMsg("Error al rechazar cancelación: " + getErrorMessage(err));
+      setCancellationMsgType("error");
     } finally {
       setRejectingCancellation(false);
     }
@@ -737,6 +744,12 @@ export default function DirectorStudentProfile() {
             <div className="director-profile-message" style={{marginTop:'1rem',background:'#fffbe6',color:'#92400e',borderLeft:'5px solid #B7A873'}}>
               {approvingCancellation && "Enviando solicitud de cancelación al sistema..."}
               {rejectingCancellation && "Rechazando solicitud de cancelación..."}
+            </div>
+          )}
+          {cancellationMsg && (
+            <div className={`director-profile-message ${cancellationMsgType}`} style={{marginTop:'1rem'}}>
+              {cancellationMsg}
+              <button onClick={() => setCancellationMsg("")} style={{marginLeft:'1rem'}}>✕</button>
             </div>
           )}
         </div>
