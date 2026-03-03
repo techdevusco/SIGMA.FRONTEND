@@ -4,20 +4,24 @@ import {
   rejectFinalModalityByCommittee,
 } from "../../services/committeeService";
 
-// Modalidades que usan aprobación/rechazo final directo
-const SIMPLIFIED_MODALITIES = [
-  "PLAN COMPLEMENTARIO POSGRADO",
-  "SEMINARIO DE GRADO",
-  "PRODUCCIÓN ACADEMICA DE ALTO NIVEL",
-  "PRODUCCIÓN ACADÉMICA DE ALTO NIVEL",
-  "SEMILLERO DE INVESTIGACION",
-  "SEMILLERO DE INVESTIGACIÓN",
+// Quita tildes/acentos para comparar sin importar variantes de escritura
+const stripAccents = (str) =>
+  str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+// Modalidades que usan aprobación/rechazo FINAL directo (sin director/jurado/sustentación)
+// SOLO aplica para: PLAN COMPLEMENTARIO POSGRADO, SEMINARIO DE GRADO, PRODUCCION ACADEMICA DE ALTO NIVEL
+const FINAL_DECISION_KEYWORDS = [
+  "POSGRADO",
+  "SEMINARIO",
+  "PRODUCCION ACADEMICA",
 ];
 
 export const isFinalDecisionModality = (modalityName) => {
   if (!modalityName) return false;
-  const normalized = modalityName.toUpperCase().trim();
-  return SIMPLIFIED_MODALITIES.some((m) => normalized.includes(m) || m.includes(normalized));
+  // Normalizar: mayúsculas + quitar acentos
+  const normalized = stripAccents(modalityName.toUpperCase().trim());
+  if (!normalized) return false;
+  return FINAL_DECISION_KEYWORDS.some((keyword) => normalized.includes(keyword));
 };
 
 export default function FinalDecisionModal({ studentModalityId, modalityName, studentName, onClose, onSuccess }) {

@@ -259,8 +259,17 @@ export default function CommitteeStudentProfile() {
   );
   const isModalityClosed = profile.currentStatus === "MODALITY_CLOSED";
 
-  // ✅ Solo aplica para: Posgrado, Diplomado, Producción Académica de Alto Nivel
+  // ✅ Solo aplica para: Posgrado, Seminario de Grado, Producción Académica de Alto Nivel
+  // Estas modalidades NO requieren director, jurado ni sustentación
   const isFinalDecision = isFinalDecisionModality(profile.modalityName);
+
+  // Estados finales de la decisión del comité (para modalidades simplificadas)
+  const finalDecisionStatuses = [
+    "GRADED_APPROVED", "GRADED_FAILED",
+    "MODALITY_APPROVED_BY_COMMITTEE", "MODALITY_FAILED_BY_COMMITTEE",
+    "APPROVED_BY_COMMITTEE", "REJECTED_BY_COMMITTEE",
+  ];
+  const isFinalDecisionDone = finalDecisionStatuses.includes(profile.currentStatus);
 
   // Checklist: pasos para aprobar la modalidad
   const step1Ok = allMandatoryAccepted;
@@ -921,7 +930,7 @@ export default function CommitteeStudentProfile() {
         </div>
       )}
 
-      {/* Checklist simplificado — modalidades de decisión final (Posgrado, Diplomado, Producción Académica, Semillero) */}
+      {/* Checklist simplificado — modalidades de decisión final (Posgrado, Seminario, Producción Académica de Alto Nivel) */}
       {isFinalDecision && !isModalityClosed && (
         <div className="documents-card approve-all-section" style={{ border: '2.5px solid #7A1117', borderRadius: '18px', background: 'linear-gradient(135deg, #f7f7fa 0%, #e8ebf0 100%)', boxShadow: '0 8px 32px rgba(122, 17, 23, 0.10)', padding: '2rem' }}>
           <h3 className="documents-title institutional-title" style={{ color: '#7A1117', fontFamily: 'Georgia, Times New Roman, serif', fontWeight: 700, fontSize: '1.5rem', letterSpacing: '0.5px', textShadow: '0 2px 8px #7A111733', marginBottom: '2rem' }}>Checklist — Decisión Final del Comité</h3>
@@ -967,79 +976,85 @@ export default function CommitteeStudentProfile() {
           </div>
 
           {/* Paso 2: Decisión Final */}
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', padding: '1rem 1.25rem', borderRadius: '12px', background: profile.currentStatus === 'GRADED_APPROVED' ? '#f0fdf4' : profile.currentStatus === 'GRADED_FAILED' ? '#fef2f2' : (step1Ok ? '#eff6ff' : '#f9fafb'), border: profile.currentStatus === 'GRADED_APPROVED' ? '1.5px solid #bbf7d0' : profile.currentStatus === 'GRADED_FAILED' ? '1.5px solid #fecaca' : (step1Ok ? '1.5px solid #93c5fd' : '1.5px solid #e5e7eb'), transition: 'all 0.3s ease' }}>
-            <div style={{ flex: 1 }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
-                <span style={{ fontWeight: 700, fontSize: '1.05rem', color: profile.currentStatus === 'GRADED_APPROVED' ? '#166534' : profile.currentStatus === 'GRADED_FAILED' ? '#991b1b' : (step1Ok ? '#1e40af' : '#6b7280') }}>
-                  2. Decisión final del comité (Aprobar o Rechazar)
-                </span>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  {profile.currentStatus === 'GRADED_APPROVED' && (
-                    <span style={{
-                      padding: '0.25rem 0.75rem',
-                      borderRadius: '20px',
-                      fontSize: '0.8rem',
-                      fontWeight: 700,
-                      background: '#dcfce7',
-                      color: '#166534',
-                      border: '1px solid #86efac',
-                    }}>
-                      APROBADA
+          {(() => {
+            const isApproved = isFinalDecisionDone && (profile.currentStatus === 'GRADED_APPROVED' || profile.currentStatus === 'MODALITY_APPROVED_BY_COMMITTEE' || profile.currentStatus === 'APPROVED_BY_COMMITTEE');
+            const isRejected = isFinalDecisionDone && !isApproved;
+            return (
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', padding: '1rem 1.25rem', borderRadius: '12px', background: isApproved ? '#f0fdf4' : isRejected ? '#fef2f2' : (step1Ok ? '#eff6ff' : '#f9fafb'), border: isApproved ? '1.5px solid #bbf7d0' : isRejected ? '1.5px solid #fecaca' : (step1Ok ? '1.5px solid #93c5fd' : '1.5px solid #e5e7eb'), transition: 'all 0.3s ease' }}>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+                    <span style={{ fontWeight: 700, fontSize: '1.05rem', color: isApproved ? '#166534' : isRejected ? '#991b1b' : (step1Ok ? '#1e40af' : '#6b7280') }}>
+                      2. Decisión final del comité (Aprobar o Rechazar)
                     </span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      {isApproved && (
+                        <span style={{
+                          padding: '0.25rem 0.75rem',
+                          borderRadius: '20px',
+                          fontSize: '0.8rem',
+                          fontWeight: 700,
+                          background: '#dcfce7',
+                          color: '#166534',
+                          border: '1px solid #86efac',
+                        }}>
+                          APROBADA
+                        </span>
+                      )}
+                      {isRejected && (
+                        <span style={{
+                          padding: '0.25rem 0.75rem',
+                          borderRadius: '20px',
+                          fontSize: '0.8rem',
+                          fontWeight: 700,
+                          background: '#fee2e2',
+                          color: '#991b1b',
+                          border: '1px solid #fca5a5',
+                        }}>
+                          RECHAZADA
+                        </span>
+                      )}
+                      {!isFinalDecisionDone && (
+                        <span style={{
+                          padding: '0.25rem 0.75rem',
+                          borderRadius: '20px',
+                          fontSize: '0.8rem',
+                          fontWeight: 700,
+                          background: step1Ok ? '#dbeafe' : '#f3f4f6',
+                          color: step1Ok ? '#1e40af' : '#6b7280',
+                          border: step1Ok ? '1px solid #93c5fd' : '1px solid #d1d5db',
+                        }}>
+                          {step1Ok ? 'LISTO' : 'PENDIENTE'}
+                        </span>
+                      )}
+                      {step1Ok && !isFinalDecisionDone && (
+                        <button
+                          onClick={() => setShowFinalDecisionModal(true)}
+                          style={{ background: 'linear-gradient(135deg, #7A1117 0%, #a32c2c 100%)', color: '#fff', border: 'none', borderRadius: '8px', padding: '0.5rem 1.25rem', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', boxShadow: '0 2px 8px rgba(122,17,23,0.2)' }}
+                        >
+                          ⚖️ Tomar Decisión Final
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  {!step1Ok && !isFinalDecisionDone && (
+                    <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: '#6b7280' }}>
+                      Primero debes aceptar todos los documentos obligatorios
+                    </p>
                   )}
-                  {profile.currentStatus === 'GRADED_FAILED' && (
-                    <span style={{
-                      padding: '0.25rem 0.75rem',
-                      borderRadius: '20px',
-                      fontSize: '0.8rem',
-                      fontWeight: 700,
-                      background: '#fee2e2',
-                      color: '#991b1b',
-                      border: '1px solid #fca5a5',
-                    }}>
-                      RECHAZADA
-                    </span>
+                  {isApproved && (
+                    <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: '#166534' }}>
+                      La modalidad ha sido aprobada definitivamente por el comité
+                    </p>
                   )}
-                  {profile.currentStatus !== 'GRADED_APPROVED' && profile.currentStatus !== 'GRADED_FAILED' && (
-                    <span style={{
-                      padding: '0.25rem 0.75rem',
-                      borderRadius: '20px',
-                      fontSize: '0.8rem',
-                      fontWeight: 700,
-                      background: step1Ok ? '#dbeafe' : '#f3f4f6',
-                      color: step1Ok ? '#1e40af' : '#6b7280',
-                      border: step1Ok ? '1px solid #93c5fd' : '1px solid #d1d5db',
-                    }}>
-                      {step1Ok ? 'LISTO' : 'PENDIENTE'}
-                    </span>
-                  )}
-                  {step1Ok && profile.currentStatus !== 'GRADED_APPROVED' && profile.currentStatus !== 'GRADED_FAILED' && (
-                    <button
-                      onClick={() => setShowFinalDecisionModal(true)}
-                      style={{ background: 'linear-gradient(135deg, #7A1117 0%, #a32c2c 100%)', color: '#fff', border: 'none', borderRadius: '8px', padding: '0.5rem 1.25rem', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', boxShadow: '0 2px 8px rgba(122,17,23,0.2)' }}
-                    >
-                      ⚖️ Tomar Decisión Final
-                    </button>
+                  {isRejected && (
+                    <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: '#991b1b' }}>
+                      La modalidad ha sido rechazada definitivamente por el comité
+                    </p>
                   )}
                 </div>
               </div>
-              {!step1Ok && profile.currentStatus !== 'GRADED_APPROVED' && profile.currentStatus !== 'GRADED_FAILED' && (
-                <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: '#6b7280' }}>
-                  Primero debes aceptar todos los documentos obligatorios
-                </p>
-              )}
-              {profile.currentStatus === 'GRADED_APPROVED' && (
-                <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: '#166534' }}>
-                  La modalidad ha sido aprobada definitivamente por el comité
-                </p>
-              )}
-              {profile.currentStatus === 'GRADED_FAILED' && (
-                <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.9rem', color: '#991b1b' }}>
-                  La modalidad ha sido rechazada definitivamente por el comité
-                </p>
-              )}
-            </div>
-          </div>
+            );
+          })()}
         </div>
       )}
 
@@ -1048,8 +1063,8 @@ export default function CommitteeStudentProfile() {
         <div className="council-actions-premium-card" style={{ background: '#fff', borderRadius: '18px', boxShadow: '0 2px 16px 0 rgba(122,17,23,0.08)', padding: '1.5rem 1.5rem 2.2rem 1.5rem', width: '100%', maxWidth: '600px', minHeight: '120px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <h3 className="section-title premium" style={{ color: '#7A1117', fontWeight: 700, fontSize: '1.55rem', marginBottom: '1.5rem', textAlign: 'center', letterSpacing: '0.5px', textShadow: '0 2px 8px #7A111733' }}>Acciones del Comité de Currículo</h3>
           <div className="council-actions-grid premium" style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1.5rem', flexWrap: 'wrap', minHeight: '120px' }}>
-            {/* Botón Decisión Final — solo para modalidades simplificadas */}
-            {isFinalDecision && !isModalityClosed && step1Ok && profile.currentStatus !== 'GRADED_APPROVED' && profile.currentStatus !== 'GRADED_FAILED' && (
+            {/* Botón Decisión Final — solo para Posgrado, Seminario, Producción Académica */}
+            {isFinalDecision && !isModalityClosed && step1Ok && !isFinalDecisionDone && (
               <button
                 onClick={() => setShowFinalDecisionModal(true)}
                 className="council-action-btn assign-director premium"

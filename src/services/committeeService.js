@@ -432,28 +432,30 @@ export const rejectFinalModalityByCommittee = async (studentModalityId, reason) 
  * @param {string} modalityName - Nombre de la modalidad
  * @returns {boolean} true si es modalidad simplificada
  */
+/**
+ * Quita tildes/acentos para comparar sin importar variantes de escritura
+ */
+const stripAccents = (str) =>
+  str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+/**
+ * Determina si una modalidad usa el proceso simplificado de decisión final
+ * (sin director/jurado/sustentación)
+ * SOLO aplica para: PLAN COMPLEMENTARIO POSGRADO, SEMINARIO DE GRADO, PRODUCCION ACADEMICA DE ALTO NIVEL
+ * @param {string} modalityName - Nombre de la modalidad
+ * @returns {boolean} true si es modalidad con decisión final simplificada
+ */
 export const isSimplifiedModality = (modalityName) => {
   if (!modalityName) return false;
   
-  const simplifiedModalities = [
-    "PASANTIA",
-    "PASANTÍA",
-    "PLAN COMPLEMENTARIO POSGRADO",
+  const finalDecisionKeywords = [
     "POSGRADO",
-    "SEMINARIO DE GRADO",
     "SEMINARIO",
-    "PRODUCCION ACADEMICA DE ALTO NIVEL",
-    "PRODUCCIÓN ACADÉMICA DE ALTO NIVEL",
-    "PORTAFOLIO PROFESIONAL",
-    "PRACTICA PROFESIONAL",
-    "PRÁCTICA PROFESIONAL",
-    "SEMILLERO DE INVESTIGACION",
-    "SEMILLERO DE INVESTIGACIÓN",
+    "PRODUCCION ACADEMICA",
   ];
   
-  const normalizedName = modalityName.toUpperCase().trim();
+  const normalizedName = stripAccents(modalityName.toUpperCase().trim());
+  if (!normalizedName) return false;
   
-  return simplifiedModalities.some(simplified => 
-    normalizedName.includes(simplified) || simplified.includes(normalizedName)
-  );
+  return finalDecisionKeywords.some(keyword => normalizedName.includes(keyword));
 };
