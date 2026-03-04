@@ -291,6 +291,9 @@ export default function CommitteeStudentProfile() {
     "READY_FOR_PROGRAM_CURRICULUM_COMMITTEE",
     "UNDER_REVIEW_PROGRAM_CURRICULUM_COMMITTEE",
     "CORRECTIONS_REQUESTED_PROGRAM_CURRICULUM_COMMITTEE",
+    "CORRECTIONS_SUBMITTED_TO_PROGRAM_HEAD",
+    "CORRECTIONS_SUBMITTED_TO_COMMITTEE",
+    "READY_FOR_APPROVED_BY_PROGRAM_CURRICULUM_COMMITTEE",
   ];
   const isModalityApprovedByCommittee = !preApprovalStatuses.includes(profile.currentStatus) 
     && profile.currentStatus !== "MODALITY_CLOSED" 
@@ -303,6 +306,8 @@ export default function CommitteeStudentProfile() {
   const validStatusesForApproval = [
     "READY_FOR_PROGRAM_CURRICULUM_COMMITTEE",
     "UNDER_REVIEW_PROGRAM_CURRICULUM_COMMITTEE",
+    "READY_FOR_APPROVED_BY_PROGRAM_CURRICULUM_COMMITTEE",
+    "CORRECTIONS_SUBMITTED_TO_COMMITTEE",
   ];
   const isInValidStatusForApproval = validStatusesForApproval.includes(profile.currentStatus);
   const canApproveModality = step1Ok && step2Ok && !isModalityApprovedByCommittee && isInValidStatusForApproval;

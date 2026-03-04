@@ -48,8 +48,6 @@ import {
   getDocumentBlobUrl,
   reviewDocumentExaminer,
   registerEvaluation,
-  finalizeReviewAsExaminer,
-  approveModalityByExaminer,
   formatDate,
   getErrorMessage,
   EXAMINER_DOCUMENT_STATUS,
@@ -170,7 +168,51 @@ const fetchExaminerRole = async () => {
     }
   };
 
-  const handleSubmitReview = async (studentDocumentId) => {
+  const EVALUATION_GRADES = ["EXCELLENT", "GOOD", "ACCEPTABLE", "DEFICIENT"];
+  const EVALUATION_GRADE_LABELS = {
+    EXCELLENT: "Excelente",
+    GOOD: "Bueno",
+    ACCEPTABLE: "Aceptable",
+    DEFICIENT: "Deficiente",
+  };
+
+  const PROPOSAL_ASPECTS = [
+    { key: "summary", label: "Resumen", description: "El resumen presenta una explicación clara de las principales características del trabajo a realizar y los resultados esperados." },
+    { key: "backgroundJustification", label: "Antecedentes y Justificación", description: "La propuesta se encuentra correctamente referenciada, se basa en una revisión bibliográfica actual y pertinente, incluyendo análisis y descripción de la problemática estudiada." },
+    { key: "problemStatement", label: "Formulación del Problema", description: "La pregunta de investigación ha sido delimitada y definida con claridad y precisión. Se evidencia la importancia y justificación de la realización del estudio." },
+    { key: "objectives", label: "Objetivos", description: "El objetivo general de la propuesta está acorde al título planteado y los objetivos específicos son alcanzables con la metodología propuesta." },
+    { key: "methodology", label: "Metodología", description: "La metodología utilizada para la adquisición, procesamiento, interpretación y análisis de datos es clara y adecuada en la búsqueda de los objetivos planteados. Las técnicas cualitativas o cuantitativas son coherentes con la metodología propuesta." },
+    { key: "bibliographyReferences", label: "Bibliografía o referencias", description: "Las referencias bibliográficas empleadas son pertinentes, actuales y están citadas de forma adecuada en el documento siguiendo las normas APA (7.ª edición). Proyecto de grado: Mínimo 10 referencias con mínimo 5 DOI. Pasantía Supervisada: Mínimo 10 referencias con mínimo 3 DOI." },
+    { key: "documentOrganization", label: "Organización del documento", description: "El documento presenta manejo adecuado del lenguaje en términos de ortografía, redacción, fluidez y composición gramatical. Se encuentra en el formato vigente para la presentación del mismo." },
+  ];
+
+  const handleProposalEvalChange = (key, value) => {
+    setReviewData(prev => ({
+      ...prev,
+      proposalEvaluation: {
+        ...prev.proposalEvaluation,
+        [key]: value,
+      },
+    }));
+  };
+
+  const resetReviewData = () => {
+    setReviewData({
+      status: "",
+      notes: "",
+      proposalEvaluation: {
+        summary: "",
+        backgroundJustification: "",
+        problemStatement: "",
+        objectives: "",
+        methodology: "",
+        bibliographyReferences: "",
+        documentOrganization: "",
+      },
+    });
+  };
+
+  const handleSubmitReview = async (studentDocumentId, docType) => {
     if (!reviewData.status) {
       setMessage("Debes seleccionar una decisión");
       setMessageType("error");
@@ -178,7 +220,8 @@ const fetchExaminerRole = async () => {
     }
 
     if (
-      reviewData.status === EXAMINER_DOCUMENT_STATUS.CORRECTIONS &&
+      (reviewData.status === EXAMINER_DOCUMENT_STATUS.CORRECTIONS ||
+       reviewData.status === EXAMINER_DOCUMENT_STATUS.REJECTED) &&
       !reviewData.notes.trim()
     ) {
       setMessage("Debes proporcionar notas al solicitar correcciones");
@@ -186,16 +229,37 @@ const fetchExaminerRole = async () => {
       return;
     }
 
+    // Validar rúbrica solo para documentos MANDATORY
+    if (docType === "MANDATORY") {
+      const eval_ = reviewData.proposalEvaluation;
+      const allFilled = PROPOSAL_ASPECTS.every(a => eval_[a.key] && eval_[a.key] !== "");
+      if (!allFilled) {
+        setMessage("Debes calificar todos los aspectos de la evaluación de la propuesta");
+        setMessageType("error");
+        return;
+      }
+    }
+
     setSubmittingReview(true);
 
     try {
-      const response = await reviewDocumentExaminer(studentDocumentId, reviewData);
+      const payload = {
+        status: reviewData.status,
+        notes: reviewData.notes,
+      };
+
+      // Solo enviar proposalEvaluation para documentos MANDATORY
+      if (docType === "MANDATORY") {
+        payload.proposalEvaluation = reviewData.proposalEvaluation;
+      }
+
+      const response = await reviewDocumentExaminer(studentDocumentId, payload);
       
       setMessage(response.message || "Documento revisado correctamente");
       setMessageType("success");
 
       setReviewingDocId(null);
-      setReviewData({ status: "", notes: "" });
+      resetReviewData();
 
       await fetchProfile();
 
@@ -273,87 +337,15 @@ const fetchExaminerRole = async () => {
 
   const canReviewDocuments = () => {
     return profile?.currentStatus === "EXAMINERS_ASSIGNED" || 
+           profile?.currentStatus === "READY_FOR_EXAMINERS" ||
            profile?.currentStatus === "CORRECTIONS_REQUESTED_EXAMINERS" ||
-           profile?.currentStatus === "READY_FOR_DEFENSE";
-  };
-
-  // Helper: verifica si todos los documentos obligatorios han sido aprobados
-  const allMandatoryDocsApproved = () => {
-    if (!profile?.documents || profile.documents.length === 0) return false;
-    const mandatory = profile.documents.filter(d => d.documentType === "MANDATORY" && d.uploaded);
-    if (mandatory.length === 0) return true;
-    return mandatory.every(d => d.status === "ACCEPTED_FOR_EXAMINER_REVIEW");
-  };
-
-  // Helper: verifica si se puede aprobar la modalidad
-  const canApproveModality = () => {
-    return profile?.currentStatus === "EXAMINERS_ASSIGNED" && allMandatoryDocsApproved();
-  };
-
-  const handleApproveModality = () => {
-    setConfirmAction({
-      type: "approveModality",
-      title: "Aprobar Propuesta",
-      message: "¿Estás seguro de aprobar esta propuesta? Todos los documentos obligatorios han sido revisados y aceptados.",
-      variant: "primary",
-    });
-  };
-
-  // Helper: verifica si se puede finalizar la revisión
-  const canFinalizeReview = () => {
-    return profile?.currentStatus === "READY_FOR_DEFENSE" && allMandatoryDocsApproved();
-  };
-
-  const handleFinalizeReview = () => {
-    setConfirmAction({
-      type: "finalizeReview",
-      title: "Finalizar Revisión",
-      message: "¿Estás seguro de que todos los documentos han sido revisados correctamente? Esta acción notificará al director para que programe la sustentación.",
-      variant: "warning",
-    });
+           profile?.currentStatus === "CORRECTIONS_SUBMITTED_TO_EXAMINERS";
   };
 
   const executeConfirmAction = async () => {
     const action = confirmAction;
     setConfirmAction(null);
-
-    if (action.type === "approveModality") {
-      setApprovingModality(true);
-      try {
-        const response = await approveModalityByExaminer(studentModalityId);
-        setApproveModalityMsg(response.message || "✅ Modalidad aprobada correctamente.");
-        setApproveModalityMsgType("success");
-        await fetchProfile();
-        setTimeout(() => {
-          setApproveModalityMsg("");
-          setApproveModalityMsgType("");
-        }, 8000);
-      } catch (err) {
-        console.error("Error aprobando modalidad:", err);
-        setApproveModalityMsg(getErrorMessage(err));
-        setApproveModalityMsgType("error");
-      } finally {
-        setApprovingModality(false);
-      }
-    } else if (action.type === "finalizeReview") {
-      setFinalizingReview(true);
-      try {
-        const response = await finalizeReviewAsExaminer(studentModalityId);
-        setMessage(response.message || "✅ Revisión finalizada. Se notificó al director para programar la sustentación.");
-        setMessageType("success");
-        await fetchProfile();
-        setTimeout(() => {
-          setMessage("");
-          setMessageType("");
-        }, 8000);
-      } catch (err) {
-        console.error("Error finalizando revisión:", err);
-        setMessage(getErrorMessage(err));
-        setMessageType("error");
-      } finally {
-        setFinalizingReview(false);
-      }
-    }
+    // No more approve/finalize actions needed - handled automatically by backend
   };
 
   const canEvaluate = () => {
@@ -716,122 +708,154 @@ const fetchExaminerRole = async () => {
                         setReviewingDocId(null);
                       } else {
                         setReviewingDocId(doc.studentDocumentId);
-                        setReviewData({ status: "", notes: "" });
+                        resetReviewData();
                       }
                     }}
                     className={`examiner-doc-btn ${reviewingDocId === doc.studentDocumentId ? "cancel" : "review"}`}
                   >
-                    {reviewingDocId === doc.studentDocumentId ? "✕ Cancelar" : " Revisar"}
+                    {reviewingDocId === doc.studentDocumentId ? "✕ Cancelar" : "📝 Evaluar"}
                   </button>
                 )}
               </div>
 
               {reviewingDocId === doc.studentDocumentId && (
                 <div className="examiner-review-panel">
-                  <h4 className="examiner-review-title">Revisar: {doc.documentName}</h4>
+                  <h4 className="examiner-review-title">Evaluación: {doc.documentName}</h4>
 
+                  {/* Rúbrica de evaluación - solo para documentos MANDATORY */}
+                  {doc.documentType === "MANDATORY" && (
+                    <div className="examiner-rubric-section">
+                      <h5 className="examiner-rubric-title">Aspectos para evaluar</h5>
+                      <p className="examiner-rubric-subtitle">Califique cada aspecto de la propuesta según los criterios establecidos.</p>
+                      
+                      <div className="examiner-rubric-table">
+                        <div className="examiner-rubric-header">
+                          <div className="examiner-rubric-col-aspect">Aspecto</div>
+                          {EVALUATION_GRADES.map(g => (
+                            <div key={g} className="examiner-rubric-col-grade">{EVALUATION_GRADE_LABELS[g]}</div>
+                          ))}
+                        </div>
+                        
+                        {PROPOSAL_ASPECTS.map(aspect => (
+                          <div key={aspect.key} className="examiner-rubric-row">
+                            <div className="examiner-rubric-col-aspect">
+                              <div className="examiner-rubric-aspect-label">{aspect.label}</div>
+                              <div className="examiner-rubric-aspect-desc">{aspect.description}</div>
+                            </div>
+                            {EVALUATION_GRADES.map(g => (
+                              <div key={g} className="examiner-rubric-col-grade">
+                                <label className="examiner-rubric-radio-label">
+                                  <input
+                                    type="radio"
+                                    name={`rubric-${aspect.key}`}
+                                    value={g}
+                                    checked={reviewData.proposalEvaluation[aspect.key] === g}
+                                    onChange={() => handleProposalEvalChange(aspect.key, g)}
+                                    disabled={submittingReview}
+                                    className="examiner-rubric-radio"
+                                  />
+                                  <span className="examiner-rubric-radio-custom"></span>
+                                  <span className="examiner-rubric-grade-mobile">{EVALUATION_GRADE_LABELS[g]}</span>
+                                </label>
+                              </div>
+                            ))}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Decisión */}
                   <div className="examiner-form-group">
-                    <label className="examiner-form-label">Decisión *</label>
-                    <select
-                      value={reviewData.status}
-                      onChange={(e) => setReviewData({ ...reviewData, status: e.target.value })}
-                      className="examiner-form-select"
-                      disabled={submittingReview}
-                    >
-                      <option value="">Seleccionar...</option>
-                      <option value={EXAMINER_DOCUMENT_STATUS.ACCEPTED}>✅ Aceptar</option>
-                      <option value={EXAMINER_DOCUMENT_STATUS.CORRECTIONS}>⚠️ Solicitar Correcciones</option>
-                    </select>
+                    <label className="examiner-form-label">Decisión sobre el documento *</label>
+                    <div className="examiner-decision-options">
+                      <label className={`examiner-decision-option ${reviewData.status === EXAMINER_DOCUMENT_STATUS.ACCEPTED ? "selected accepted" : ""}`}>
+                        <input
+                          type="radio"
+                          name="review-decision"
+                          value={EXAMINER_DOCUMENT_STATUS.ACCEPTED}
+                          checked={reviewData.status === EXAMINER_DOCUMENT_STATUS.ACCEPTED}
+                          onChange={(e) => setReviewData({ ...reviewData, status: e.target.value })}
+                          disabled={submittingReview}
+                        />
+                        <span className="examiner-decision-icon"></span>
+                        <div className="examiner-decision-text">
+                          <strong>Avalar propuesta sin modificaciones</strong>
+                          <span>Apruebo la propuesta tal como está presentada.</span>
+                        </div>
+                      </label>
+                      <label className={`examiner-decision-option ${reviewData.status === EXAMINER_DOCUMENT_STATUS.CORRECTIONS ? "selected corrections" : ""}`}>
+                        <input
+                          type="radio"
+                          name="review-decision"
+                          value={EXAMINER_DOCUMENT_STATUS.CORRECTIONS}
+                          checked={reviewData.status === EXAMINER_DOCUMENT_STATUS.CORRECTIONS}
+                          onChange={(e) => setReviewData({ ...reviewData, status: e.target.value })}
+                          disabled={submittingReview}
+                        />
+                        <span className="examiner-decision-icon"></span>
+                        <div className="examiner-decision-text">
+                          <strong>Apruebo con modificaciones</strong>
+                          <span>Apruebo la propuesta siempre y cuando se realicen las modificaciones. Se requiere el concepto del director sobre las modificaciones propuestas dentro de los treinta (30) días calendario siguientes.</span>
+                        </div>
+                      </label>
+                      <label className={`examiner-decision-option ${reviewData.status === EXAMINER_DOCUMENT_STATUS.REJECTED ? "selected rejected" : ""}`}>
+                        <input
+                          type="radio"
+                          name="review-decision"
+                          value={EXAMINER_DOCUMENT_STATUS.REJECTED}
+                          checked={reviewData.status === EXAMINER_DOCUMENT_STATUS.REJECTED}
+                          onChange={(e) => setReviewData({ ...reviewData, status: e.target.value })}
+                          disabled={submittingReview}
+                        />
+                        <span className="examiner-decision-icon"></span>
+                        <div className="examiner-decision-text">
+                          <strong>No apruebo la propuesta</strong>
+                          <span>Se requieren cambios sustanciales. Es necesario un replanteamiento de la propuesta e iniciar un nuevo proceso de evaluación. El documento ajustado debe entregarse máximo 30 días calendario.</span>
+                        </div>
+                      </label>
+                    </div>
                   </div>
 
+                  {/* Observaciones */}
                   <div className="examiner-form-group">
                     <label className="examiner-form-label">
-                      Notas {(reviewData.status === EXAMINER_DOCUMENT_STATUS.CORRECTIONS) && "*"}
+                      Observaciones {(reviewData.status === EXAMINER_DOCUMENT_STATUS.CORRECTIONS || reviewData.status === EXAMINER_DOCUMENT_STATUS.REJECTED) ? "*" : ""}
                     </label>
                     <textarea
                       value={reviewData.notes}
                       onChange={(e) => setReviewData({ ...reviewData, notes: e.target.value })}
-                      rows="4"
-                      placeholder="Observaciones..."
+                      rows="5"
+                      placeholder="Si considera necesario amplíe la evaluación con sus observaciones..."
                       className="examiner-form-textarea"
                       disabled={submittingReview}
                     />
                   </div>
 
-                  <button
-                    onClick={() => handleSubmitReview(doc.studentDocumentId)}
-                    disabled={submittingReview}
-                    className="examiner-form-submit"
-                  >
-                    {submittingReview ? "Enviando..." : "Enviar Revisión"}
-                  </button>
+                  <div className="examiner-form-actions">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setReviewingDocId(null);
+                        resetReviewData();
+                      }}
+                      className="examiner-doc-btn cancel"
+                      disabled={submittingReview}
+                    >
+                      Cancelar
+                    </button>
+                    <button
+                      onClick={() => handleSubmitReview(doc.studentDocumentId, doc.documentType)}
+                      disabled={submittingReview}
+                      className="examiner-form-submit"
+                    >
+                      {submittingReview ? "Enviando..." : "Enviar Evaluación"}
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
           ))}
-
-          {/* Botón Aprobar Modalidad */}
-          {canApproveModality() && (
-            <div className="examiner-doc-approve">
-              <p>
-                Todos los documentos obligatorios han sido aprobados. Puedes aprobar la propuesta.
-              </p>
-              <button
-                onClick={handleApproveModality}
-                disabled={approvingModality}
-                className="examiner-doc-approve-btn"
-              >
-                {approvingModality ? " Aprobando..." : " Aprobar Propuesta"}
-              </button>
-              {approveModalityMsg && (
-                <div className={`examiner-profile-message ${approveModalityMsgType}`} style={{ marginTop: "0.75rem" }}>
-                  {approveModalityMsg}
-                  <button
-                    onClick={() => setApproveModalityMsg("")}
-                    className="examiner-profile-close-btn"
-                  >
-                    ✕
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Mensaje: faltan docs por aprobar */}
-          {profile?.currentStatus === "EXAMINERS_ASSIGNED" && !allMandatoryDocsApproved() && (
-            <div className="examiner-doc-warning">
-              ⚠️ Debes aprobar todos los documentos obligatorios antes de poder aprobar la propuesta.
-            </div>
-          )}
-
-          {/* Botón Finalizar Revisión (READY_FOR_DEFENSE) */}
-          {canFinalizeReview() && (
-            <div className="examiner-doc-finalize-block">
-              <div className="examiner-doc-finalize-header">
-                <span className="examiner-doc-finalize-icon"></span>
-                <span className="examiner-doc-finalize-title">Finalizar Revisión de Documentos</span>
-              </div>
-              <div className="examiner-doc-finalize-message">
-                <span>Los documentos correspondientes a la modalidad de grado del estudiante han sido cargados en el sistema.</span><br />
-                <span className="examiner-doc-finalize-bold">Por favor realiza una revisión integral y detallada de cada uno, verificando que cumplan con los requisitos académicos y lineamientos establecidos.</span><br />
-                <span>Si los documentos se encuentran completos y alineados al marco institucional, puedes finalizar la revisión.</span><br />
-                <span className="examiner-doc-finalize-alert">Esto notificará al director y permitirá avanzar con la programación de la sustentación.</span>
-              </div>
-              <button
-                onClick={handleFinalizeReview}
-                disabled={finalizingReview}
-                className="examiner-doc-finalize-btn"
-              >
-                {finalizingReview ? "⏳ Finalizando..." : " Listo para Sustentación"}
-              </button>
-            </div>
-          )}
-
-          {!canFinalizeReview() && profile?.currentStatus === "READY_FOR_DEFENSE" && !allMandatoryDocsApproved() && (
-            <div className="examiner-doc-warning">
-              ⚠️ Debes aprobar todos los documentos obligatorios antes de finalizar la revisión.
-            </div>
-          )}
         </div>
       )}
 
