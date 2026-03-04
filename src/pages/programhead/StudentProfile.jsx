@@ -164,6 +164,9 @@ export default function StudentProfileProgramHead() {
       "UNDER_REVIEW_PROGRAM_HEAD": "En revisión por Jefe de Programa",
       "CORRECTIONS_REQUESTED_PROGRAM_HEAD": "Correcciones solicitadas por Jefe de Programa",
       "CORRECTIONS_SUBMITTED": "Correcciones enviadas",
+      "CORRECTIONS_SUBMITTED_TO_PROGRAM_HEAD": "Correcciones enviadas a Jefe de Programa",
+      "CORRECTIONS_SUBMITTED_TO_COMMITTEE": "Correcciones enviadas a Comité",
+      "CORRECTIONS_SUBMITTED_TO_EXAMINERS": "Correcciones enviadas a Jurado",
       "CORRECTIONS_APPROVED": "Correcciones aprobadas",
       "CORRECTIONS_REJECTED_FINAL": "Correcciones rechazadas (final)",
 
@@ -171,6 +174,8 @@ export default function StudentProfileProgramHead() {
       "READY_FOR_PROGRAM_CURRICULUM_COMMITTEE": "Listo para Comité de Currículo",
       "UNDER_REVIEW_PROGRAM_CURRICULUM_COMMITTEE": "En revisión por Comité de Currículo",
       "CORRECTIONS_REQUESTED_PROGRAM_CURRICULUM_COMMITTEE": "Correcciones solicitadas por Comité de Currículo",
+      "READY_FOR_DIRECTOR_ASSIGNMENT": "Listo para asignación de Director",
+      "READY_FOR_APPROVED_BY_PROGRAM_CURRICULUM_COMMITTEE": "Listo para aprobación por Comité de Currículo",
       "PROPOSAL_APPROVED": "Propuesta aprobada",
 
       // ========== PROGRAMACIÓN DE SUSTENTACIÓN ========== 
@@ -180,6 +185,9 @@ export default function StudentProfileProgramHead() {
       // ========== ASIGNACIÓN DE JURADO (NUEVO) ========== 
       "EXAMINERS_ASSIGNED": "Jurado asignado",
       "READY_FOR_EXAMINERS": "Listo para jurado",
+      "DOCUMENTS_APPROVED_BY_EXAMINERS": "Documentos aprobados por jurado",
+      "SECONDARY_DOCUMENTS_APPROVED_BY_EXAMINERS": "Documentos secundarios aprobados por jurado",
+      "DOCUMENT_REVIEW_TIEBREAKER_REQUIRED": "Revisión de documento requiere desempate",
       "CORRECTIONS_REQUESTED_EXAMINERS": "Correcciones solicitadas por jurado",
       "READY_FOR_DEFENSE": "Listo para sustentación",
       "FINAL_REVIEW_COMPLETED": "Revisión final completada",

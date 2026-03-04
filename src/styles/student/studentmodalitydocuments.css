@@ -559,6 +559,192 @@
   }
 }
 
+/* ========================================
+   TEMPLATE DOCUMENT SECTION (per-document)
+   ======================================== */
+.document-template-section {
+  background: linear-gradient(135deg, #fffbe6 0%, #f5f0d0 100%);
+  border: 1.5px solid #D5CBA0;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin: 0.75rem 0 1rem 0;
+  animation: slideDown 0.3s ease-out;
+}
+
+.document-template-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin-bottom: 0.85rem;
+}
+
+.document-template-icon {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+  line-height: 1.4;
+}
+
+.document-template-text {
+  font-size: 0.92rem;
+  color: #5d0d12;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.document-template-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.document-template-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  letter-spacing: 0.2px;
+}
+
+.document-template-button.preview {
+  background: #fff;
+  color: #5d0d12;
+  border: 1.5px solid #5d0d12;
+  box-shadow: 0 2px 8px rgba(93, 13, 18, 0.08);
+}
+
+.document-template-button.preview:hover:not(:disabled) {
+  background: #5d0d12;
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(93, 13, 18, 0.18);
+  transform: translateY(-1px);
+}
+
+.document-template-button.download {
+  background: linear-gradient(135deg, #5d0d12 0%, #7A1117 100%);
+  color: #fff;
+  box-shadow: 0 2px 12px rgba(122, 17, 23, 0.18);
+}
+
+.document-template-button.download:hover:not(:disabled) {
+  background: linear-gradient(135deg, #7A1117 0%, #961a22 100%);
+  box-shadow: 0 4px 20px rgba(122, 17, 23, 0.28);
+  transform: translateY(-1px);
+}
+
+.document-template-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ========================================
+   TEMPLATE BANNER (modality-level)
+   ======================================== */
+.documents-template-banner {
+  display: flex;
+  gap: 1.1rem;
+  align-items: flex-start;
+  background: linear-gradient(135deg, #fffbe6 0%, #f5f0d0 60%, #e8dfa8 100%);
+  border: 2px solid #D5CBA0;
+  border-radius: 14px;
+  padding: 1.5rem 1.75rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 20px rgba(122, 17, 23, 0.08);
+  animation: slideDown 0.4s ease-out;
+}
+
+.documents-template-banner-icon {
+  font-size: 2.2rem;
+  flex-shrink: 0;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
+
+.documents-template-banner-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.documents-template-banner-title {
+  font-family: "Georgia", "Times New Roman", serif;
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: #5d0d12;
+  margin: 0 0 0.3rem 0;
+  letter-spacing: 0.3px;
+}
+
+.documents-template-banner-subtitle {
+  font-size: 0.92rem;
+  color: #7A1117cc;
+  margin: 0 0 1rem 0;
+  line-height: 1.5;
+}
+
+.documents-template-banner-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.documents-template-banner-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: #ffffffcc;
+  border: 1px solid #D5CBA088;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  transition: box-shadow 0.2s ease;
+}
+
+.documents-template-banner-item:hover {
+  box-shadow: 0 2px 12px rgba(122, 17, 23, 0.1);
+}
+
+.documents-template-banner-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #333;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.documents-template-banner-actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .documents-template-banner {
+    flex-direction: column;
+    padding: 1.25rem;
+  }
+  .documents-template-banner-item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.6rem;
+  }
+  .documents-template-banner-actions {
+    justify-content: stretch;
+  }
+  .documents-template-banner-actions .document-template-button {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
 @media (max-width: 480px) {
   .documents-header {
     padding: 1rem;
@@ -571,5 +757,13 @@
   }
   .document-name {
     font-size: 1.1rem;
+  }
+  .document-template-actions,
+  .documents-template-banner-actions {
+    flex-direction: column;
+  }
+  .document-template-button {
+    width: 100%;
+    justify-content: center;
   }
 }

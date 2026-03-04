@@ -4,11 +4,33 @@ import {
   uploadStudentDocument,
   getMyAvailableDocuments,
   getStudentDocumentBlob,
+  downloadTemplateBlob,
   getErrorMessage,
 } from "../../services/studentService";
 import "../../styles/student/studentmodalitydocuments.css";
 
-export default function StudentModalityDocuments({ studentModalityId }) {
+// ========================================
+// CONFIGURACIÓN DE PLANTILLAS POR MODALIDAD
+// Para agregar nuevas plantillas, solo agrega una entrada al mapa.
+// La clave debe estar en MINÚSCULAS. Se compara case-insensitive.
+// ========================================
+const MODALITY_TEMPLATES = {
+  "proyecto de grado": [
+    { id: 1, name: "Formato Propuesta de Proyecto de Grado" },
+  ],
+};
+
+/**
+ * Busca plantillas para una modalidad comparando case-insensitive.
+ * Soporta variaciones como "Proyecto de grado", "PROYECTO DE GRADO", etc.
+ */
+function getTemplatesForModality(modalityName) {
+  if (!modalityName) return [];
+  const normalized = modalityName.trim().toLowerCase();
+  return MODALITY_TEMPLATES[normalized] || [];
+}
+
+export default function StudentModalityDocuments({ studentModalityId, modalityId, modalityName }) {
   const navigate = useNavigate();
   
   const [documents, setDocuments] = useState([]);
@@ -16,14 +38,17 @@ export default function StudentModalityDocuments({ studentModalityId }) {
   const [selectedFiles, setSelectedFiles] = useState({});
   const [sendingDocId, setSendingDocId] = useState(null);
   const [viewingDocId, setViewingDocId] = useState(null);
+  const [downloadingTemplateId, setDownloadingTemplateId] = useState(null);
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("");
   const [loading, setLoading] = useState(true);
 
+  // Plantillas según la modalidad actual (basado en config local)
+  const templates = getTemplatesForModality(modalityName);
+
   useEffect(() => {
     fetchDocumentsData();
   }, []);
-
   const fetchDocumentsData = async () => {
     try {
       setLoading(true);
@@ -83,6 +108,43 @@ export default function StudentModalityDocuments({ studentModalityId }) {
       setMessageType("error");
     } finally {
       setViewingDocId(null);
+    }
+  };
+
+  const handlePreviewTemplate = async (templateDocumentId) => {
+    setDownloadingTemplateId(templateDocumentId);
+    try {
+      const { blob } = await downloadTemplateBlob(templateDocumentId);
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, "_blank");
+      setTimeout(() => window.URL.revokeObjectURL(url), 60000);
+    } catch (err) {
+      console.error("❌ Error al previsualizar plantilla:", err);
+      setMessage(err.message || "Error al previsualizar la plantilla");
+      setMessageType("error");
+    } finally {
+      setDownloadingTemplateId(null);
+    }
+  };
+
+  const handleDownloadTemplate = async (templateDocumentId, documentName) => {
+    setDownloadingTemplateId(templateDocumentId);
+    try {
+      const { blob, fileName } = await downloadTemplateBlob(templateDocumentId);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = fileName || `plantilla_${documentName}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => window.URL.revokeObjectURL(url), 5000);
+    } catch (err) {
+      console.error("❌ Error al descargar plantilla:", err);
+      setMessage(err.message || "Error al descargar la plantilla");
+      setMessageType("error");
+    } finally {
+      setDownloadingTemplateId(null);
     }
   };
 
@@ -262,6 +324,41 @@ export default function StudentModalityDocuments({ studentModalityId }) {
       </div>
 
       <div className="documents-body">
+        {/* PLANTILLAS DE LA MODALIDAD */}
+        {templates.length > 0 && (
+          <div className="documents-template-banner">
+            <div className="documents-template-banner-icon"></div>
+            <div className="documents-template-banner-content">
+              <h4 className="documents-template-banner-title">
+                Plantillas disponibles
+              </h4>
+              <p className="documents-template-banner-subtitle">
+                Descarga las plantillas con el formato requerido para tus documentos.
+              </p>
+              <div className="documents-template-banner-list">
+                {templates.map((tpl) => (
+                  <div key={tpl.id} className="documents-template-banner-item">
+                    <span className="documents-template-banner-name">
+                      {tpl.name || tpl.fileName || "Plantilla"}
+                    </span>
+                    <div className="documents-template-banner-actions">
+                      <button
+                        onClick={() => handlePreviewTemplate(tpl.id)}
+                        disabled={downloadingTemplateId === tpl.id}
+                        className="document-template-button download"
+                      >
+                        {downloadingTemplateId === tpl.id
+                          ? "Cargando..."
+                          : "⬇ Descargar plantilla"}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* DOCUMENTOS MANDATORY */}
         {mandatoryDocs.length > 0 && (
           <div className="documents-section" style={{
@@ -315,10 +412,13 @@ export default function StudentModalityDocuments({ studentModalityId }) {
                   selectedFiles={selectedFiles}
                   sendingDocId={sendingDocId}
                   viewingDocId={viewingDocId}
+                  downloadingTemplateId={downloadingTemplateId}
                   handleFileChange={handleFileChange}
                   handleUpload={handleUpload}
                   handleReupload={handleReupload}
                   handleViewDocument={handleViewDocument}
+                  handlePreviewTemplate={handlePreviewTemplate}
+                  handleDownloadTemplate={handleDownloadTemplate}
                   getStatusLabel={getStatusLabel}
                   getStatusClass={getStatusClass}
                   canReuploadDocument={canReuploadDocument}
@@ -345,10 +445,13 @@ export default function StudentModalityDocuments({ studentModalityId }) {
                   selectedFiles={selectedFiles}
                   sendingDocId={sendingDocId}
                   viewingDocId={viewingDocId}
+                  downloadingTemplateId={downloadingTemplateId}
                   handleFileChange={handleFileChange}
                   handleUpload={handleUpload}
                   handleReupload={handleReupload}
                   handleViewDocument={handleViewDocument}
+                  handlePreviewTemplate={handlePreviewTemplate}
+                  handleDownloadTemplate={handleDownloadTemplate}
                   getStatusLabel={getStatusLabel}
                   getStatusClass={getStatusClass}
                   canReuploadDocument={canReuploadDocument}
@@ -394,16 +497,20 @@ function DocumentCard({
   selectedFiles,
   sendingDocId,
   viewingDocId,
+  downloadingTemplateId,
   handleFileChange,
   handleUpload,
   handleReupload,
   handleViewDocument,
+  handlePreviewTemplate,
+  handleDownloadTemplate,
   getStatusLabel,
   getStatusClass,
   canReuploadDocument,
   getDocumentTypeBadge,
 }) {
   const isUploaded = doc.uploaded;
+  const hasTemplate = !!doc.templateDocumentId;
 
   return (
     <li className={`document-card ${isUploaded ? "uploaded" : ""}`}>
@@ -416,6 +523,38 @@ function DocumentCard({
       </div>
 
       {doc.description && <p className="document-description">{doc.description}</p>}
+
+      {/* Botón de plantilla */}
+      {hasTemplate && (
+        <div className="document-template-section">
+          <div className="document-template-info">
+            <span className="document-template-icon">📋</span>
+            <span className="document-template-text">
+              Esta documento tiene una plantilla disponible. Descárgala para conocer el formato requerido.
+            </span>
+          </div>
+          <div className="document-template-actions">
+            <button
+              onClick={() => handlePreviewTemplate(doc.templateDocumentId)}
+              disabled={downloadingTemplateId === doc.templateDocumentId}
+              className="document-template-button preview"
+            >
+              {downloadingTemplateId === doc.templateDocumentId
+                ? "Cargando..."
+                : "👁 Vista previa"}
+            </button>
+            <button
+              onClick={() => handleDownloadTemplate(doc.templateDocumentId, doc.documentName)}
+              disabled={downloadingTemplateId === doc.templateDocumentId}
+              className="document-template-button download"
+            >
+              {downloadingTemplateId === doc.templateDocumentId
+                ? "Descargando..."
+                : "⬇ Descargar plantilla"}
+            </button>
+          </div>
+        </div>
+      )}
 
       <div className="document-requirements">
         <div className="document-requirement">

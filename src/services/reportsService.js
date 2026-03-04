@@ -14,6 +14,9 @@ export const PROCESS_STATUSES = [
   { value: 'UNDER_REVIEW_PROGRAM_HEAD', label: 'Bajo Revisión de Jefatura de Programa' },
   { value: 'CORRECTIONS_REQUESTED_PROGRAM_HEAD', label: 'Correcciones Solicitadas por Jefatura de Programa' },
   { value: 'CORRECTIONS_SUBMITTED', label: 'Correcciones Enviadas' },
+  { value: 'CORRECTIONS_SUBMITTED_TO_PROGRAM_HEAD', label: 'Correcciones Enviadas a Jefe de Programa' },
+  { value: 'CORRECTIONS_SUBMITTED_TO_COMMITTEE', label: 'Correcciones Enviadas a Comité' },
+  { value: 'CORRECTIONS_SUBMITTED_TO_EXAMINERS', label: 'Correcciones Enviadas a Jurado' },
   { value: 'CORRECTIONS_APPROVED', label: 'Correcciones Aprobadas' },
   { value: 'CORRECTIONS_REJECTED_FINAL', label: 'Correcciones Rechazadas (Final)' },
 
@@ -21,6 +24,8 @@ export const PROCESS_STATUSES = [
   { value: 'READY_FOR_PROGRAM_CURRICULUM_COMMITTEE', label: 'Listo para Comité' },
   { value: 'UNDER_REVIEW_PROGRAM_CURRICULUM_COMMITTEE', label: 'Revisión Comité' },
   { value: 'CORRECTIONS_REQUESTED_PROGRAM_CURRICULUM_COMMITTEE', label: 'Correcciones Solicitadas por Comité' },
+  { value: 'READY_FOR_DIRECTOR_ASSIGNMENT', label: 'Listo para Asignación de Director' },
+  { value: 'READY_FOR_APPROVED_BY_PROGRAM_CURRICULUM_COMMITTEE', label: 'Listo para Aprobación por Comité de Currículo' },
   { value: 'PROPOSAL_APPROVED', label: 'Propuesta Aprobada' },
 
   // ========== PROGRAMACIÓN DE SUSTENTACIÓN ========== 
@@ -30,6 +35,9 @@ export const PROCESS_STATUSES = [
   // ========== ASIGNACIÓN DE JURADO (NUEVO) ========== 
   { value: 'EXAMINERS_ASSIGNED', label: 'Jurado Asignado' },
   { value: 'READY_FOR_EXAMINERS', label: 'Listo para Jurado' },
+  { value: 'DOCUMENTS_APPROVED_BY_EXAMINERS', label: 'Documentos Aprobados por Jurado' },
+  { value: 'SECONDARY_DOCUMENTS_APPROVED_BY_EXAMINERS', label: 'Documentos Secundarios Aprobados por Jurado' },
+  { value: 'DOCUMENT_REVIEW_TIEBREAKER_REQUIRED', label: 'Revisión de Documento Requiere Desempate' },
   { value: 'CORRECTIONS_REQUESTED_EXAMINERS', label: 'Correcciones Solicitadas por Jurado' },
   { value: 'READY_FOR_DEFENSE', label: 'Listo para Sustentación' },
   { value: 'FINAL_REVIEW_COMPLETED', label: 'Revisión Final Completada' },

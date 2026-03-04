@@ -91,6 +91,7 @@ export default function Documents() {
       <StudentModalityDocuments
         studentModalityId={statusData.studentModalityId}
         modalityId={statusData.modalityId}
+        modalityName={statusData.modalityName || ""}
       />
     </div>
   );

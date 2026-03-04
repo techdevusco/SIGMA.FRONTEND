@@ -421,16 +421,24 @@ export const MODALITY_STATUS_OPTIONS = [
   { value: "UNDER_REVIEW_PROGRAM_HEAD", label: "En Revisión por Jefe de Programa" },
   { value: "CORRECTIONS_REQUESTED_PROGRAM_HEAD", label: "Correcciones Solicitadas por Jefe" },
   { value: "CORRECTIONS_SUBMITTED", label: "Correcciones Enviadas" },
+  { value: "CORRECTIONS_SUBMITTED_TO_PROGRAM_HEAD", label: "Correcciones Enviadas a Jefe de Programa" },
+  { value: "CORRECTIONS_SUBMITTED_TO_COMMITTEE", label: "Correcciones Enviadas a Comité" },
+  { value: "CORRECTIONS_SUBMITTED_TO_EXAMINERS", label: "Correcciones Enviadas a Jurado" },
   { value: "CORRECTIONS_APPROVED", label: "Correcciones Aprobadas" },
   { value: "CORRECTIONS_REJECTED_FINAL", label: "Correcciones Rechazadas (Final)" },
   { value: "READY_FOR_PROGRAM_CURRICULUM_COMMITTEE", label: "Pendiente Comité de Currículo" },
   { value: "UNDER_REVIEW_PROGRAM_CURRICULUM_COMMITTEE", label: "En Revisión por Comité de Currículo" },
   { value: "CORRECTIONS_REQUESTED_PROGRAM_CURRICULUM_COMMITTEE", label: "Correcciones Solicitadas por Comité" },
+  { value: "READY_FOR_DIRECTOR_ASSIGNMENT", label: "Listo para Asignación de Director" },
+  { value: "READY_FOR_APPROVED_BY_PROGRAM_CURRICULUM_COMMITTEE", label: "Listo para Aprobación por Comité de Currículo" },
   { value: "PROPOSAL_APPROVED", label: "Propuesta Aprobada" },
   { value: "DEFENSE_REQUESTED_BY_PROJECT_DIRECTOR", label: "Sustentación Propuesta por Director" },
   { value: "DEFENSE_SCHEDULED", label: "Sustentación Programada" },
   { value: "EXAMINERS_ASSIGNED", label: "Jurado Asignado" },
   { value: "READY_FOR_EXAMINERS", label: "Listo para Jurado" },
+  { value: "DOCUMENTS_APPROVED_BY_EXAMINERS", label: "Documentos Aprobados por Jurado" },
+  { value: "SECONDARY_DOCUMENTS_APPROVED_BY_EXAMINERS", label: "Documentos Secundarios Aprobados por Jurado" },
+  { value: "DOCUMENT_REVIEW_TIEBREAKER_REQUIRED", label: "Revisión de Documento Requiere Desempate" },
   { value: "CORRECTIONS_REQUESTED_EXAMINERS", label: "Correcciones Solicitadas por Jurado" },
   { value: "READY_FOR_DEFENSE", label: "Listo para Sustentación" },
   { value: "FINAL_REVIEW_COMPLETED", label: "Revisión Final Completada" },
@@ -473,16 +481,24 @@ export const getStatusBadgeClass = (status) => {
     UNDER_REVIEW_PROGRAM_HEAD: "warning",
     CORRECTIONS_REQUESTED_PROGRAM_HEAD: "error",
     CORRECTIONS_SUBMITTED: "info",
+    CORRECTIONS_SUBMITTED_TO_PROGRAM_HEAD: "info",
+    CORRECTIONS_SUBMITTED_TO_COMMITTEE: "info",
+    CORRECTIONS_SUBMITTED_TO_EXAMINERS: "info",
     CORRECTIONS_APPROVED: "success",
     CORRECTIONS_REJECTED_FINAL: "error",
     READY_FOR_PROGRAM_CURRICULUM_COMMITTEE: "warning",
     UNDER_REVIEW_PROGRAM_CURRICULUM_COMMITTEE: "warning",
     CORRECTIONS_REQUESTED_PROGRAM_CURRICULUM_COMMITTEE: "error",
+    READY_FOR_DIRECTOR_ASSIGNMENT: "warning",
+    READY_FOR_APPROVED_BY_PROGRAM_CURRICULUM_COMMITTEE: "warning",
     PROPOSAL_APPROVED: "success",
     DEFENSE_REQUESTED_BY_PROJECT_DIRECTOR: "info",
     DEFENSE_SCHEDULED: "success",
     EXAMINERS_ASSIGNED: "info",
     READY_FOR_EXAMINERS: "info",
+    DOCUMENTS_APPROVED_BY_EXAMINERS: "success",
+    SECONDARY_DOCUMENTS_APPROVED_BY_EXAMINERS: "success",
+    DOCUMENT_REVIEW_TIEBREAKER_REQUIRED: "warning",
     CORRECTIONS_REQUESTED_EXAMINERS: "error",
     READY_FOR_DEFENSE: "success",
     FINAL_REVIEW_COMPLETED: "info",
@@ -520,4 +536,39 @@ export const getAvailableSeminars = async () => {
 export const enrollInSeminar = async (seminarId) => {
   const res = await api.post(`/modalities/seminar/${seminarId}/enroll`);
   return res.data;
+};
+
+// ========================================
+// 📄 PLANTILLAS / TEMPLATES
+// ========================================
+
+/**
+ * Descargar plantilla de documento como blob (para preview o descarga)
+ * @param {number} templateId - ID de la plantilla
+ */
+export const downloadTemplateBlob = async (templateId) => {
+  console.log("📄 [ESTUDIANTE] Descargando plantilla ID:", templateId);
+
+  try {
+    const response = await api.get(`/templates/${templateId}/download`, {
+      responseType: "blob",
+    });
+
+    console.log("✅ Plantilla recibida, tamaño:", response.data.size);
+
+    const contentDisposition = response.headers["content-disposition"];
+    let fileName = "plantilla.pdf";
+    if (contentDisposition) {
+      const match = contentDisposition.match(/filename="?([^"]+)"?/);
+      if (match) fileName = match[1];
+    }
+
+    return { blob: response.data, fileName };
+  } catch (error) {
+    console.error("❌ Error al descargar plantilla:", error);
+    if (error.response?.status === 404) {
+      throw new Error("Plantilla no encontrada");
+    }
+    throw new Error("Error al descargar la plantilla. Intenta nuevamente.");
+  }
 };
