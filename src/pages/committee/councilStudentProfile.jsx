@@ -280,27 +280,24 @@ export default function CommitteeStudentProfile() {
   const examinersToDisplay = assignedExaminers.length > 0 ? assignedExaminers : (profile?.examiners || []);
   const step3Ok_examiners = hasExaminersData;
 
-  // Detectar si la modalidad ya fue aprobada por comité (PROPOSAL_APPROVED o cualquier estado posterior)
-  const preApprovalStatuses = [
-    "MODALITY_SELECTED",
-    "UNDER_REVIEW_PROGRAM_HEAD",
-    "CORRECTIONS_REQUESTED_PROGRAM_HEAD",
-    "CORRECTIONS_SUBMITTED",
-    "CORRECTIONS_APPROVED",
-    "CORRECTIONS_REJECTED_FINAL",
-    "READY_FOR_PROGRAM_CURRICULUM_COMMITTEE",
-    "UNDER_REVIEW_PROGRAM_CURRICULUM_COMMITTEE",
-    "CORRECTIONS_REQUESTED_PROGRAM_CURRICULUM_COMMITTEE",
-    "CORRECTIONS_SUBMITTED_TO_PROGRAM_HEAD",
-    "CORRECTIONS_SUBMITTED_TO_COMMITTEE",
-    "READY_FOR_APPROVED_BY_PROGRAM_CURRICULUM_COMMITTEE",
+  // Detectar si la modalidad ya fue aprobada por comité (solo estados posteriores a la aprobación explícita)
+  const postApprovalStatuses = [
+    "PROPOSAL_APPROVED",
+    "DEFENSE_REQUESTED_BY_PROJECT_DIRECTOR",
+    "DEFENSE_SCHEDULED",
+    "DEFENSE_COMPLETED",
+    "EXAMINERS_ASSIGNED",
+    "READY_FOR_EXAMINERS",
+    "DOCUMENTS_APPROVED_BY_EXAMINERS",
+    "SECONDARY_DOCUMENTS_APPROVED_BY_EXAMINERS",
+    "GRADED_APPROVED",
+    "GRADED_FAILED",
+    "MODALITY_APPROVED_BY_COMMITTEE",
+    "MODALITY_FAILED_BY_COMMITTEE",
+    "APPROVED_BY_COMMITTEE",
+    "REJECTED_BY_COMMITTEE",
   ];
-  const isModalityApprovedByCommittee = !preApprovalStatuses.includes(profile.currentStatus) 
-    && profile.currentStatus !== "MODALITY_CLOSED" 
-    && profile.currentStatus !== "MODALITY_CANCELLED" 
-    && profile.currentStatus !== "CANCELLED_WITHOUT_REPROVAL"
-    && profile.currentStatus !== "CANCELLATION_REQUESTED"
-    && profile.currentStatus !== "CANCELLATION_REJECTED";
+  const isModalityApprovedByCommittee = postApprovalStatuses.includes(profile.currentStatus);
 
   // Solo se puede aprobar si los docs están OK, director asignado, y el estado es válido para el backend
   const validStatusesForApproval = [
@@ -834,10 +831,10 @@ export default function CommitteeStudentProfile() {
           </div>
 
           {/* Paso 3: Aprobar modalidad */}
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', marginBottom: '1.5rem', padding: '1rem 1.25rem', borderRadius: '12px', background: isModalityApprovedByCommittee ? '#f0fdf4' : (canApproveModality ? '#eff6ff' : '#f9fafb'), border: isModalityApprovedByCommittee ? '1.5px solid #bbf7d0' : (canApproveModality ? '1.5px solid #93c5fd' : '1.5px solid #e5e7eb'), transition: 'all 0.3s ease' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', marginBottom: '1.5rem', padding: '1rem 1.25rem', borderRadius: '12px', background: isModalityApprovedByCommittee ? '#f0fdf4' : (canApproveModality ? '#fefce8' : '#f9fafb'), border: isModalityApprovedByCommittee ? '1.5px solid #bbf7d0' : (canApproveModality ? '1.5px solid #fde68a' : '1.5px solid #e5e7eb'), transition: 'all 0.3s ease' }}>
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
-                <span style={{ fontWeight: 700, fontSize: '1.05rem', color: isModalityApprovedByCommittee ? '#166534' : (canApproveModality ? '#1e40af' : '#6b7280') }}>
+                <span style={{ fontWeight: 700, fontSize: '1.05rem', color: isModalityApprovedByCommittee ? '#166534' : (canApproveModality ? '#92400e' : '#6b7280') }}>
                   3. Aprobar modalidad por comité
                 </span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -846,9 +843,9 @@ export default function CommitteeStudentProfile() {
                     borderRadius: '20px',
                     fontSize: '0.8rem',
                     fontWeight: 700,
-                    background: isModalityApprovedByCommittee ? '#dcfce7' : (canApproveModality ? '#dbeafe' : '#f3f4f6'),
-                    color: isModalityApprovedByCommittee ? '#166534' : (canApproveModality ? '#1e40af' : '#6b7280'),
-                    border: isModalityApprovedByCommittee ? '1px solid #86efac' : (canApproveModality ? '1px solid #93c5fd' : '1px solid #d1d5db'),
+                    background: isModalityApprovedByCommittee ? '#dcfce7' : (canApproveModality ? '#fef9c3' : '#f3f4f6'),
+                    color: isModalityApprovedByCommittee ? '#166534' : (canApproveModality ? '#92400e' : '#6b7280'),
+                    border: isModalityApprovedByCommittee ? '1px solid #86efac' : (canApproveModality ? '1px solid #fde047' : '1px solid #d1d5db'),
                   }}>
                     {isModalityApprovedByCommittee ? 'COMPLETADO' : (canApproveModality ? 'LISTO' : 'PENDIENTE')}
                   </span>
