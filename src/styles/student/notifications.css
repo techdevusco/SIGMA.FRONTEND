@@ -152,38 +152,22 @@
   border: 2px solid #7A1117;
 }
 .empty-state h3 {
+  color: #9ca3af;
+}
 .btn-mark-all {
-  background: linear-gradient(90deg, #7A1117 0%, #D5CBA0 100%);
-  color: #fff;
+  background: #059669;
+  color: white;
   border: none;
-  padding: 0.8rem 1.5rem;
-  border-radius: 10px;
-  font-size: 1.05rem;
-  font-weight: 700;
+  padding: 0.7rem 1.3rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s, box-shadow 0.2s;
+  transition: background 0.2s;
   white-space: nowrap;
-  box-shadow: 0 2px 8px #7A111733;
-  border: 2px solid #D5CBA0;
 }
 .btn-mark-all:hover {
-  background: linear-gradient(90deg, #D5CBA0 0%, #7A1117 100%);
-  color: #7A1117;
-  box-shadow: 0 4px 16px #7A111733;
-}
-  gap: 1rem;
-  padding: 2rem 1.5rem; /* ✅ MÁS PADDING */
-  border-bottom: 1px solid #f3f4f6;
-  transition: background 0.2s;
-  position: relative;
-}
-
-.notification-item:last-child {
-  border-bottom: none;
-}
-
-.notification-item:hover {
-  background: #fafafa;
+  background: #047857;
 }
 
 .notification-item {
@@ -211,6 +195,10 @@
 }
 .notification-item.unread:hover {
   background: linear-gradient(90deg, #f9f6e7 80%, #fff 100%);
+}
+
+.notification-icon-container {
+  display: flex;
   align-items: center;
   justify-content: center;
   width: 56px;
@@ -218,6 +206,7 @@
   background: #f3f4f6;
   border-radius: 50%;
   font-size: 2rem;
+  flex-shrink: 0;
 }
 
 .notification-body {
