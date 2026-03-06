@@ -913,7 +913,7 @@ export default function CommitteeStudentProfile() {
                   {examinersToDisplay.map((examiner, idx) => (
                     <div key={examiner.id || examiner.examinerId || idx} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.4rem 0.75rem', background: '#fff', borderRadius: '8px', border: '1px solid #bbf7d0' }}>
                       <span style={{ fontSize: '0.85rem', color: '#6b7280' }}>
-                        {examiner.role === 'TIEBREAKER' ? '🔷 Desempate:' : `👨‍⚖️ Jurado ${idx + 1}:`}
+                        {examiner.role === 'TIEBREAKER' ? 'Jurado Desempate:' : ` Jurado ${idx + 1}:`}
                       </span>
                       <span style={{ fontSize: '0.9rem', fontWeight: 600, color: '#166534' }}>
                         {examiner.name || examiner.fullName || ''} {examiner.lastName || ''}
