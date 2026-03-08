@@ -304,19 +304,6 @@ export default function SeminarSelection() {
         </div>
       )}
 
-      {modalityState === "none" && profileComplete && (
-        <div style={{
-          background: '#d1ecf1',
-          borderLeft: '4px solid #17a2b8',
-          borderRadius: '6px',
-          padding: '1rem 1.5rem',
-          marginBottom: '1rem',
-          color: '#0c5460',
-          fontWeight: 500,
-        }}>
-          ℹ️ Al unirte a un diplomado, se activará automáticamente la modalidad "Diplomado de Grado" como tu modalidad de grado.
-        </div>
-      )}
 
       {message && (
         <div className={`seminar-message ${messageType}`} style={{ marginBottom: '1rem' }}>

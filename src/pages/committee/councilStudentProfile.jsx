@@ -912,19 +912,28 @@ export default function CommitteeStudentProfile() {
                 </div>
               </div>
               {step3Ok_examiners && hasExaminersData && (
-                <div style={{ marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <div style={{ marginTop: '0.85rem', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
                   {examinersToDisplay.map((examiner, idx) => (
-                    <div key={examiner.id || examiner.examinerId || idx} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.4rem 0.75rem', background: '#fff', borderRadius: '8px', border: '1px solid #bbf7d0' }}>
-                      <span style={{ fontSize: '0.85rem', color: '#6b7280' }}>
-                        {examiner.role === 'TIEBREAKER' ? 'Jurado Desempate:' : ` Jurado ${idx + 1}:`}
-                      </span>
-                      <span style={{ fontSize: '0.9rem', fontWeight: 600, color: '#166534' }}>
-                        {examiner.name || examiner.fullName || ''} {examiner.lastName || ''}
-                      </span>
-                      {examiner.email && (
-                        <span style={{ fontSize: '0.8rem', color: '#6b7280', marginLeft: 'auto' }}>
-                          {examiner.email}
+                    <div key={examiner.id || examiner.examinerId || idx} style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', padding: '0.65rem 1rem', background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)', borderRadius: '10px', border: '1px solid #86efac', boxShadow: '0 1px 4px rgba(22,101,52,0.07)' }}>
+                      <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg, #16a34a, #166534)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 6px rgba(22,101,52,0.25)' }}>
+                        <span style={{ color: '#fff', fontSize: '0.8rem', fontWeight: 700 }}>
+                          {examiner.role === 'TIEBREAKER' ? '3' : idx + 1}
                         </span>
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: '0.7rem', fontWeight: 600, color: '#15803d', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.1rem' }}>
+                          {examiner.role === 'TIEBREAKER' ? 'Jurado Desempate' : `Jurado ${idx + 1}`}
+                        </div>
+                        <div style={{ fontSize: '0.92rem', fontWeight: 700, color: '#14532d', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {examiner.name || examiner.fullName || ''} {examiner.lastName || ''}
+                        </div>
+                      </div>
+                      {examiner.email && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexShrink: 0 }}>
+                          <span style={{ fontSize: '0.75rem', color: '#fff', background: '#16a34a', padding: '0.2rem 0.6rem', borderRadius: '20px', fontWeight: 500, letterSpacing: '0.01em' }}>
+                            {examiner.email}
+                          </span>
+                        </div>
                       )}
                     </div>
                   ))}

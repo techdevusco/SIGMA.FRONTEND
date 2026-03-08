@@ -87,7 +87,8 @@ export default function StudentProfileProgramHead() {
         notes: notes.trim(),
       });
 
-      setSuccessMessage("✅ Documento revisado exitosamente");
+      setSuccessMessage("Documento revisado exitosamente");
+      window.scrollTo({ top: 0, behavior: "smooth" });
       setTimeout(() => setSuccessMessage(""), 5000);
 
       await fetchProfile();
