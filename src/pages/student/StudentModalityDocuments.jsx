@@ -33,6 +33,13 @@ const MODALITY_TEMPLATES = {
     { id: 10, name: "Formato del Informe Final" },
   ],
 
+  "practica profesional": [
+    { id: 17, name: "Lista de Chequeo" },
+    { id: 18, name: "Formato de la Propuesta" },
+    { id: 19, name: "Formato del Informe Parcial" },
+    { id: 20, name: "Formato del Informe Final" },
+  ],
+
   "emprendimiento": [
     { id: 14, name: "Guia Metodologica para Crear Empresa" },
     { id: 9, name: "Formato de Propuesta (Referencia)" },
