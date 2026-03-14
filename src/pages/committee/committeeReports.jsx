@@ -12,9 +12,12 @@ import {
   downloadDefenseCalendarPDF,
   downloadStudentListingPDF,
   downloadDirectorPerformancePDF,
+  downloadModalityTraceabilityByModalityPDF,
+  downloadModalityTraceabilityByStudentPDF,
   downloadIndividualDirectorPDF,
   getAvailableModalityTypes,
   getDirectors,
+  getStudentsByAcademicProgram,
   testConnection,
   PROCESS_STATUSES,
   RESULT_TYPES,
@@ -34,8 +37,11 @@ const CommitteeReports = () => {
   const [globalLoading, setGlobalLoading] = useState(true);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [activeMessageCard, setActiveMessageCard] = useState(null);
   const [modalityTypes, setModalityTypes] = useState([]);
   const [directors, setDirectors] = useState([]);
+  const [studentSearchResults, setStudentSearchResults] = useState([]);
+  const [searchingStudents, setSearchingStudents] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState('checking');
 
   // Estados de filtros para cada reporte
@@ -104,6 +110,12 @@ const CommitteeReports = () => {
     individualDirector: {
       directorId: null,
       includeWorkloadAnalysis: true
+    },
+    studentTraceability: {
+      studentName: '',
+      selectedStudentId: null,
+      selectedStudentModalityId: null,
+      selectedStudentLabel: ''
     }
   });
 
@@ -151,6 +163,7 @@ const CommitteeReports = () => {
   // ========================================
 
   const handleDownloadGlobal = async () => {
+    setActiveMessageCard('global');
     setLoading(true);
     setError(null);
     setSuccess(null);
@@ -173,7 +186,7 @@ const CommitteeReports = () => {
           boxShadow: 'none',
           borderRadius: 0
         }}>
-          <span style={{fontSize: '1em', color: '#388e3c', marginRight: 4, lineHeight: 1, flexShrink: 0}}>✔️</span>
+          <span style={{fontSize: '0.92em', color: '#388e3c', marginRight: 4, lineHeight: 1, flexShrink: 0}}>OK</span>
           <span style={{lineHeight: 1.2}}>
             Reporte global <span style={{color: '#7A1117'}}>{result.filename}</span> descargado exitosamente
           </span>
@@ -196,7 +209,7 @@ const CommitteeReports = () => {
           boxShadow: 'none',
           borderRadius: 0
         }}>
-          <span style={{fontSize: '1em', color: '#b71c1c', marginRight: 4, lineHeight: 1, flexShrink: 0}}>✖️</span>
+          <span style={{fontSize: '0.92em', color: '#b71c1c', marginRight: 4, lineHeight: 1, flexShrink: 0}}>X</span>
           <span style={{lineHeight: 1.2}}>
             No se pudo descargar el reporte global.
             <span style={{display: 'inline', color: '#b71c1c', fontWeight: 400, fontSize: '0.97em', marginLeft: 4}}>{err.message || 'Error desconocido.'}</span>
@@ -209,6 +222,7 @@ const CommitteeReports = () => {
   };
 
   const handleDownloadFiltered = async () => {
+    setActiveMessageCard('filtered');
     setLoading(true);
     setError(null);
     try {
@@ -218,7 +232,7 @@ const CommitteeReports = () => {
         degreeModalityIds: Array.isArray(filters.filtered.degreeModalityIds) ? filters.filtered.degreeModalityIds : []
       };
       const result = await downloadFilteredModalitiesPDF(payload);
-      setSuccess(`✅ ${result.filename} descargado exitosamente`);
+      setSuccess(`${result.filename} descargado exitosamente`);
       setTimeout(() => setSuccess(null), 5000);
       setOpenFilterDialog(null);
     } catch (err) {
@@ -229,11 +243,12 @@ const CommitteeReports = () => {
   };
 
   const handleDownloadComparison = async () => {
+    setActiveMessageCard('comparison');
     setLoading(true);
     setError(null);
     try {
       const result = await downloadModalityComparisonPDF(filters.comparison);
-      setSuccess(`✅ ${result.filename} descargado exitosamente`);
+      setSuccess(`${result.filename} descargado exitosamente`);
       setTimeout(() => setSuccess(null), 5000);
       setOpenFilterDialog(null);
     } catch (err) {
@@ -244,8 +259,9 @@ const CommitteeReports = () => {
   };
 
   const handleDownloadHistorical = async () => {
+    setActiveMessageCard('historical');
     if (!filters.historical.modalityTypeId) {
-      setError('⚠️ Debe seleccionar un tipo de modalidad');
+      setError('Debe seleccionar un tipo de modalidad');
       return;
     }
 
@@ -256,7 +272,7 @@ const CommitteeReports = () => {
         filters.historical.modalityTypeId,
         filters.historical.periods
       );
-      setSuccess(`✅ ${result.filename} descargado exitosamente`);
+      setSuccess(`${result.filename} descargado exitosamente`);
       setTimeout(() => setSuccess(null), 5000);
       setOpenFilterDialog(null);
     } catch (err) {
@@ -267,11 +283,12 @@ const CommitteeReports = () => {
   };
 
   const handleDownloadCompleted = async () => {
+    setActiveMessageCard('completed');
     setLoading(true);
     setError(null);
     try {
       const result = await downloadCompletedModalitiesPDF(filters.completed);
-      setSuccess(`✅ ${result.filename} descargado exitosamente`);
+      setSuccess(`${result.filename} descargado exitosamente`);
       setTimeout(() => setSuccess(null), 5000);
       setOpenFilterDialog(null);
     } catch (err) {
@@ -282,11 +299,12 @@ const CommitteeReports = () => {
   };
 
   const handleDownloadCalendar = async () => {
+    setActiveMessageCard('calendar');
     setLoading(true);
     setError(null);
     try {
       const result = await downloadDefenseCalendarPDF(filters.calendar);
-      setSuccess(`✅ ${result.filename} descargado exitosamente`);
+      setSuccess(`${result.filename} descargado exitosamente`);
       setTimeout(() => setSuccess(null), 5000);
       setOpenFilterDialog(null);
     } catch (err) {
@@ -297,11 +315,12 @@ const CommitteeReports = () => {
   };
 
   const handleDownloadStudentListing = async () => {
+    setActiveMessageCard('studentListing');
     setLoading(true);
     setError(null);
     try {
       const result = await downloadStudentListingPDF(filters.studentListing);
-      setSuccess(`✅ ${result.filename} descargado exitosamente`);
+      setSuccess(`${result.filename} descargado exitosamente`);
       setTimeout(() => setSuccess(null), 5000);
       setOpenFilterDialog(null);
     } catch (err) {
@@ -312,11 +331,12 @@ const CommitteeReports = () => {
   };
 
   const handleDownloadDirectors = async () => {
+    setActiveMessageCard('directors');
     setLoading(true);
     setError(null);
     try {
       const result = await downloadDirectorPerformancePDF(filters.directors);
-      setSuccess(`✅ ${result.filename} descargado exitosamente`);
+      setSuccess(`${result.filename} descargado exitosamente`);
       setTimeout(() => setSuccess(null), 5000);
       setOpenFilterDialog(null);
     } catch (err) {
@@ -327,8 +347,9 @@ const CommitteeReports = () => {
   };
 
   const handleDownloadIndividualDirector = async () => {
+    setActiveMessageCard('individualDirector');
     if (!filters.individualDirector.directorId) {
-      setError('⚠️ Debe seleccionar un director');
+      setError('Debe seleccionar un director');
       return;
     }
 
@@ -347,6 +368,80 @@ const CommitteeReports = () => {
       setOpenFilterDialog(null);
     } catch (err) {
       setError(err.message || 'Error al descargar el reporte del director');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearchStudents = async () => {
+    setActiveMessageCard('studentTraceability');
+    const searchTerm = (filters.studentTraceability.studentName || '').trim();
+
+    if (searchTerm.length < 2) {
+      setError('Ingrese al menos 2 caracteres para buscar estudiante');
+      return;
+    }
+
+    setSearchingStudents(true);
+    setError(null);
+    setSuccess(null);
+
+    try {
+      const students = await getStudentsByAcademicProgram(searchTerm);
+      const normalizedTerm = searchTerm.toLowerCase();
+      const filteredStudents = students.filter((student) =>
+        student.fullName.toLowerCase().includes(normalizedTerm)
+      );
+
+      setStudentSearchResults(filteredStudents);
+
+      if (filteredStudents.length === 0) {
+        setError('No se encontraron estudiantes con ese nombre en el programa académico');
+      }
+    } catch (err) {
+      setStudentSearchResults([]);
+      setError(err.message || 'Error al buscar estudiantes por programa académico');
+    } finally {
+      setSearchingStudents(false);
+    }
+  };
+
+  const handleSelectStudentForTraceability = (student) => {
+    const label = `${student.fullName}${student.code ? ` (${student.code})` : ''}`;
+
+    setFilters((prev) => ({
+      ...prev,
+      studentTraceability: {
+        ...prev.studentTraceability,
+        selectedStudentId: student.studentId,
+        selectedStudentModalityId: student.studentModalityId || null,
+        selectedStudentLabel: label
+      }
+    }));
+  };
+
+  const handleDownloadStudentTraceability = async () => {
+    setActiveMessageCard('studentTraceability');
+    const studentId = filters.studentTraceability.selectedStudentId;
+    const studentModalityId = filters.studentTraceability.selectedStudentModalityId;
+
+    if (!studentId && !studentModalityId) {
+      setError('Debe seleccionar un estudiante para generar el reporte de trazabilidad');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const result = studentId
+        ? await downloadModalityTraceabilityByStudentPDF(studentId)
+        : await downloadModalityTraceabilityByModalityPDF(studentModalityId);
+      setSuccess(`${result.filename} descargado exitosamente`);
+      setTimeout(() => setSuccess(null), 5000);
+      setOpenFilterDialog(null);
+    } catch (err) {
+      setError(err.message || 'Error al descargar el reporte de trazabilidad por estudiante');
     } finally {
       setLoading(false);
     }
@@ -657,7 +752,7 @@ onChange={() => handleCheckboxChange('filtered', 'degreeModalityIds', type.id)}
   const renderHistoricalFilters = () => (
     <div className="filters-panel historical-filters-panel">
       <div className="alert-info historical-alert">
-        <span className="historical-icon">📈</span>
+        <span className="historical-icon">INFO</span>
         <span>Selecciona un tipo de modalidad para ver su evolución histórica</span>
       </div>
 
@@ -1411,6 +1506,179 @@ onChange={() => handleCheckboxChange('filtered', 'degreeModalityIds', type.id)}
   </div>
 );
 
+  const renderStudentTraceabilityFilters = () => (
+    <div className="filters-panel" style={{
+      background: '#fff',
+      border: '1px solid #e6d7da',
+      borderRadius: 10,
+      padding: '1.5rem 1.5rem 1.2rem 1.5rem',
+      boxShadow: '0 2px 12px rgba(122,17,23,0.06)',
+      marginBottom: 16,
+      fontFamily: 'Inter, Segoe UI, Arial, sans-serif',
+      color: '#5d0d12',
+      fontSize: '1.04rem',
+      maxWidth: 640
+    }}>
+      <div className="filter-group" style={{ marginBottom: 14 }}>
+        <label style={{ fontWeight: 700, color: '#7A1117', marginBottom: 6, display: 'block' }}>
+          Buscar estudiante por nombre
+        </label>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          <input
+            type="text"
+            value={filters.studentTraceability.studentName}
+            placeholder="Ejemplo: Juan Pérez"
+            onChange={(e) => handleFilterChange('studentTraceability', 'studentName', e.target.value)}
+            style={{
+              border: '1.5px solid #e6d7da',
+              borderRadius: 6,
+              padding: '8px 10px',
+              fontSize: '1em',
+              color: '#5d0d12',
+              outline: 'none',
+              fontFamily: 'inherit',
+              width: '100%',
+              boxSizing: 'border-box',
+              transition: 'border-color 0.2s',
+              maxWidth: 360
+            }}
+          />
+          <button
+            type="button"
+            className="btn-filters"
+            onClick={handleSearchStudents}
+            disabled={loading || searchingStudents}
+          >
+            {searchingStudents ? 'Buscando...' : 'Buscar'}
+          </button>
+          <button
+            type="button"
+            className="btn-filters"
+            onClick={() => {
+              setStudentSearchResults([]);
+              setFilters((prev) => ({
+                ...prev,
+                studentTraceability: {
+                  ...prev.studentTraceability,
+                  studentName: '',
+                  selectedStudentId: null,
+                  selectedStudentModalityId: null,
+                  selectedStudentLabel: ''
+                }
+              }));
+            }}
+            disabled={loading || searchingStudents}
+          >
+            Limpiar
+          </button>
+        </div>
+      </div>
+
+      <div className="filter-group" style={{ marginBottom: 14 }}>
+        <label style={{ fontWeight: 700, color: '#7A1117', marginBottom: 6, display: 'block' }}>
+          Resultados de búsqueda
+        </label>
+
+        {studentSearchResults.length === 0 ? (
+          <div style={{
+            border: '1px dashed #d6c1c4',
+            borderRadius: 8,
+            padding: '10px 12px',
+            color: '#7A1117',
+            background: '#fcf8f8',
+            fontSize: '0.96rem'
+          }}>
+            Realiza una búsqueda para seleccionar un estudiante.
+          </div>
+        ) : (
+          <div style={{ maxHeight: 220, overflowY: 'auto', display: 'grid', gap: 8 }}>
+            {studentSearchResults.map((student) => {
+              const isSelected = filters.studentTraceability.selectedStudentId === student.studentId;
+
+              return (
+                <button
+                  key={student.studentId}
+                  type="button"
+                  onClick={() => handleSelectStudentForTraceability(student)}
+                  style={{
+                    textAlign: 'left',
+                    border: isSelected ? '1.5px solid #7A1117' : '1px solid #e7d9dc',
+                    borderRadius: 8,
+                    background: isSelected ? '#f8e9eb' : '#fff',
+                    color: '#5d0d12',
+                    padding: '10px 12px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <div style={{ fontWeight: 700 }}>{student.fullName}</div>
+                  <div style={{ fontSize: '0.92rem', marginTop: 2 }}>
+                    ID estudiante: {student.studentId || 'N/A'}
+                    {student.studentModalityId ? ` | ID modalidad: ${student.studentModalityId}` : ''}
+                    {student.code ? ` | Código: ${student.code}` : ''}
+                    {student.programName ? ` | Programa: ${student.programName}` : ''}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      <div style={{
+        borderTop: '1px solid #f0e3e5',
+        paddingTop: 10,
+        color: '#7A1117',
+        fontSize: '0.97rem'
+      }}>
+        <strong>Estudiante seleccionado:</strong>{' '}
+        {filters.studentTraceability.selectedStudentLabel || 'Ninguno'}
+      </div>
+
+      <div style={{ marginTop: 12 }}>
+        <button
+          className="btn-primary"
+          style={{ fontWeight: 700, width: '100%' }}
+          onClick={handleDownloadStudentTraceability}
+          disabled={loading}
+        >
+          {loading ? <span className="spinner-small"></span> : ''} Descargar PDF
+        </button>
+      </div>
+    </div>
+  );
+
+  const renderCardMessage = (cardKey) => {
+    if (activeMessageCard !== cardKey) return null;
+    if (!error && !success) return null;
+
+    const isError = Boolean(error);
+    const message = error || success;
+
+    return (
+      <div
+        className={`reports-alert ${isError ? 'alert-error' : 'alert-success'}`}
+        style={{ marginTop: 10, marginBottom: 0 }}
+      >
+        <span>{isError ? 'ERROR' : 'OK'}</span>
+        <div>
+          <strong>{isError ? 'Error' : 'Éxito'}</strong>
+          <p>{message}</p>
+        </div>
+        <button
+          className="alert-close"
+          onClick={() => {
+            setError(null);
+            setSuccess(null);
+            setActiveMessageCard(null);
+          }}
+          aria-label="Cerrar"
+        >
+          ×
+        </button>
+      </div>
+    );
+  };
+
   // ========================================
   // RENDER PRINCIPAL
   // ========================================
@@ -1490,99 +1758,18 @@ onChange={() => handleCheckboxChange('filtered', 'degreeModalityIds', type.id)}
           lineHeight: 1,
           zIndex: 1
         }}>
-          <span role="img" aria-label="decorativo">📑</span>
+          <span aria-label="decorativo">DOC</span>
         </span>
       </div>
 
       {/* Estado de conexión */}
       {connectionStatus === 'error' && (
         <div className="reports-alert alert-error">
-          <span>❌</span>
+          <span>Error</span>
           <div>
             <strong>Error de Conexión</strong>
             <p>No se pudo conectar con el servidor. Verifica que el backend esté ejecutándose.</p>
           </div>
-        </div>
-      )}
-
-      {/* Mensajes de éxito/error */}
-      {error && (
-        <div
-          className="reports-alert alert-error"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.7rem',
-            background: '#f8e9eb',
-            border: '1px solid #e0bcbc',
-            borderLeft: '4px solid #7A1117',
-            borderRadius: '7px',
-            boxShadow: '0 1px 6px rgba(122,17,23,0.06)',
-            padding: '0.7rem 1.1rem 0.7rem 1rem',
-            margin: '1rem 0',
-            position: 'relative',
-            minHeight: 40,
-            zIndex: 10
-          }}
-        >
-          <span
-            style={{
-              fontSize: '1.25rem',
-              color: '#d32f2f',
-              background: '#fff',
-              borderRadius: '50%',
-              boxShadow: '0 1px 4px #d32f2f11',
-              padding: '0.1rem 0.5rem',
-              marginRight: '0.3rem',
-              flexShrink: 0,
-              border: '1px solid #fff3',
-              marginTop: 0
-            }}
-            aria-label="Error"
-          >
-            ❌
-          </span>
-          <div style={{ flex: 1 }}>
-            <span style={{ color: '#7A1117', fontWeight: 700, fontSize: '1rem', letterSpacing: '0.2px' }}>Error</span>
-            <span style={{ color: '#b71c1c', marginLeft: 8, fontWeight: 500, fontSize: '0.98rem', lineHeight: 1.4 }}>{error}</span>
-          </div>
-          <button
-            className="alert-close"
-            style={{
-              background: 'none',
-              border: 'none',
-              color: '#d32f2f',
-              fontSize: '1.25rem',
-              fontWeight: 700,
-              cursor: 'pointer',
-              marginLeft: '0.5rem',
-              marginTop: 0,
-              transition: 'color 0.2s',
-              lineHeight: 1
-            }}
-            onClick={() => setError(null)}
-            aria-label="Cerrar"
-            title="Cerrar"
-          >
-            ×
-          </button>
-        </div>
-      )}
-
-      {success && (
-        <div className="reports-alert alert-success">
-          <span>✅</span>
-          <div>
-            <strong>Éxito</strong>
-            <p>{success}</p>
-          </div>
-          <button
-            className="alert-close"
-            onClick={() => setSuccess(null)}
-            aria-label="Cerrar"
-          >
-            ×
-          </button>
         </div>
       )}
 
@@ -1610,6 +1797,7 @@ onChange={() => handleCheckboxChange('filtered', 'degreeModalityIds', type.id)}
               {loading ? <span className="spinner-small"></span> : ''} Descargar PDF
             </button>
           </div>
+          {renderCardMessage('global')}
         </div>
 
         {/* Reporte Filtrado (RF-46) */}
@@ -1644,6 +1832,7 @@ onChange={() => handleCheckboxChange('filtered', 'degreeModalityIds', type.id)}
             </div>
           </div>
           {openFilterDialog === 'filtered' && renderFilteredFilters()}
+          {renderCardMessage('filtered')}
         </div>
 
         {/* Comparación de Periodos (RF-48) */}
@@ -1681,6 +1870,7 @@ onChange={() => handleCheckboxChange('filtered', 'degreeModalityIds', type.id)}
             </div>
           </div>
           {openFilterDialog === 'comparison' && renderComparisonFilters()}
+          {renderCardMessage('comparison')}
         </div>
 
         {/* Análisis Histórico */}
@@ -1716,6 +1906,7 @@ onChange={() => handleCheckboxChange('filtered', 'degreeModalityIds', type.id)}
             </div>
           </div>
           {openFilterDialog === 'historical' && renderHistoricalFilters()}
+          {renderCardMessage('historical')}
         </div>
 
         {/* Carga de Directores (RF-49) */}
@@ -1753,6 +1944,7 @@ onChange={() => handleCheckboxChange('filtered', 'degreeModalityIds', type.id)}
             </div>
           </div>
           {openFilterDialog === 'directors' && renderDirectorsFilters()}
+          {renderCardMessage('directors')}
         </div>
 
 
@@ -1791,6 +1983,7 @@ onChange={() => handleCheckboxChange('filtered', 'degreeModalityIds', type.id)}
             </div>
           </div>
           {openFilterDialog === 'individualDirector' && renderIndividualDirectorFilters()}
+          {renderCardMessage('individualDirector')}
         </div>
 
          {/* Listado de Estudiantes */}
@@ -1829,6 +2022,47 @@ onChange={() => handleCheckboxChange('filtered', 'degreeModalityIds', type.id)}
             </div>
           </div>
           {openFilterDialog === 'studentListing' && renderStudentListingFilters()}
+          {renderCardMessage('studentListing')}
+        </div>
+
+        {/* Trazabilidad por Estudiante/Modalidad */}
+        <div className="report-card" style={{ borderTop: '4px solid #7A1117', boxShadow: '0 8px 32px rgba(122,17,23,0.10)' }}>
+          <div className="report-card-header">
+            <h3 style={{ color: '#7A1117', fontWeight: 800, fontSize: '1.25rem', margin: 0 }}>
+              Reporte de Trazabilidad por Estudiante y Modalidad
+            </h3>
+          </div>
+          <p className="report-description" style={{ fontWeight: 500, color: '#5d0d12' }}>
+            Genera el reporte PDF de trazabilidad de modalidad buscando primero al estudiante por nombre y usando su studentId.
+          </p>
+          <div className="report-stats">
+            <span style={{ background: '#f8e9eb', color: '#7A1117', fontWeight: 700 }}>Búsqueda por nombre</span>
+            <span style={{ background: '#f8e9eb', color: '#7A1117', fontWeight: 700 }}>Selección por studentId</span>
+          </div>
+          <div className="report-actions">
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button
+                className="btn-filters"
+                style={{ fontWeight: 600, borderColor: '#7A1117', color: '#7A1117' }}
+                onClick={() => setOpenFilterDialog(openFilterDialog === 'studentTraceability' ? null : 'studentTraceability')}
+                disabled={loading}
+              >
+                {openFilterDialog === 'studentTraceability' ? 'Ocultar' : 'Configurar'} Filtros
+              </button>
+              {openFilterDialog !== 'studentTraceability' && (
+                <button
+                  className="btn-primary"
+                  style={{ fontWeight: 700 }}
+                  onClick={handleDownloadStudentTraceability}
+                  disabled={loading}
+                >
+                  {loading ? <span className="spinner-small"></span> : ''} Descargar PDF
+                </button>
+              )}
+            </div>
+          </div>
+          {openFilterDialog === 'studentTraceability' && renderStudentTraceabilityFilters()}
+          {renderCardMessage('studentTraceability')}
         </div>
 
 
@@ -1873,6 +2107,7 @@ onChange={() => handleCheckboxChange('filtered', 'degreeModalityIds', type.id)}
             </div>
           </div>
           {openFilterDialog === 'calendar' && renderCalendarFilters()}
+          {renderCardMessage('calendar')}
         </div>
 
        

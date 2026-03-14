@@ -181,6 +181,63 @@ const cleanFilters = (filters) => {
   return cleaned;
 };
 
+const extractArrayFromResponse = (payload) => {
+  if (Array.isArray(payload)) return payload;
+  if (!payload || typeof payload !== 'object') return [];
+
+  if (Array.isArray(payload.data)) return payload.data;
+  if (Array.isArray(payload.content)) return payload.content;
+  if (Array.isArray(payload.items)) return payload.items;
+  if (Array.isArray(payload.students)) return payload.students;
+  if (Array.isArray(payload.results)) return payload.results;
+
+  return [];
+};
+
+const normalizeSearchText = (value = '') =>
+  String(value)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
+
+const buildStudentFullName = (student) => {
+  const candidateNames = [
+    student.fullName,
+    student.name,
+    student.studentName && student.studentLastName
+      ? `${student.studentName} ${student.studentLastName}`
+      : null,
+    student.studentName,
+    [student.firstName, student.lastName, student.secondLastName].filter(Boolean).join(' '),
+    [student.name, student.lastName].filter(Boolean).join(' ')
+  ];
+
+  return candidateNames.find((name) => name && String(name).trim())?.trim() || '';
+};
+
+const normalizeStudent = (student) => {
+  if (!student || typeof student !== 'object') return null;
+
+  const studentId = student.studentId ?? student.id ?? student.userId ?? student.student?.id ?? null;
+  const studentModalityId =
+    student.studentModalityId ??
+    student.modalityId ??
+    student.currentStudentModalityId ??
+    null;
+
+  if (!studentId && !studentModalityId) return null;
+
+  const fullName = buildStudentFullName(student);
+
+  return {
+    studentId,
+    studentModalityId,
+    fullName: fullName || `Estudiante ${studentId}`,
+    code: student.code || student.studentCode || student.documentNumber || student.studentEmail || '',
+    programName: student.programName || student.academicProgramName || student.program?.name || ''
+  };
+};
 // ========================================
 // FUNCIÓN GENÉRICA PARA DESCARGAR PDFs
 // ========================================
@@ -291,6 +348,20 @@ const downloadPDF = async (url, method = 'GET', data = null, filename = 'reporte
   }
 };
 
+const downloadPDFWithFallbackUrls = async (urls = [], filename = 'reporte.pdf') => {
+  let lastError = null;
+
+  for (const url of urls) {
+    try {
+      return await downloadPDF(url, 'GET', null, filename);
+    } catch (error) {
+      lastError = error;
+      console.warn(`⚠️ Falló endpoint de reporte: ${url}`, error?.message || error);
+    }
+  }
+
+  throw lastError || new Error('No fue posible descargar el reporte con las rutas configuradas');
+};
 // ========================================
 // OBTENER DATOS AUXILIARES
 // ========================================
@@ -324,6 +395,106 @@ export const getAvailableModalityTypes = async () => {
   }
 };
 
+/**
+ * Obtiene estudiantes por programa académico y filtra por nombre
+ * Este endpoint se usa para obtener el studentId requerido en trazabilidad por estudiante
+ */
+export const getStudentsByAcademicProgram = async (nameFilter = '') => {
+  const token = localStorage.getItem('token');
+
+  if (!token) {
+    throw new Error('No hay sesión activa. Por favor inicia sesión.');
+  }
+
+  const trimmedFilter = nameFilter.trim();
+  const encodedFilter = encodeURIComponent(trimmedFilter);
+  const queryVariants = trimmedFilter
+    ? [`name=${encodedFilter}`, `search=${encodedFilter}`]
+    : [''];
+
+  // Prioriza endpoint que sí existe en el frontend para evitar 404 masivos.
+  const endpointBases = [
+    '/modalities/students/committee',
+    '/reports/students/program-academic',
+    '/students/program-academic'
+  ];
+
+  let lastError = null;
+
+  for (const base of endpointBases) {
+    // Para comité, traemos sin filtro del backend para soportar búsqueda por apellido en frontend.
+    const baseQueries = base === '/modalities/students/committee' ? [''] : queryVariants;
+
+    for (const query of baseQueries) {
+      const url = query ? `${base}?${query}` : base;
+
+      try {
+        const response = await fetch(`${API_URL}${url}`, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (!response.ok) {
+          if (response.status === 404) {
+            continue;
+          }
+
+          if (response.status === 401) {
+            throw new Error('Sesión expirada. Por favor inicia sesión nuevamente.');
+          }
+
+          if (response.status === 403) {
+            throw new Error('No tienes permisos para consultar estudiantes del programa.');
+          }
+
+          throw new Error(`Error al consultar estudiantes (${response.status})`);
+        }
+
+        const payload = await response.json();
+        const students = extractArrayFromResponse(payload)
+          .map(normalizeStudent)
+          .filter(Boolean);
+
+        const uniqueStudents = Array.from(
+          new Map(
+            students.map(student => [
+              student.studentId != null ? `s-${student.studentId}` : `m-${student.studentModalityId}`,
+              student
+            ])
+          ).values()
+        );
+
+        if (!trimmedFilter) {
+          return uniqueStudents;
+        }
+
+        const normalizedTerm = normalizeSearchText(trimmedFilter);
+        const tokens = normalizedTerm.split(/\s+/).filter(Boolean);
+
+        const locallyFilteredStudents = uniqueStudents.filter((student) => {
+          const searchableText = normalizeSearchText(
+            `${student.fullName} ${student.code || ''} ${student.programName || ''}`
+          );
+
+          return tokens.every((token) => searchableText.includes(token));
+        });
+
+        return locallyFilteredStudents;
+      } catch (error) {
+        lastError = error;
+      }
+    }
+  }
+
+  if (lastError) {
+    throw lastError;
+  }
+
+  throw new Error('No se encontró un endpoint válido para listar estudiantes por nombre. Verifica la ruta LIST OF STUDENTS BY PROGRAM ACADEMIC en backend.');
+};
 /**
  * Obtiene la lista de directores del programa
  */
@@ -600,6 +771,45 @@ export const downloadDefenseCalendarPDF = async (params = {}) => {
   );
 };
 
+/**
+ * 10. REPORTE DE TRAZABILIDAD POR ESTUDIANTE
+ * GET /reports/modality-traceability/by-student/{studentId}/pdf
+ */
+export const downloadModalityTraceabilityByStudentPDF = async (studentId) => {
+  if (!studentId) {
+    throw new Error('Debe seleccionar un estudiante');
+  }
+
+  const urls = [
+    `/reports/modality-traceability/by-student/${studentId}/pdf`,
+    `/modality-traceability/by-student/${studentId}/pdf`
+  ];
+
+  return downloadPDFWithFallbackUrls(
+    urls,
+    `Reporte_Trazabilidad_Estudiante_${studentId}.pdf`
+  );
+};
+
+/**
+ * 11. REPORTE DE TRAZABILIDAD POR MODALIDAD DEL ESTUDIANTE
+ * GET /modality-traceability/{studentModalityId}/pdf
+ */
+export const downloadModalityTraceabilityByModalityPDF = async (studentModalityId) => {
+  if (!studentModalityId) {
+    throw new Error('Debe seleccionar una modalidad de estudiante');
+  }
+
+  const urls = [
+    `/reports/modality-traceability/${studentModalityId}/pdf`,
+    `/modality-traceability/${studentModalityId}/pdf`
+  ];
+
+  return downloadPDFWithFallbackUrls(
+    urls,
+    `Reporte_Trazabilidad_Modalidad_${studentModalityId}.pdf`
+  );
+};
 // ========================================
 // FUNCIÓN DE PRUEBA
 // ========================================
