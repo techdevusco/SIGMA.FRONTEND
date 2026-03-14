@@ -736,7 +736,6 @@
   letter-spacing: 0.5px;
   text-shadow: 0 1px 0 #5d0d12;
 }
-}
 
 .examiner-profile-grid-student {
   gap: 2.2rem;
@@ -925,6 +924,79 @@
   color: #333;
 }
 
+.examiner-my-verdict-card {
+  background: linear-gradient(135deg, #fffdf6 0%, #fcf7ea 100%);
+  border: 1px solid #d9c995;
+  border-left: 4px solid #b7a873;
+  border-radius: 10px;
+}
+
+.examiner-my-verdict-title {
+  color: #7A1117;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 1.02rem;
+  letter-spacing: 0.01em;
+}
+
+.examiner-my-verdict-loading,
+.examiner-my-verdict-empty {
+  margin-top: 0.5rem;
+  color: #555;
+  font-size: 0.92rem;
+}
+
+.examiner-my-verdict-content {
+  margin-top: 0.6rem;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.examiner-my-verdict-row {
+  color: #3f3f46;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.examiner-my-verdict-row strong {
+  display: inline;
+  margin-right: 0.25rem;
+  color: #5d0d12;
+}
+
+.examiner-my-verdict-rubric-block {
+  margin-top: 0.45rem;
+  padding: 0.65rem 0.8rem;
+  border: 1px solid #eadfbc;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.examiner-my-verdict-rubric-list {
+  margin: 0.4rem 0 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.examiner-my-verdict-rubric-item {
+  font-size: 0.88rem;
+  color: #4b5563;
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+  background: #fafaf9;
+  border: 1px solid #f0ebe0;
+}
+
+.examiner-my-verdict-rubric-item span {
+  color: #7A1117;
+}
+
+.examiner-my-verdict-rubric-item strong {
+  color: #1f2937;
+  margin-left: 0.2rem;
+}
+
 .examiner-doc-actions {
   display: flex;
   gap: 1rem;
@@ -970,7 +1042,7 @@
 
 .examiner-review-panel {
   margin-top: 1.5rem;
-  padding: 1.25rem;examiner-doc-approve-btn
+  padding: 1.25rem;
   background: #f8f9fa;
   border-radius: 12px;
   border-left: 5px solid #7A1117;
@@ -1092,7 +1164,7 @@
 
 .examiner-eval-completed-title {
   font-family: 'Georgia', 'Times New Roman', serif;
-  font-size: 2rem;eval-label
+  font-size: 2rem;
   color: #5d0d12;
   margin: 0 0 0.75rem 0;
   font-weight: 700;
@@ -1148,6 +1220,11 @@
   .examiner-form-actions {
     flex-direction: column;
   }
+
+  .examiner-my-verdict-rubric-item {
+    font-size: 0.85rem;
+  }
+
   .examiner-rubric-table {
     overflow-x: auto;
   }

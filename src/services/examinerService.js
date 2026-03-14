@@ -146,6 +146,48 @@ export const reviewDocumentExaminer = async (studentDocumentId, data) => {
   return response.data;
 };
 
+/**
+ * Revisar documento final como jurado usando la rúbrica de documento final.
+ * Endpoint: PUT /modalities/documents/{studentDocumentId}/review-examiner-final-document
+ *
+ * @param {number} studentDocumentId - ID del documento del estudiante
+ * @param {Object} data - Datos de la revisión, incluyendo finalEvaluation
+ * @returns {Promise<Object>} Respuesta de confirmación
+ */
+export const reviewFinalDocumentExaminer = async (studentDocumentId, data) => {
+  console.log("📝 Revisando documento final:", { studentDocumentId, data });
+  const response = await axios.put(
+    `/modalities/documents/${studentDocumentId}/review-examiner-final-document`,
+    data
+  );
+  return response.data;
+};
+
+// ========================================
+// 👁️ OBTENER MI VEREDICTO POR DOCUMENTO
+// ========================================
+/**
+ * Obtener la evaluación individual del jurado para documento MANDATORY.
+ * Endpoint: GET /modalities/documents/{studentDocumentId}/examiner-proposal-evaluation
+ */
+export const getExaminerProposalEvaluation = async (studentDocumentId) => {
+  const response = await axios.get(
+    `/modalities/documents/${studentDocumentId}/examiner-proposal-evaluation`
+  );
+  return response.data;
+};
+
+/**
+ * Obtener la evaluación individual del jurado para documento final SECONDARY.
+ * Endpoint: GET /modalities/documents/{studentDocumentId}/examiner-final-evaluation
+ */
+export const getExaminerFinalEvaluation = async (studentDocumentId) => {
+  const response = await axios.get(
+    `/modalities/documents/${studentDocumentId}/examiner-final-evaluation`
+  );
+  return response.data;
+};
+
 // ========================================
 // 📊 REGISTRAR EVALUACIÓN FINAL
 // ========================================

@@ -53,6 +53,9 @@ import {
   getExaminerStudentProfile,
   getDocumentBlobUrl,
   reviewDocumentExaminer,
+  reviewFinalDocumentExaminer,
+  getExaminerProposalEvaluation,
+  getExaminerFinalEvaluation,
   registerEvaluation,
   formatDate,
   getErrorMessage,
@@ -99,7 +102,31 @@ const [examinerRoleError, setExaminerRoleError] = useState(null);
   
 
   const [reviewingDocId, setReviewingDocId] = useState(null);
-  const [reviewData, setReviewData] = useState({ status: "", notes: "" });
+  const [reviewData, setReviewData] = useState({
+    status: "",
+    notes: "",
+    proposalEvaluation: {
+      summary: "",
+      backgroundJustification: "",
+      problemStatement: "",
+      objectives: "",
+      methodology: "",
+      bibliographyReferences: "",
+      documentOrganization: "",
+    },
+    finalEvaluation: {
+      summary: "",
+      introduction: "",
+      materialsAndMethods: "",
+      materialsMethods: "",
+      resultsAndDiscussion: "",
+      conclusions: "",
+      bibliographyReferences: "",
+      documentOrganization: "",
+      prototypeSoftware: "",
+      prototypeDeviceSoftware: "",
+    },
+  });
   const [submittingReview, setSubmittingReview] = useState(false);
   const [loadingDocId, setLoadingDocId] = useState(null);
   const [finalizingReview, setFinalizingReview] = useState(false);
@@ -131,6 +158,8 @@ const [examinerRoleError, setExaminerRoleError] = useState(null);
   const [votingEditRequestId, setVotingEditRequestId] = useState(null);
   const [voteData, setVoteData] = useState({ approved: null, resolutionNotes: "" });
   const [submittingVote, setSubmittingVote] = useState(false);
+  const [myDocumentEvaluations, setMyDocumentEvaluations] = useState({});
+  const [loadingMyDocumentEvaluations, setLoadingMyDocumentEvaluations] = useState(false);
 
   useEffect(() => {
   if (!studentModalityId) return;
@@ -289,6 +318,104 @@ const fetchExaminerRole = async () => {
     { key: "documentOrganization", label: "Organización del documento", description: "El documento presenta manejo adecuado del lenguaje en términos de ortografía, redacción, fluidez y composición gramatical. Se encuentra en el formato vigente para la presentación del mismo." },
   ];
 
+  const FINAL_DOCUMENT_ASPECTS = [
+    { key: "summary", label: "Resumen", description: "El resumen presenta una explicación clara y coherente de las principales características del trabajo realizado, incluyendo de forma concisa el propósito del estudio, la metodología empleada, los principales resultados y las conclusiones más relevantes. Debe redactarse en un solo párrafo continuo, en tiempo pasado y voz impersonal, sin citas ni referencias, con una extensión entre 150 y 250 palabras, e incorporar de tres a seis palabras clave, ordenadas alfabéticamente y coherentes con el contenido del documento." },
+    { key: "introduction", label: "Introducción", description: "La introducción es apropiada y está correctamente referenciada. Presenta el contexto y la relevancia del tema de estudio, así como un estado del arte o revisión selectiva de la literatura pertinente, con referencias actualizadas y verificables (mínimo seis con DOI). Incluye el análisis y descripción de la problemática (antecedentes, hechos, causas y efectos) sustentada en fuentes académicas. Se identifican los fundamentos teóricos y conceptuales que respaldan el trabajo, y la pregunta o problema de investigación está claramente delimitada y definida con precisión. Además, se evidencia la importancia y justificación de la investigación en términos científicos, tecnológicos o sociales, y se enuncian de forma coherente el objetivo general y los objetivos específicos." },
+    { key: "materialsAndMethods", label: "Materiales y Métodos", description: "La metodología utilizada para la adquisición, procesamiento, interpretación y análisis de datos es clara y adecuada para alcanzar los objetivos planteados. La descripción incluye de forma ordenada el tipo de estudio, el lugar y periodo de ejecución, las condiciones geo-climáticas, los materiales, equipos e instrumentos empleados, así como los procedimientos, métodos de laboratorio o de campo, el diseño estadístico y el análisis de datos aplicados. Las técnicas cualitativas o cuantitativas son coherentes con la metodología propuesta. La redacción está en tiempo pasado y voz impersonal, sin incluir juicios de valor, e incorpora, cuando corresponde, los aspectos éticos y las normas o protocolos utilizados." },
+    { key: "resultsAndDiscussion", label: "Resultados y Discusión", description: "La sección de Resultados y Discusión presenta y analiza de manera clara, coherente y objetiva los hallazgos del estudio, respondiendo a los postulados y objetivos planteados. Los resultados se exponen de forma ordenada y sustentada mediante tablas, cuadros, planos, gráficos y/o figuras correctamente elaborados y referenciados, sin duplicar información. La discusión interpreta los resultados con base en los objetivos del trabajo, contrastándolos con la literatura científica actual, destacando los aportes derivados del proyecto y señalando sus implicaciones o limitaciones. Se evidencia una adecuada relación entre los datos obtenidos y las conclusiones, evitando repetir información o incluir elementos del marco teórico. La redacción mantiene coherencia, precisión y un uso correcto de los tiempos verbales." },
+    { key: "conclusions", label: "Conclusiones", description: "Las conclusiones presentan de manera clara y coherente los aportes y resultados más relevantes del estudio, respondiendo directamente a los objetivos propuestos. Se evidencia la capacidad de síntesis, el pensamiento crítico y la interpretación de los hallazgos sin reiterar datos. Las conclusiones reflejan la pertinencia e impacto del trabajo, su contribución al campo de estudio y la posibilidad de aplicación o continuidad en futuras investigaciones." },
+    { key: "bibliographyReferences", label: "Bibliografía o referencias", description: "Las referencias bibliográficas se presentan completas, actualizadas y correctamente citadas según las normas APA (7.a edición). Existe coherencia entre las citas del texto y la lista final de referencias. Se evidencia el uso de fuentes académicas y científicas pertinentes al tema, priorizando aquellas con DOI o enlace verificable. La presentación mantiene uniformidad, orden alfabético y formato adecuado." },
+    { key: "documentOrganization", label: "Organización del documento", description: "Evalúe si el documento cumple con la estructura y los requisitos formales establecidos: orden de secciones, formato tipográfico, extensión total (no superior a treinta (30) páginas) y correcta aplicación de las normas de citación y referencia (APA, 7.a edición). Verifique la coherencia y fluidez entre las partes, la adecuada jerarquización de títulos y subtítulos, y la ubicación apropiada de tablas, figuras y ecuaciones conforme a las normas del manuscrito. Considere la claridad, cohesión y consistencia argumentativa en el desarrollo del texto, así como el manejo del lenguaje académico, la redacción científica y la precisión técnica. El documento debe reflejar organización, presentación profesional y cumplimiento integral de los lineamientos establecidos por el programa." },
+    { key: "prototypeSoftware", label: "Prototipo, dispositivo o software (Si aplica)", description: "Es funcional y cumple con los objetivos del proyecto de grado." },
+  ];
+
+  const isFinalDocumentForExaminer = (doc) => {
+    const name = (doc?.documentName || "").toLowerCase();
+    return doc?.documentType === "SECONDARY" && (
+      doc?.requiresProposalEvaluation === true ||
+      doc?.templateDocumentId === 4 ||
+      name.includes("documento final")
+    );
+  };
+
+  const isDocumentEligibleForMyEvaluationView = (doc) => {
+    if (!doc?.uploaded) return false;
+    if (doc.documentType === "MANDATORY") return true;
+    return isFinalDocumentForExaminer(doc);
+  };
+
+  const getGradeLabel = (value) => {
+    if (!value) return "—";
+    const labelMap = {
+      DEFICIENT: "Deficiente",
+      ACCEPTABLE: "Aceptable",
+      GOOD: "Bueno",
+      EXCELLENT: "Excelente",
+      Deficient: "Deficiente",
+      Acceptable: "Aceptable",
+      Good: "Bueno",
+      Excellent: "Excelente",
+      Insufficient: "Deficiente",
+      INSUFFICIENT: "Deficiente",
+    };
+    return labelMap[value] || value;
+  };
+
+  const getFinalEvaluationValue = (finalEvaluation, key) => {
+    if (!finalEvaluation) return null;
+    if (key === "materialsAndMethods") {
+      return finalEvaluation.materialsAndMethods || finalEvaluation.materialsMethods || null;
+    }
+    if (key === "prototypeSoftware") {
+      return finalEvaluation.prototypeSoftware || finalEvaluation.prototypeDeviceSoftware || null;
+    }
+    return finalEvaluation[key] || null;
+  };
+
+  useEffect(() => {
+    const loadMyDocumentEvaluations = async () => {
+      if (!Array.isArray(profile?.documents) || profile.documents.length === 0) {
+        setMyDocumentEvaluations({});
+        return;
+      }
+
+      const eligibleDocs = profile.documents.filter(isDocumentEligibleForMyEvaluationView);
+      if (eligibleDocs.length === 0) {
+        setMyDocumentEvaluations({});
+        return;
+      }
+
+      setLoadingMyDocumentEvaluations(true);
+      try {
+        const responses = await Promise.all(
+          eligibleDocs.map(async (doc) => {
+            try {
+              const res = doc.documentType === "MANDATORY"
+                ? await getExaminerProposalEvaluation(doc.studentDocumentId)
+                : await getExaminerFinalEvaluation(doc.studentDocumentId);
+              return [doc.studentDocumentId, res];
+            } catch (err) {
+              return [doc.studentDocumentId, {
+                success: false,
+                message: getErrorMessage(err),
+              }];
+            }
+          })
+        );
+
+        const mapped = {};
+        responses.forEach(([docId, data]) => {
+          mapped[docId] = data;
+        });
+        setMyDocumentEvaluations(mapped);
+      } finally {
+        setLoadingMyDocumentEvaluations(false);
+      }
+    };
+
+    loadMyDocumentEvaluations();
+  }, [profile]);
+
   const handleProposalEvalChange = (key, value) => {
     setReviewData(prev => ({
       ...prev,
@@ -297,6 +424,27 @@ const fetchExaminerRole = async () => {
         [key]: value,
       },
     }));
+  };
+
+  const handleFinalEvalChange = (key, value) => {
+    setReviewData(prev => {
+      const nextFinalEvaluation = {
+        ...prev.finalEvaluation,
+        [key]: value,
+      };
+
+      if (key === "materialsAndMethods") {
+        nextFinalEvaluation.materialsMethods = value;
+      }
+      if (key === "prototypeSoftware") {
+        nextFinalEvaluation.prototypeDeviceSoftware = value;
+      }
+
+      return {
+        ...prev,
+        finalEvaluation: nextFinalEvaluation,
+      };
+    });
   };
 
   const handleDefenseCriteriaChange = (key, value) => {
@@ -326,10 +474,25 @@ const fetchExaminerRole = async () => {
         bibliographyReferences: "",
         documentOrganization: "",
       },
+      finalEvaluation: {
+        summary: "",
+        introduction: "",
+        materialsAndMethods: "",
+        materialsMethods: "",
+        resultsAndDiscussion: "",
+        conclusions: "",
+        bibliographyReferences: "",
+        documentOrganization: "",
+        prototypeSoftware: "",
+        prototypeDeviceSoftware: "",
+      },
     });
   };
 
-  const handleSubmitReview = async (studentDocumentId, docType) => {
+  const handleSubmitReview = async (studentDocumentId, doc) => {
+    const docType = doc?.documentType;
+    const isFinalDocument = isFinalDocumentForExaminer(doc);
+
     if (!reviewData.status) {
       setMessage("Debes seleccionar una decisión");
       setMessageType("error");
@@ -357,6 +520,21 @@ const fetchExaminerRole = async () => {
       }
     }
 
+    // Validar rúbrica solo para Documento Final (SECONDARY que requiere evaluación)
+    if (isFinalDocument) {
+      const eval_ = reviewData.finalEvaluation;
+      const requiredFinalKeys = FINAL_DOCUMENT_ASPECTS
+        .filter(a => a.key !== "prototypeSoftware")
+        .map(a => a.key);
+
+      const allFilled = requiredFinalKeys.every((key) => eval_[key] && eval_[key] !== "");
+      if (!allFilled) {
+        setMessage("Debes calificar todos los aspectos obligatorios de la evaluación del documento final");
+        setMessageType("error");
+        return;
+      }
+    }
+
     setSubmittingReview(true);
 
     try {
@@ -370,7 +548,13 @@ const fetchExaminerRole = async () => {
         payload.proposalEvaluation = reviewData.proposalEvaluation;
       }
 
-      const response = await reviewDocumentExaminer(studentDocumentId, payload);
+      if (isFinalDocument) {
+        payload.finalEvaluation = reviewData.finalEvaluation;
+      }
+
+      const response = isFinalDocument
+        ? await reviewFinalDocumentExaminer(studentDocumentId, payload)
+        : await reviewDocumentExaminer(studentDocumentId, payload);
       
       setMessage(response.message || "Documento revisado correctamente");
       setMessageType("success");
@@ -889,6 +1073,12 @@ const fetchExaminerRole = async () => {
             // Buscar solicitudes de edición asociadas a este documento
             const docEditRequests = editRequests.filter(r => r.documentId === doc.studentDocumentId);
             const pendingEditRequest = docEditRequests.find(r => r.authenticatedExaminerCanVote);
+            const myEvaluation = myDocumentEvaluations[doc.studentDocumentId];
+            const hasMyEvaluation = myEvaluation?.success === true;
+            const showMyEvaluationLoading =
+              loadingMyDocumentEvaluations &&
+              isDocumentEligibleForMyEvaluationView(doc) &&
+              !myEvaluation;
 
             return (
             <div
@@ -1052,6 +1242,74 @@ const fetchExaminerRole = async () => {
                 </div>
               )}
 
+              {isDocumentEligibleForMyEvaluationView(doc) && (
+                <div className="examiner-doc-notes examiner-my-verdict-card">
+                  <strong className="examiner-my-verdict-title">Mi veredicto registrado</strong>
+
+                  {showMyEvaluationLoading && (
+                    <p className="examiner-my-verdict-loading">Cargando tu evaluación...</p>
+                  )}
+
+                  {!showMyEvaluationLoading && !hasMyEvaluation && (
+                    <p className="examiner-my-verdict-empty">
+                      {myEvaluation?.message || "Aún no has emitido veredicto para este documento."}
+                    </p>
+                  )}
+
+                  {hasMyEvaluation && (
+                    <div className="examiner-my-verdict-content">
+                      <div className="examiner-my-verdict-row">
+                        <strong>Decisión:</strong> {myEvaluation.decisionDescription || myEvaluation.decision || "N/A"}
+                      </div>
+                      {myEvaluation.reviewedAt && (
+                        <div className="examiner-my-verdict-row">
+                          <strong>Fecha:</strong> {new Date(myEvaluation.reviewedAt).toLocaleString("es-CO", { dateStyle: "medium", timeStyle: "short" })}
+                        </div>
+                      )}
+                      {myEvaluation.notes && (
+                        <div className="examiner-my-verdict-row">
+                          <strong>Observaciones:</strong> {myEvaluation.notes}
+                        </div>
+                      )}
+
+                      {doc.documentType === "MANDATORY" && myEvaluation.proposalEvaluation && (
+                        <div className="examiner-my-verdict-rubric-block">
+                          <strong>Rúbrica de propuesta:</strong>
+                          <ul className="examiner-my-verdict-rubric-list">
+                            {PROPOSAL_ASPECTS.map((aspect) => {
+                              const value = myEvaluation.proposalEvaluation?.[aspect.key];
+                              if (!value) return null;
+                              return (
+                                <li key={aspect.key} className="examiner-my-verdict-rubric-item">
+                                  <span>{aspect.label}:</span> <strong>{getGradeLabel(value)}</strong>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        </div>
+                      )}
+
+                      {doc.documentType === "SECONDARY" && myEvaluation.finalEvaluation && (
+                        <div className="examiner-my-verdict-rubric-block">
+                          <strong>Rúbrica de documento final:</strong>
+                          <ul className="examiner-my-verdict-rubric-list">
+                            {FINAL_DOCUMENT_ASPECTS.map((aspect) => {
+                              const value = getFinalEvaluationValue(myEvaluation.finalEvaluation, aspect.key);
+                              if (!value) return null;
+                              return (
+                                <li key={aspect.key} className="examiner-my-verdict-rubric-item">
+                                  <span>{aspect.label}:</span> <strong>{getGradeLabel(value)}</strong>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div className="examiner-doc-actions">
                 <button
                   onClick={() => handleViewDocument(doc.studentDocumentId, doc.documentName)}
@@ -1082,7 +1340,7 @@ const fetchExaminerRole = async () => {
                 <div className="examiner-review-panel">
                   <h4 className="examiner-review-title">Evaluación: {doc.documentName}</h4>
 
-                  {/* Rúbrica de evaluación - solo para documentos MANDATORY */}
+                  {/* Rúbrica de evaluación de propuesta */}
                   {doc.documentType === "MANDATORY" && (
                     <div className="examiner-rubric-section">
                       <h5 className="examiner-rubric-title">Aspectos para evaluar</h5>
@@ -1111,6 +1369,49 @@ const fetchExaminerRole = async () => {
                                     value={g}
                                     checked={reviewData.proposalEvaluation[aspect.key] === g}
                                     onChange={() => handleProposalEvalChange(aspect.key, g)}
+                                    disabled={submittingReview}
+                                    className="examiner-rubric-radio"
+                                  />
+                                  <span className="examiner-rubric-radio-custom"></span>
+                                  <span className="examiner-rubric-grade-mobile">{EVALUATION_GRADE_LABELS[g]}</span>
+                                </label>
+                              </div>
+                            ))}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Rúbrica de evaluación de documento final */}
+                  {isFinalDocumentForExaminer(doc) && (
+                    <div className="examiner-rubric-section">
+                      <h5 className="examiner-rubric-title">Rúbrica de Documento Final</h5>
+                      <p className="examiner-rubric-subtitle">Califique cada aspecto de mala a buena: Deficiente, Aceptable, Bueno y Excelente.</p>
+
+                      <div className="examiner-rubric-table">
+                        <div className="examiner-rubric-header">
+                          <div className="examiner-rubric-col-aspect">Aspecto</div>
+                          {EVALUATION_GRADES.map(g => (
+                            <div key={g} className="examiner-rubric-col-grade">{EVALUATION_GRADE_LABELS[g]}</div>
+                          ))}
+                        </div>
+
+                        {FINAL_DOCUMENT_ASPECTS.map(aspect => (
+                          <div key={aspect.key} className="examiner-rubric-row">
+                            <div className="examiner-rubric-col-aspect">
+                              <div className="examiner-rubric-aspect-label">{aspect.label}</div>
+                              <div className="examiner-rubric-aspect-desc">{aspect.description}</div>
+                            </div>
+                            {EVALUATION_GRADES.map(g => (
+                              <div key={g} className="examiner-rubric-col-grade">
+                                <label className="examiner-rubric-radio-label">
+                                  <input
+                                    type="radio"
+                                    name={`final-rubric-${aspect.key}`}
+                                    value={g}
+                                    checked={reviewData.finalEvaluation[aspect.key] === g}
+                                    onChange={() => handleFinalEvalChange(aspect.key, g)}
                                     disabled={submittingReview}
                                     className="examiner-rubric-radio"
                                   />
@@ -1205,7 +1506,7 @@ const fetchExaminerRole = async () => {
                       Cancelar
                     </button>
                     <button
-                      onClick={() => handleSubmitReview(doc.studentDocumentId, doc.documentType)}
+                      onClick={() => handleSubmitReview(doc.studentDocumentId, doc)}
                       disabled={submittingReview}
                       className="examiner-form-submit"
                     >

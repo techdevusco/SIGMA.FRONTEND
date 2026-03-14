@@ -18,6 +18,8 @@ import "../../styles/student/studentmodalitydocuments.css";
 const MODALITY_TEMPLATES = {
   "proyecto de grado": [
     { id: 1, name: "Formato Propuesta de Proyecto de Grado" },
+    { id: 2, name: "Lista de Chequeo (Director de proyecto)" },
+    { id: 4, name: "Formato del Documento Final" },
   ],
 };
 
@@ -322,6 +324,19 @@ export default function StudentModalityDocuments({ studentModalityId, modalityId
   const mandatoryDocs = documents.filter((doc) => doc.documentType === "MANDATORY");
   const secondaryDocs = documents.filter((doc) => doc.documentType === "SECONDARY");
 
+  const isFinalDocument = (docName = "") => docName.toLowerCase().includes("documento final");
+
+  // Mostrar la plantilla del documento final solo cuando exista la opción de subir/re-subir ese documento.
+  const showFinalDocumentTemplate = documents.some((doc) => {
+    if (!isFinalDocument(doc.documentName)) return false;
+    return !doc.uploaded || canReuploadDocument(doc.status);
+  });
+
+  const visibleTemplates = templates.filter((tpl) => {
+    if (tpl.id !== 4) return true;
+    return showFinalDocumentTemplate;
+  });
+
   // Calcular progreso solo de MANDATORY
   const uploadedMandatoryCount = mandatoryDocs.filter((doc) => doc.uploaded).length;
   const progressPercentage =
@@ -357,7 +372,7 @@ export default function StudentModalityDocuments({ studentModalityId, modalityId
 
       <div className="documents-body">
         {/* PLANTILLAS DE LA MODALIDAD */}
-        {templates.length > 0 && (
+        {visibleTemplates.length > 0 && (
           <div className="documents-template-banner">
             <div className="documents-template-banner-icon"></div>
             <div className="documents-template-banner-content">
@@ -368,7 +383,7 @@ export default function StudentModalityDocuments({ studentModalityId, modalityId
                 Descarga las plantillas con el formato requerido para tus documentos.
               </p>
               <div className="documents-template-banner-list">
-                {templates.map((tpl) => (
+                {visibleTemplates.map((tpl) => (
                   <div key={tpl.id} className="documents-template-banner-item">
                     <span className="documents-template-banner-name">
                       {tpl.name || tpl.fileName || "Plantilla"}
