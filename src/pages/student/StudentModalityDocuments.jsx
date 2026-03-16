@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import {
   uploadStudentDocument,
   getMyAvailableDocuments,
+  getMyDocuments,
   getStudentDocumentBlob,
   downloadTemplateBlob,
   requestDocumentEdit,
@@ -69,6 +70,43 @@ function getTemplatesForModality(modalityName) {
   return MODALITY_TEMPLATES[normalized] || [];
 }
 
+function mergeAvailableWithUploadedDocs(availableDocs = [], uploadedDocs = []) {
+  if (!Array.isArray(availableDocs) || availableDocs.length === 0) return [];
+  if (!Array.isArray(uploadedDocs) || uploadedDocs.length === 0) return availableDocs;
+
+  const normalize = (value) => (value || "").toString().trim().toLowerCase();
+
+  return availableDocs.map((doc) => {
+    const match = uploadedDocs.find((u) => {
+      const byRequiredId =
+        u?.requiredDocumentId &&
+        doc?.requiredDocumentId &&
+        Number(u.requiredDocumentId) === Number(doc.requiredDocumentId);
+
+      const byDocumentId =
+        u?.documentId &&
+        doc?.requiredDocumentId &&
+        Number(u.documentId) === Number(doc.requiredDocumentId);
+
+      const byName = normalize(u?.documentName) && normalize(u?.documentName) === normalize(doc?.documentName);
+
+      return byRequiredId || byDocumentId || byName;
+    });
+
+    if (!match) return doc;
+
+    return {
+      ...doc,
+      uploaded: match.uploaded ?? true,
+      studentDocumentId: match.studentDocumentId ?? doc.studentDocumentId,
+      uploadDate: match.uploadDate ?? doc.uploadDate,
+      lastUpdate: match.lastUpdate ?? doc.lastUpdate,
+      status: match.status ?? doc.status,
+      notes: match.notes ?? doc.notes,
+    };
+  });
+}
+
 export default function StudentModalityDocuments({ studentModalityId, modalityId, modalityName }) {
   const navigate = useNavigate();
   
@@ -95,10 +133,22 @@ export default function StudentModalityDocuments({ studentModalityId, modalityId
     try {
       setLoading(true);
       console.log("🔍 Obteniendo documentos disponibles...");
-      
-      const response = await getMyAvailableDocuments();
+
+      const [response, uploadedDocsResponse] = await Promise.all([
+        getMyAvailableDocuments(),
+        getMyDocuments().catch(() => []),
+      ]);
       
       console.log("✅ Respuesta completa:", response);
+
+      // Actualizar SIEMPRE la lista para reflejar subidas parciales.
+      // El backend puede responder success=false mientras faltan obligatorios.
+      const responseDocuments = Array.isArray(response?.documents) ? response.documents : [];
+      const uploadedDocs = Array.isArray(uploadedDocsResponse) ? uploadedDocsResponse : [];
+      const mergedDocuments = mergeAvailableWithUploadedDocs(responseDocuments, uploadedDocs);
+
+      setDocuments(mergedDocuments);
+      setStatistics(response?.statistics || null);
 
       // Verificar si hay documentos MANDATORY faltantes
       if (!response.success) {
@@ -110,11 +160,11 @@ export default function StudentModalityDocuments({ studentModalityId, modalityId
             `⚠️ ${response.message}\n\nDocumentos faltantes:\n- ${response.missingDocuments.join("\n- ")}`
           );
         }
-        return;
+      } else {
+        // Limpiar mensajes de error anteriores cuando la respuesta es correcta.
+        setMessage("");
+        setMessageType("");
       }
-
-      setDocuments(response.documents || []);
-      setStatistics(response.statistics || null);
 
     } catch (err) {
       console.error("❌ Error al cargar documentos:", err);
@@ -204,6 +254,23 @@ export default function StudentModalityDocuments({ studentModalityId, modalityId
         file
       );
 
+      // Actualización optimista para reflejar la subida inmediatamente en UI.
+      setDocuments((prev) =>
+        prev.map((doc) =>
+          Number(doc.requiredDocumentId) === Number(requiredDocumentId)
+            ? {
+                ...doc,
+                uploaded: true,
+                studentDocumentId: res?.studentDocumentId ?? doc.studentDocumentId,
+                status: res?.status ?? doc.status ?? "PENDING",
+                notes: res?.notes ?? doc.notes,
+                uploadDate: res?.uploadDate ?? new Date().toISOString(),
+                lastUpdate: res?.lastUpdate ?? new Date().toISOString(),
+              }
+            : doc
+        )
+      );
+
       setMessage(res.message || "Documento enviado correctamente");
       setMessageType("success");
 
@@ -254,6 +321,23 @@ export default function StudentModalityDocuments({ studentModalityId, modalityId
         studentModalityId,
         requiredDocumentId,
         file
+      );
+
+      // Actualización optimista para reflejar cambios de reenvío de inmediato.
+      setDocuments((prev) =>
+        prev.map((doc) =>
+          Number(doc.requiredDocumentId) === Number(requiredDocumentId)
+            ? {
+                ...doc,
+                uploaded: true,
+                studentDocumentId: res?.studentDocumentId ?? doc.studentDocumentId,
+                status: res?.status ?? "PENDING",
+                notes: res?.notes ?? doc.notes,
+                uploadDate: res?.uploadDate ?? doc.uploadDate ?? new Date().toISOString(),
+                lastUpdate: res?.lastUpdate ?? new Date().toISOString(),
+              }
+            : doc
+        )
       );
 
       setMessage(`✅ ${documentName} actualizado correctamente`);
