@@ -1,11 +1,26 @@
-FROM node:20-alpine AS development
+# Build stage
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+
+COPY . .
+RUN npm run build
+
+# Production stage
+FROM node:20-alpine
 
 ENV TZ=America/Bogota
 RUN apk add --no-cache tzdata
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
-COPY package.json package-lock.json ./
-RUN npm ci
+COPY package*.json ./
+RUN npm ci --omit=dev
 
-COPY . .
+COPY --from=builder /app/dist ./dist
+
+EXPOSE 3000
+
+CMD ["node", "dist/main.js"]
