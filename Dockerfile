@@ -1,4 +1,4 @@
-# Build stage
+# Build
 FROM node:20-alpine AS builder
 
 WORKDIR /app
@@ -8,19 +8,11 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-# Production stage
-FROM node:20-alpine
+# Serve
+FROM nginx:alpine
 
-ENV TZ=America/Bogota
-RUN apk add --no-cache tzdata
+COPY --from=builder /app/dist /usr/share/nginx/html
 
-WORKDIR /app
+EXPOSE 80
 
-COPY package*.json ./
-RUN npm ci --omit=dev
-
-COPY --from=builder /app/dist ./dist
-
-EXPOSE 3000
-
-CMD ["node", "dist/main.js"]
+CMD ["nginx", "-g", "daemon off;"]
