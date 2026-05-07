@@ -1,12 +1,13 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8080/admin";
-const MODALITY_URL = "http://localhost:8080/modalities";
-const DOCUMENT_URL = "http://localhost:8080/required-documents";
-const STUDENT_URL = "http://localhost:8080/students";
-const FACULTY_URL = "http://localhost:8080/faculties";
-const PROGRAM_URL = "http://localhost:8080/academic-programs";
-const PROGRAM_DEGREE_URL = "http://localhost:8080/program-degree-modalities";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://api.modalidad.grado.fac-ingenieria-usco.com";
+const API_URL = `${API_BASE_URL}/admin`;
+const MODALITY_URL = `${API_BASE_URL}/modalities`;
+const DOCUMENT_URL = `${API_BASE_URL}/required-documents`;
+const STUDENT_URL = `${API_BASE_URL}/students`;
+const FACULTY_URL = `${API_BASE_URL}/faculties`;
+const PROGRAM_URL = `${API_BASE_URL}/academic-programs`;
+const PROGRAM_DEGREE_URL = `${API_BASE_URL}/program-degree-modalities`;
 
 // Función helper para extraer datos de respuestas del backend
 const extractData = (response, fallback = []) => {
@@ -303,8 +304,8 @@ export const getCommitteeMembers = async (filters = {}) => {
 
   // ✅ CORRECTO: /modalities/committee
   const url = params.toString()
-    ? `http://localhost:8080/modalities/committee?${params.toString()}`
-    : `http://localhost:8080/modalities/committee`;
+    ? `${MODALITY_URL}/committee?${params.toString()}`
+    : `${MODALITY_URL}/committee`;
 
   console.log("🔍 Fetching committee members from:", url);
 
