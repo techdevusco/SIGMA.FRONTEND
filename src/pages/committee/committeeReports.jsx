@@ -1,6 +1,7 @@
 // src/components/committee/CommitteeReports.jsx
 import React, { useState, useEffect } from 'react';
 import "../../styles/council/reports.css";
+import { getErrorMessage } from "../../utils/errorUtils";
 
 // Importar servicios
 import {
@@ -212,7 +213,7 @@ const CommitteeReports = () => {
           <span style={{fontSize: '0.92em', color: '#b71c1c', marginRight: 4, lineHeight: 1, flexShrink: 0}}>X</span>
           <span style={{lineHeight: 1.2}}>
             No se pudo descargar el reporte global.
-            <span style={{display: 'inline', color: '#b71c1c', fontWeight: 400, fontSize: '0.97em', marginLeft: 4}}>{err.message || 'Error desconocido.'}</span>
+            <span style={{display: 'inline', color: '#b71c1c', fontWeight: 400, fontSize: '0.97em', marginLeft: 4}}>{getErrorMessage(err, 'Error desconocido.')}</span>
           </span>
         </span>
       );
@@ -236,7 +237,7 @@ const CommitteeReports = () => {
       setTimeout(() => setSuccess(null), 5000);
       setOpenFilterDialog(null);
     } catch (err) {
-      setError(err.message || 'Error al descargar el reporte filtrado');
+      setError(getErrorMessage(err, 'Error al descargar el reporte filtrado'));
     } finally {
       setLoading(false);
     }
@@ -252,7 +253,7 @@ const CommitteeReports = () => {
       setTimeout(() => setSuccess(null), 5000);
       setOpenFilterDialog(null);
     } catch (err) {
-      setError(err.message || 'Error al descargar el reporte comparativo');
+      setError(getErrorMessage(err, 'Error al descargar el reporte comparativo'));
     } finally {
       setLoading(false);
     }
@@ -276,7 +277,7 @@ const CommitteeReports = () => {
       setTimeout(() => setSuccess(null), 5000);
       setOpenFilterDialog(null);
     } catch (err) {
-      setError(err.message || 'Error al descargar el reporte histórico');
+      setError(getErrorMessage(err, 'Error al descargar el reporte histórico'));
     } finally {
       setLoading(false);
     }
@@ -292,7 +293,7 @@ const CommitteeReports = () => {
       setTimeout(() => setSuccess(null), 5000);
       setOpenFilterDialog(null);
     } catch (err) {
-      setError(err.message || 'Error al descargar el reporte de completadas');
+      setError(getErrorMessage(err, 'Error al descargar el reporte de completadas'));
     } finally {
       setLoading(false);
     }
@@ -308,7 +309,7 @@ const CommitteeReports = () => {
       setTimeout(() => setSuccess(null), 5000);
       setOpenFilterDialog(null);
     } catch (err) {
-      setError(err.message || 'Error al descargar el calendario');
+      setError(getErrorMessage(err, 'Error al descargar el calendario'));
     } finally {
       setLoading(false);
     }
@@ -324,7 +325,7 @@ const CommitteeReports = () => {
       setTimeout(() => setSuccess(null), 5000);
       setOpenFilterDialog(null);
     } catch (err) {
-      setError(err.message || 'Error al descargar el listado de estudiantes');
+      setError(getErrorMessage(err, 'Error al descargar el listado de estudiantes'));
     } finally {
       setLoading(false);
     }
@@ -340,7 +341,7 @@ const CommitteeReports = () => {
       setTimeout(() => setSuccess(null), 5000);
       setOpenFilterDialog(null);
     } catch (err) {
-      setError(err.message || 'Error al descargar el reporte de directores');
+      setError(getErrorMessage(err, 'Error al descargar el reporte de directores'));
     } finally {
       setLoading(false);
     }
@@ -367,7 +368,7 @@ const CommitteeReports = () => {
       setTimeout(() => setSuccess(null), 5000);
       setOpenFilterDialog(null);
     } catch (err) {
-      setError(err.message || 'Error al descargar el reporte del director');
+      setError(getErrorMessage(err, 'Error al descargar el reporte del director'));
     } finally {
       setLoading(false);
     }
@@ -400,7 +401,7 @@ const CommitteeReports = () => {
       }
     } catch (err) {
       setStudentSearchResults([]);
-      setError(err.message || 'Error al buscar estudiantes por programa académico');
+      setError(getErrorMessage(err, 'Error al buscar estudiantes por programa académico'));
     } finally {
       setSearchingStudents(false);
     }
@@ -441,7 +442,7 @@ const CommitteeReports = () => {
       setTimeout(() => setSuccess(null), 5000);
       setOpenFilterDialog(null);
     } catch (err) {
-      setError(err.message || 'Error al descargar el reporte de trazabilidad por estudiante');
+      setError(getErrorMessage(err, 'Error al descargar el reporte de trazabilidad por estudiante'));
     } finally {
       setLoading(false);
     }

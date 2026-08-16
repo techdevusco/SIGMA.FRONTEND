@@ -177,7 +177,9 @@ export default function Modalities() {
   };
 
   const getPreviousModalityInfo = (modalityId) => {
-    return modalityHistory.find(m => m.modalityId === modalityId);
+    const modality = modalities.find(m => m.id === modalityId);
+    if (!modality) return undefined;
+    return modalityHistory.find(m => m.modalityId === modality.id) || modalityHistory.find(m => m.modalityName === modality.name);
   };
 
   const validateModalityStatus = (modalityId) => {

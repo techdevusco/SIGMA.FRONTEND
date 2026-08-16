@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { assignExaminers, getExaminersForCommittee } from "../../services/committeeService";
+import { getErrorMessage } from "../../utils/errorUtils";
 import "../../styles/council/modals.css";
 
 export default function AssignExaminersModal({ studentModalityId, onClose, onSuccess }) {
@@ -37,8 +38,12 @@ export default function AssignExaminersModal({ studentModalityId, onClose, onSuc
     e.preventDefault();
 
     // Validaciones
-    if (!formData.primaryExaminer1Id || !formData.primaryExaminer2Id) {
-      setError("Debes seleccionar al menos los 2 jurados principales");
+    if (
+      !formData.primaryExaminer1Id ||
+      !formData.primaryExaminer2Id ||
+      !formData.tiebreakerExaminerId
+    ) {
+      setError("Debe asignar los dos jurados principales y el jurado de desempate");
       return;
     }
 
@@ -62,9 +67,7 @@ export default function AssignExaminersModal({ studentModalityId, onClose, onSuc
       const payload = {
         primaryExaminer1Id: parseInt(formData.primaryExaminer1Id),
         primaryExaminer2Id: parseInt(formData.primaryExaminer2Id),
-        tiebreakerExaminerId: formData.tiebreakerExaminerId
-          ? parseInt(formData.tiebreakerExaminerId)
-          : null,
+        tiebreakerExaminerId: parseInt(formData.tiebreakerExaminerId),
       };
 
       const response = await assignExaminers(studentModalityId, payload);
@@ -93,11 +96,7 @@ export default function AssignExaminersModal({ studentModalityId, onClose, onSuc
       }, 1500);
     } catch (err) {
       console.error("Error al asignar jurado:", err);
-      setError(
-        err.response?.data?.message ||
-          err.response?.data ||
-          "Error al asignar jurado"
-      );
+      setError(getErrorMessage(err, "Error al asignar jurado"));
     } finally {
       setSubmitting(false);
     }
@@ -164,8 +163,7 @@ export default function AssignExaminersModal({ studentModalityId, onClose, onSuc
               <div className="info-box" style={{ background: '#f9f6ee', border: '1px solid #D5CBA0', borderRadius: '8px', padding: '0.75rem', marginBottom: '1.25rem', color: '#7A1117', fontSize: '0.95rem' }}>
                 <p style={{ margin: 0, fontWeight: 600 }}>Instrucciones:</p>
                 <ul style={{ marginLeft: '1.5rem', marginTop: '0.5rem', color: '#7A1117' }}>
-                  <li>Los 2 jurados principales son <strong>obligatorios</strong></li>
-                  <li>El jurado de desempate es <strong>opcional</strong> (solo se usa si hay desacuerdo)</li>
+                  <li>Los 2 jurados principales y el jurado de desempate son <strong>obligatorios</strong></li>
                   <li>No puedes asignar el mismo jurado más de una vez</li>
                   <li>El director del proyecto NO puede ser jurado</li>
                 </ul>
@@ -244,7 +242,7 @@ export default function AssignExaminersModal({ studentModalityId, onClose, onSuc
               {/* Jurado de Desempate */}
               <div className="form-group" style={{ marginBottom: '1.25rem' }}>
                 <label style={{ color: '#7A1117', fontWeight: 600, marginBottom: '0.5rem', display: 'block' }}>
-                  Jurado de Desempate <span style={{ color: '#666', fontSize: '0.85rem' }}>(Opcional)</span>
+                  Jurado de Desempate <span style={{ color: '#dc2626' }}>*</span>
                 </label>
                 <select
                   value={formData.tiebreakerExaminerId}
@@ -254,6 +252,7 @@ export default function AssignExaminersModal({ studentModalityId, onClose, onSuc
                   }}
                   className="form-input"
                   disabled={submitting}
+                  required
                   style={{
                     border: '1.5px solid #D5CBA0',
                     borderRadius: '8px',
@@ -264,7 +263,7 @@ export default function AssignExaminersModal({ studentModalityId, onClose, onSuc
                     fontWeight: 500,
                   }}
                 >
-                  <option value="">Seleccionar jurado de desempate (opcional)...</option>
+                  <option value="">Seleccionar jurado de desempate...</option>
                   {examiners.map((examiner) => (
                     <option
                       key={examiner.id}

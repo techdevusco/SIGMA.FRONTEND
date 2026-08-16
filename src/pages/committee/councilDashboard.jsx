@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getStudentsPendingModalities } from "../../services/committeeService";
+import { getErrorMessage } from "../../utils/errorUtils";
 import "../../styles/council/studentpending.css";
 
 const AVAILABLE_STATUSES = [
@@ -62,8 +63,7 @@ export default function CommitteeDashboard() {
     } catch (err) {
       console.error("❌ Error al obtener estudiantes:", err);
       setMessage(
-        err.response?.data?.message ||
-          "Error al cargar estudiantes pendientes"
+        getErrorMessage(err, "Error al cargar estudiantes pendientes")
       );
     } finally {
       setLoading(false);

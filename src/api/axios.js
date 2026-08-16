@@ -1,4 +1,5 @@
 import axios from "axios";
+import { getErrorMessage, getFieldErrors } from "../utils/errorUtils";
 
 const instance = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "https://api.modalidad.grado.fac-ingenieria-usco.com",
@@ -49,8 +50,12 @@ instance.interceptors.response.use(
     const status = error.response?.status;
     const url = error.config?.url;
     
+    // Normalizar el error para que todos los consumidores tengan un string legible
+    error.errorMessage = getErrorMessage(error);
+    error.fieldErrors = getFieldErrors(error);
+
     console.error(`❌ Error ${status} en petición a:`, url);
-    console.error("❌ Detalle del error:", error.response?.data);
+    console.error("❌ Detalle del error:", error.errorMessage);
 
     if (status === 401 || status === 403) {
       console.error("🚨 Error de autenticación/autorización");

@@ -7,6 +7,7 @@ import {
   getStatusLabel,
   getStatusBadgeClass,
 } from "../../services/studentService";
+import { getErrorMessage } from "../../utils/errorUtils";
 import "../../styles/student/status.css";
 
 export default function ModalityStatus() {
@@ -37,8 +38,7 @@ export default function ModalityStatus() {
     } catch (err) {
       console.error("❌ Error al cargar datos:", err);
       setError(
-        err.response?.data?.message ||
-          "No tienes una modalidad activa en este momento"
+        getErrorMessage(err, "No tienes una modalidad activa en este momento")
       );
     } finally {
       setLoading(false);
@@ -77,7 +77,7 @@ export default function ModalityStatus() {
       setTimeout(() => setMessage(""), 3000);
     } catch (err) {
       console.error("❌ Error al subir:", err);
-      setMessage(err.response?.data || "Error al subir el documento");
+      setMessage(getErrorMessage(err, "Error al subir el documento"));
     } finally {
       setUploadingDocId(null);
     }
@@ -98,7 +98,7 @@ export default function ModalityStatus() {
       }, 60000);
     } catch (err) {
       console.error("❌ Error completo al cargar documento:", err);
-      setMessage(err.response?.data?.message || err.message || "Error al cargar el documento");
+      setMessage(getErrorMessage(err, "Error al cargar el documento"));
     } finally {
       setLoadingDocId(null);
     }

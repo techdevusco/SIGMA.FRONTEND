@@ -6,6 +6,7 @@ import {
   getRequiredDocumentsByModalityAndStatus,
   deleteRequiredDocument,
 } from "../../services/adminService";
+import { getErrorMessage } from "../../utils/errorUtils";
 import ConfirmModal from "../../components/ConfirmModal";
 import "../../styles/admin/Roles.css";
 
@@ -121,7 +122,7 @@ export default function Documents() {
       setMessage("Documento desactivado exitosamente");
       fetchDocuments();
     } catch (err) {
-      setMessage(err.response?.data || "Error al desactivar el documento");
+      setMessage(getErrorMessage(err, "Error al desactivar el documento"));
     }
   };
 
@@ -143,7 +144,7 @@ export default function Documents() {
       setShowModal(false);
       fetchDocuments();
     } catch (err) {
-      setMessage(err.response?.data || "Error al procesar la solicitud");
+      setMessage(getErrorMessage(err, "Error al procesar la solicitud"));
     }
   };
 

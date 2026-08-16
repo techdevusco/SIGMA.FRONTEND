@@ -9,6 +9,7 @@ import {
   closeModalityByCommittee,
   getAssignedExaminers,
 } from "../../services/committeeService";
+import { getErrorMessage } from "../../utils/errorUtils";
 import AssignDirectorModal from "../../components/committee/AssignDirectorModal";
 import AssignExaminersModal from "../../components/committee/AssignExaminerModal";
 import ModalityDetailsModal from "../../components/committee/ModalityDetailsModal";
@@ -73,10 +74,10 @@ export default function CommitteeStudentProfile() {
       try {
         const examiners = await getAssignedExaminers(studentModalityId);
         console.log("Jurado asignado (endpoint):", examiners);
-        if (examiners && examiners.length > 0) {
-          setAssignedExaminers(examiners);
+        if (examiners && examiners.examiners && examiners.examiners.length > 0) {
+          setAssignedExaminers(examiners.examiners);
           // Sincronizar localStorage con la respuesta del backend
-          localStorage.setItem(`examiner_assignment_${studentModalityId}`, JSON.stringify(examiners));
+          localStorage.setItem(`examiner_assignment_${studentModalityId}`, JSON.stringify(examiners.examiners));
         } else {
           // El endpoint no devuelve datos — recuperar desde localStorage si existe
           const cached = localStorage.getItem(`examiner_assignment_${studentModalityId}`);
@@ -101,7 +102,7 @@ export default function CommitteeStudentProfile() {
       }
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.message || "No se pudo cargar la información del estudiante");
+      setError(getErrorMessage(err, "No se pudo cargar la información del estudiante"));
     } finally {
       setLoading(false);
     }
@@ -114,7 +115,7 @@ export default function CommitteeStudentProfile() {
       window.open(blobUrl, "_blank");
       setTimeout(() => window.URL.revokeObjectURL(blobUrl), 60000);
     } catch (err) {
-      setError(err.response?.data?.message || "Error al cargar el documento");
+      setError(getErrorMessage(err, "Error al cargar el documento"));
       setTimeout(() => setError(""), 5000);
     } finally {
       setLoadingDoc(null);
@@ -142,7 +143,7 @@ export default function CommitteeStudentProfile() {
       setSelectedStatus("");
       setNotes("");
     } catch (err) {
-      setError(err.response?.data?.message || "Error al revisar el documento");
+      setError(getErrorMessage(err, "Error al revisar el documento"));
       setTimeout(() => setError(""), 5000);
     } finally {
       setSubmitting(false);
@@ -176,7 +177,7 @@ export default function CommitteeStudentProfile() {
       setSuccessMessage("✅ Modalidad aprobada exitosamente por el comité de currículo.");
       await fetchProfile();
     } catch (err) {
-      setError(err.response?.data?.message || "Error al aprobar la modalidad");
+      setError(getErrorMessage(err, "Error al aprobar la modalidad"));
       setTimeout(() => setError(""), 5000);
     } finally {
       setSubmitting(false);
@@ -199,7 +200,7 @@ export default function CommitteeStudentProfile() {
       await fetchProfile();
       setTimeout(() => setSuccessMessage(""), 10000);
     } catch (err) {
-      setError(err.response?.data?.message || err.message || "Error al cancelar la modalidad");
+      setError(getErrorMessage(err, "Error al cancelar la modalidad"));
       setTimeout(() => setError(""), 5000);
     } finally {
       setSubmitting(false);
@@ -391,6 +392,9 @@ export default function CommitteeStudentProfile() {
   const isInValidStatusForApproval = validStatusesForApproval.includes(profile.currentStatus);
   const canApproveModality = allMandatoryAcceptedForApproval && step2Ok && !isModalityApprovedByCommittee && isInValidStatusForApproval;
   const modalityHistory = Array.isArray(profile.history) ? profile.history : [];
+
+  const activeReviewDoc = uploadedDocs.find((d) => d.studentDocumentId === reviewingDocId) || null;
+  const showReviewPanel = !!activeReviewDoc && canEditDocument(activeReviewDoc);
 
   return (
     <div className="student-profile-container">
@@ -714,89 +718,89 @@ export default function CommitteeStudentProfile() {
                         <span className="locked-badge">Aprobado</span>
                       )}
                     </div>
-
-                    {reviewingDocId === doc.studentDocumentId &&
-                      canEditDocument(doc) && (
-                        <div className="review-panel">
-                          <h4 className="review-panel-title">
-                            <span style={{
-                              color: '#7A1117',
-                              fontWeight: 900,
-                              fontSize: '1.25rem',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '0.5rem',
-                            }}>
-                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{verticalAlign:'middle'}}>
-                                <circle cx="12" cy="12" r="12" fill="#7A1117"/>
-                                <path d="M8 12.5L11 15.5L16 10.5" stroke="#D5CBA0" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-                              </svg>
-                              Revisión de documento
-                            </span>
-                          </h4>
-
-                          <div className="review-form-group">
-                            <label className="review-label">
-                              <span style={{color:'#7A1117', fontWeight:900}}>Nuevo estado:</span>
-                            </label>
-                            <select
-                              value={selectedStatus}
-                              onChange={(e) =>
-                                setSelectedStatus(e.target.value)
-                              }
-                              className="review-select"
-                              style={{borderColor: '#7A1117', fontWeight:700, color:'#7A1117'}}
-                            >
-                              <option value="">Seleccionar estado</option>
-                              <option value="ACCEPTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW">
-                                ✅ Aceptado
-                              </option>
-                              <option value="CORRECTIONS_REQUESTED_BY_PROGRAM_CURRICULUM_COMMITTEE">
-                                🔄 Requiere correcciones
-                              </option>
-                            </select>
-                          </div>
-
-                          <div className="review-form-group">
-                            <label className="review-label">
-                              <span style={{color:'#7A1117', fontWeight:900}}>Comentario:</span>
-                            </label>
-                            <textarea
-                              value={notes}
-                              onChange={(e) => setNotes(e.target.value)}
-                              className="review-textarea"
-                              placeholder="Justifica tu decisión de manera clara y profesional..."
-                              rows={4}
-                              style={{borderColor:'#7A1117', fontWeight:600, color:'#1a1a2e'}}
-                            />
-                          </div>
-
-                          <button
-                            onClick={() =>
-                              handleReviewDocument(doc.studentDocumentId)
-                            }
-                            disabled={submitting}
-                            className="review-submit-btn"
-                            style={{
-                              background: submitting ? '#9e9e9e' : 'linear-gradient(135deg, #7A1117 100%)',
-                              color: '#fff',
-                              fontWeight: 900,
-                              fontSize: '1.05rem',
-                              border: 'none',
-                              boxShadow: '0 3px 8px rgba(122,17,23,0.15)',
-                              letterSpacing: '0.5px',
-                            }}
-                          >
-                            {submitting ? "Guardando..." : "Guardar revisión"}
-                          </button>
-                        </div>
-                      )}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+
+        {showReviewPanel && (
+          <div className="review-panel">
+            <h4 className="review-panel-title">
+              <span style={{
+                color: '#7A1117',
+                fontWeight: 900,
+                fontSize: '1.25rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                flexWrap: 'wrap',
+              }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{verticalAlign:'middle', flexShrink: 0}}>
+                  <circle cx="12" cy="12" r="12" fill="#7A1117"/>
+                  <path d="M8 12.5L11 15.5L16 10.5" stroke="#D5CBA0" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+                <span>Revisión de documento — {activeReviewDoc.documentName}</span>
+              </span>
+            </h4>
+
+            <div className="review-form-group">
+              <label className="review-label">
+                <span style={{color:'#7A1117', fontWeight:900}}>Nuevo estado:</span>
+              </label>
+              <select
+                value={selectedStatus}
+                onChange={(e) =>
+                  setSelectedStatus(e.target.value)
+                }
+                className="review-select"
+                style={{borderColor: '#7A1117', fontWeight:700, color:'#7A1117'}}
+              >
+                <option value="">Seleccionar estado</option>
+                <option value="ACCEPTED_FOR_PROGRAM_CURRICULUM_COMMITTEE_REVIEW">
+                  ✅ Aceptado
+                </option>
+                <option value="CORRECTIONS_REQUESTED_BY_PROGRAM_CURRICULUM_COMMITTEE">
+                  🔄 Requiere correcciones
+                </option>
+              </select>
+            </div>
+
+            <div className="review-form-group">
+              <label className="review-label">
+                <span style={{color:'#7A1117', fontWeight:900}}>Comentario:</span>
+              </label>
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                className="review-textarea"
+                placeholder="Justifica tu decisión de manera clara y profesional..."
+                rows={4}
+                style={{borderColor:'#7A1117', fontWeight:600, color:'#1a1a2e'}}
+              />
+            </div>
+
+            <button
+              onClick={() =>
+                handleReviewDocument(activeReviewDoc.studentDocumentId)
+              }
+              disabled={submitting}
+              className="review-submit-btn"
+              style={{
+                background: submitting ? '#9e9e9e' : 'linear-gradient(135deg, #7A1117 100%)',
+                color: '#fff',
+                fontWeight: 900,
+                fontSize: '1.05rem',
+                border: 'none',
+                boxShadow: '0 3px 8px rgba(122,17,23,0.15)',
+                letterSpacing: '0.5px',
+              }}
+            >
+              {submitting ? "Guardando..." : "Guardar revisión"}
+            </button>
+          </div>
+        )}
       </>
     )}
   </div>

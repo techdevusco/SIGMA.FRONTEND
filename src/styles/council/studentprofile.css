@@ -1048,6 +1048,8 @@
   border: 2px solid #7A1117;
   box-shadow: 0 4px 16px #7A111733;
   animation: slideDown 0.3s ease-out;
+  width: 100%;
+  max-width: 760px;
 }
 
 .review-panel-title {
@@ -1060,7 +1062,7 @@
 
 .review-form-group {
   margin-bottom: 1.25rem;
-  width: 90%;
+  width: 100%;
 }
 
 .review-label {

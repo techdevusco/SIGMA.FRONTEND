@@ -3,17 +3,16 @@ import { useNavigate } from "react-router-dom";
 import {
   getUnreadCount,
   getMyNotifications,
-  markNotificationAsRead,
   getNotificationIcon,
   getRelativeTime,
   NOTIFICATIONS_UPDATED_EVENT,
-  emitNotificationsUpdated,
 } from "../services/notificationService";
+import NotificationDetailModal from "./NotificationDetailModal";
 import "../styles/navbar.css";
 
 /**
  * Campanita de notificaciones reutilizable.
- * @param {string|null} notificationLink  Ruta al hacer clic en una notif. con studentModalityId.
+ * @param {string|null} notificationLink  Ruta "Ver perfil del estudiante" desde el modal de una notif. con studentModalityId.
  * @param {string|null} viewAllLink       Ruta de la página completa de notificaciones.
  * @param {boolean}     navigateOnly      Si true, al hacer clic va directo a viewAllLink sin dropdown.
  */
@@ -29,8 +28,7 @@ export default function NotificationBell({
   const [notifications, setNotifications] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [loadingNotifications, setLoadingNotifications] = useState(false);
-  const [notificationError, setNotificationError] = useState("");
-  const [expandedId, setExpandedId] = useState(null);
+  const [detailNotification, setDetailNotification] = useState(null);
 
   useEffect(() => {
     fetchUnreadCount();
@@ -93,33 +91,11 @@ export default function NotificationBell({
     const next = !showDropdown;
     setShowDropdown(next);
     if (next) fetchNotifications();
-    if (!next) setExpandedId(null);
   };
 
-  const toggleExpand = (e, id) => {
-    e.stopPropagation();
-    setExpandedId((prev) => (prev === id ? null : id));
-  };
-
-  const handleNotificationClick = async (notification) => {
-    try {
-      if (!notification.read) {
-        await markNotificationAsRead(notification.id);
-        emitNotificationsUpdated();
-        await fetchUnreadCount();
-        await fetchNotifications();
-      }
-      setShowDropdown(false);
-      if (notification.studentModalityId && notificationLink) {
-        navigate(notificationLink);
-      }
-    } catch (err) {
-      console.error("Error al marcar notificacion como leida:", err);
-      setNotificationError(
-        err.response?.data?.message || err.message || "Error al procesar notificacion"
-      );
-      setTimeout(() => setNotificationError(""), 5000);
-    }
+  const handleNotificationClick = (notification) => {
+    setShowDropdown(false);
+    setDetailNotification(notification);
   };
 
   return (
@@ -147,18 +123,6 @@ export default function NotificationBell({
             )}
           </div>
 
-          {notificationError && (
-            <div style={{
-              padding: "0.75rem",
-              background: "#fee2e2",
-              color: "#991b1b",
-              fontSize: "0.875rem",
-              borderBottom: "1px solid #fecaca",
-            }}>
-              ⚠️ {notificationError}
-            </div>
-          )}
-
           <div className="notification-dropdown-body">
             {loadingNotifications ? (
               <div className="notification-loading">
@@ -175,7 +139,7 @@ export default function NotificationBell({
                 {notifications.slice(0, 10).map((notification) => (
                   <div
                     key={notification.id}
-                    className={`notification-item ${!notification.read ? "unread" : ""} ${expandedId === notification.id ? "expanded" : ""}`}
+                    className={`notification-item ${!notification.read ? "unread" : ""}`}
                     onClick={() => handleNotificationClick(notification)}
                   >
                     <div className="notification-icon">
@@ -184,39 +148,10 @@ export default function NotificationBell({
                     <div className="notification-content">
                       <div className="notification-subject-row">
                         <div className="notification-subject">{notification.subject}</div>
-                        <button
-                          className="notification-detail-btn"
-                          onClick={(e) => toggleExpand(e, notification.id)}
-                          title={expandedId === notification.id ? "Ocultar detalles" : "Ver mas detalles"}
-                        >
-                          {expandedId === notification.id ? "▲" : "▼"}
-                        </button>
                       </div>
-                      <div className={`notification-message ${expandedId === notification.id ? "expanded" : ""}`}>
+                      <div className="notification-message">
                         {notification.message}
                       </div>
-                      {expandedId === notification.id && (
-                        <div className="notification-detail-panel">
-                          {notification.type && (
-                            <span className="notification-type-badge">
-                              {notification.type.replace(/_/g, " ")}
-                            </span>
-                          )}
-                          {notification.studentModalityId && notificationLink && (
-                            <button
-                              className="notification-goto-btn"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setShowDropdown(false);
-                                setExpandedId(null);
-                                navigate(notificationLink);
-                              }}
-                            >
-                              Ver perfil del estudiante →
-                            </button>
-                          )}
-                        </div>
-                      )}
                       <div className="notification-time">
                         {getRelativeTime(notification.createdAt)}
                       </div>
@@ -240,6 +175,12 @@ export default function NotificationBell({
           )}
         </div>
       )}
+
+      <NotificationDetailModal
+        notification={detailNotification}
+        onClose={() => setDetailNotification(null)}
+        notificationLink={notificationLink}
+      />
     </div>
   );
 }

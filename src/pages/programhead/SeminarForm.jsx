@@ -5,6 +5,7 @@ import {
   updateSeminar,
   getSeminarDetail,
 } from "../../services/programsheadService";
+import { getErrorMessage } from "../../utils/errorUtils";
 import "../../styles/programhead/seminarform.css";
 
 export default function SeminarForm() {
@@ -53,7 +54,7 @@ export default function SeminarForm() {
       }
     } catch (err) {
       console.error("❌ Error al cargar seminario:", err);
-      const errorMsg = err.response?.data?.error || "Error al cargar el diplomado";
+      const errorMsg = getErrorMessage(err, "Error al cargar el diplomado");
       setErrors({ general: errorMsg });
     } finally {
       setLoading(false);
@@ -172,7 +173,7 @@ export default function SeminarForm() {
       }
     } catch (err) {
       console.error("❌ Error al guardar:", err);
-      const errorMsg = err.response?.data?.error || "Error al guardar el diplomado";
+      const errorMsg = getErrorMessage(err, "Error al guardar el diplomado");
       setErrors({ general: errorMsg });
     } finally {
       setSubmitting(false);

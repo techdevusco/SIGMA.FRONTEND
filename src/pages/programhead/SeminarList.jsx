@@ -7,6 +7,7 @@ import {
   formatCurrency,
   formatDate,
 } from "../../services/programsheadService";
+import { getErrorMessage } from "../../utils/errorUtils";
 import "../../styles/programhead/seminarlist.css";
 
 export default function SeminarList() {
@@ -38,7 +39,7 @@ export default function SeminarList() {
       }
     } catch (err) {
       console.error("❌ Error al cargar diplomados:", err);
-      const errorMsg = err.response?.data?.error || "Error al cargar los diplomados";
+      const errorMsg = getErrorMessage(err, "Error al cargar los diplomados");
       setError(errorMsg);
       setSeminars([]);
     } finally {

@@ -3,6 +3,7 @@ import {
   getStudentProfile,
   updateStudentProfileFromAcademicHistory,
 } from "../../services/studentService";
+import { getErrorMessage } from "../../utils/errorUtils";
 import "../../styles/student/studentProfile.css";
 
 export default function StudentProfile() {
@@ -55,11 +56,7 @@ export default function StudentProfile() {
         semester: profileData.semester ?? "",
       });
     } catch (err) {
-      const errorMsg =
-        err.response?.data?.message ||
-        err.response?.data ||
-        err.message ||
-        "No se pudo cargar el perfil";
+      const errorMsg = getErrorMessage(err, "No se pudo cargar el perfil");
       setMessage(errorMsg);
       setMessageType("error");
     } finally {
@@ -127,11 +124,7 @@ export default function StudentProfile() {
 
       await loadProfile({ silent: true });
     } catch (err) {
-      const rawErrorMsg =
-        err.response?.data?.message ||
-        err.response?.data ||
-        err.message ||
-        "No fue posible procesar el PDF del historial academico.";
+      const rawErrorMsg = getErrorMessage(err, "No fue posible procesar el PDF del historial academico.");
 
       const errorMsg = String(rawErrorMsg).includes(
         "No fue posible calcular el semestre actual a partir del codigo estudiantil"

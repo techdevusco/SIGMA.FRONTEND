@@ -3,6 +3,7 @@ import { login as loginService } from "../services/authService";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { jwtDecode } from "jwt-decode";
+import { getErrorMessage } from "../utils/errorUtils";
 import "../styles/login.css";
 
 function Login() {
@@ -190,7 +191,7 @@ function Login() {
 
     } catch (err) {
       console.error("❌ Error en login:", err);
-      setError(err.response?.data || err.message || "Error al iniciar sesión");
+      setError(getErrorMessage(err, "Error al iniciar sesión"));
       setIsLoading(false);
     }
   };

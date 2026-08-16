@@ -7,13 +7,15 @@ import {
   getNotificationIcon,
   getRelativeTime,
   emitNotificationsUpdated,
+  NOTIFICATIONS_UPDATED_EVENT,
 } from "../../services/notificationService";
 import {
   acceptInvitation,
   rejectInvitation,
-  getMyPendingInvitation,
 } from "../../services/ModalitiesGroupService";
+import { getErrorMessage } from "../../utils/errorUtils";
 import ConfirmModal from "../../components/ConfirmModal";
+import NotificationDetailModal from "../../components/NotificationDetailModal";
 import "../../styles/student/notifications.css";
 
 export default function Notifications() {
@@ -25,9 +27,16 @@ export default function Notifications() {
   const [message, setMessage] = useState("");
   const [processingInvitation, setProcessingInvitation] = useState(null);
   const [confirmAction, setConfirmAction] = useState(null);
+  const [detailNotification, setDetailNotification] = useState(null);
 
   useEffect(() => {
     fetchNotifications();
+  }, []);
+
+  useEffect(() => {
+    const handleUpdated = () => fetchNotifications();
+    window.addEventListener(NOTIFICATIONS_UPDATED_EVENT, handleUpdated);
+    return () => window.removeEventListener(NOTIFICATIONS_UPDATED_EVENT, handleUpdated);
   }, []);
 
   const fetchNotifications = async () => {
@@ -54,7 +63,7 @@ export default function Notifications() {
       setTimeout(() => setMessage(""), 2000);
     } catch (err) {
       console.error("❌ Error al marcar como leída:", err);
-      const errorMsg = err.response?.data?.message || err.message || "Error al marcar como leída";
+      const errorMsg = getErrorMessage(err, "Error al marcar como leída");
       setMessage(`❌ ${errorMsg}`);
       setTimeout(() => setMessage(""), 5000);
     }
@@ -143,7 +152,7 @@ export default function Notifications() {
         }, 2000);
       } catch (err) {
         console.error("Error al aceptar invitación:", err);
-        setMessage(err.response?.data?.message || "❌ Error al aceptar invitación");
+        setMessage(getErrorMessage(err, "❌ Error al aceptar invitación"));
         setTimeout(() => setMessage(""), 5000);
       } finally {
         setProcessingInvitation(null);
@@ -159,7 +168,7 @@ export default function Notifications() {
         setTimeout(() => setMessage(""), 3000);
       } catch (err) {
         console.error("Error al rechazar invitación:", err);
-        setMessage(err.response?.data?.message || "❌ Error al rechazar invitación");
+        setMessage(getErrorMessage(err, "❌ Error al rechazar invitación"));
         setTimeout(() => setMessage(""), 5000);
       } finally {
         setProcessingInvitation(null);
@@ -196,21 +205,6 @@ export default function Notifications() {
     // 2. Intentar desde metadata
     if (notification.metadata?.invitationId) {
       return notification.metadata.invitationId;
-    }
-    
-    // 3.  NUEVO: Si tiene studentModalityId, buscar la invitación en el backend
-    if (notification.studentModalityId) {
-      try {
-        console.log("🔍 Buscando invitación en backend para studentModalityId:", notification.studentModalityId);
-        const invitationData = await getMyPendingInvitation(notification.studentModalityId);
-        
-        if (invitationData && invitationData.invitationId) {
-          console.log(" Invitación encontrada:", invitationData.invitationId);
-          return invitationData.invitationId;
-        }
-      } catch (err) {
-        console.error("❌ Error al buscar invitación:", err);
-      }
     }
     
     return null;
@@ -289,7 +283,7 @@ export default function Notifications() {
                 key={notification.id}
                 className={`notification-item ${!notification.read ? "unread" : ""}`}
               >
-                <div className="notification-main">
+                <div className="notification-main" onClick={() => setDetailNotification(notification)}>
                   <div className="notification-icon-container">
                     <span className="notification-icon">
                       {getNotificationIcon(notification.type)}
@@ -315,14 +309,20 @@ export default function Notifications() {
                       <div className="invitation-actions">
                         <button
                           className="btn-accept-invitation"
-                          onClick={() => handleAcceptInvitation(notification)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAcceptInvitation(notification);
+                          }}
                           disabled={processingInvitation !== null}
                         >
                           {processingInvitation === getInvitationId(notification) ? "..." : " Aceptar"}
                         </button>
                         <button
                           className="btn-reject-invitation"
-                          onClick={() => handleRejectInvitation(notification)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRejectInvitation(notification);
+                          }}
                           disabled={processingInvitation !== null}
                         >
                           {processingInvitation === getInvitationId(notification) ? "..." : " Rechazar"}
@@ -361,6 +361,12 @@ export default function Notifications() {
         variant={confirmAction?.variant || "primary"}
         onConfirm={executeConfirmAction}
         onCancel={() => setConfirmAction(null)}
-      />    </div>
+      />
+      <NotificationDetailModal
+        notification={detailNotification}
+        onClose={() => setDetailNotification(null)}
+        notificationLink="/student/status"
+      />
+    </div>
   );
 }

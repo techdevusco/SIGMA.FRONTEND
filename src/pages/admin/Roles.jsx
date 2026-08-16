@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getAllRoles, createRole, updateRole, getAllPermissions } from "../../services/adminService";
+import { getErrorMessage } from "../../utils/errorUtils";
 import "../../styles/admin/Roles.css";
 
 export default function Roles() {
@@ -43,7 +44,7 @@ export default function Roles() {
       setPermissions(permsData);
     } catch (err) {
       console.error("Error al cargar datos:", err); // DEBUG
-      setMessage("Error al cargar datos: " + (err.response?.data || err.message));
+      setMessage("Error al cargar datos: " + getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -80,7 +81,7 @@ export default function Roles() {
       fetchData();
     } catch (err) {
       console.error("Error al guardar:", err); // DEBUG
-      setMessage(err.response?.data || "Error al procesar la solicitud");
+      setMessage(getErrorMessage(err, "Error al procesar la solicitud"));
     }
   };
 

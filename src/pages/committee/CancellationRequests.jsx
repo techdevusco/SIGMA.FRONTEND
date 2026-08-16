@@ -6,6 +6,7 @@ import {
   approveCancellation,
   rejectCancellation,
 } from "../../services/committeeService";
+import { getErrorMessage } from "../../utils/errorUtils";
 import ConfirmModal from "../../components/ConfirmModal";
 import "../../styles/council/CancellationRequests.css";
 
@@ -64,17 +65,12 @@ export default function CancellationRequests() {
     } catch (err) {
       console.error("❌ [DEBUG] Error:", err);
       
-      let errorMessage = "Error al ver el documento";
-      
-      if (err.message) {
-        errorMessage = err.message;
-      } else if (err.response?.status === 404) {
-        errorMessage = "Documento de cancelación no encontrado";
-      } else if (err.response?.data?.message) {
-        errorMessage = err.response.data.message;
-      }
-      
-      setMessage(errorMessage);
+      setMessage(
+        getErrorMessage(
+          err,
+          err.response?.status === 404 ? "Documento de cancelación no encontrado" : "Error al ver el documento"
+        )
+      );
     } finally {
       setLoadingDoc(null);
     }
@@ -117,7 +113,7 @@ export default function CancellationRequests() {
       setTimeout(() => setMessage(""), 3000);
     } catch (err) {
       console.error("Error al aprobar:", err);
-      setMessage(err.response?.data?.message || "Error al aprobar la solicitud");
+      setMessage(getErrorMessage(err, "Error al aprobar la solicitud"));
     }
   };
 
@@ -137,7 +133,7 @@ export default function CancellationRequests() {
       setTimeout(() => setMessage(""), 3000);
     } catch (err) {
       console.error("Error al rechazar:", err);
-      setMessage(err.response?.data?.message || "Error al rechazar la solicitud");
+      setMessage(getErrorMessage(err, "Error al rechazar la solicitud"));
     }
   };
 

@@ -4,6 +4,7 @@ import {
   acceptDistinctionProposal,
   rejectDistinctionProposal,
 } from "../../services/committeeService";
+import { getErrorMessage } from "../../utils/errorUtils";
 import "../../styles/council/distinctionproposals.css";
 
 // ─── helpers ────────────────────────────────────────────────────────────────
@@ -280,8 +281,7 @@ export default function DistinctionProposals() {
     } catch (err) {
       console.error("Error al obtener propuestas de distincion:", err);
       setError(
-        err.response?.data?.message ||
-          "Error al cargar las propuestas de distincion honorifica"
+        getErrorMessage(err, "Error al cargar las propuestas de distincion honorifica")
       );
     } finally {
       setLoading(false);
@@ -301,7 +301,7 @@ export default function DistinctionProposals() {
       setTimeout(() => setSuccess(""), 6000);
     } catch (err) {
       console.error("Error al aceptar distincion:", err);
-      setError(err.response?.data?.message || "Error al aceptar la distincion");
+      setError(getErrorMessage(err, "Error al aceptar la distincion"));
       setAcceptModal(null);
     } finally {
       setActionLoading(false);
@@ -325,7 +325,7 @@ export default function DistinctionProposals() {
       setTimeout(() => setSuccess(""), 6000);
     } catch (err) {
       console.error("Error al rechazar distincion:", err);
-      setError(err.response?.data?.message || "Error al rechazar la distincion");
+      setError(getErrorMessage(err, "Error al rechazar la distincion"));
       setRejectModal(null);
     } finally {
       setActionLoading(false);

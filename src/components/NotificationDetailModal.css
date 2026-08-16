@@ -1,0 +1,119 @@
+.notification-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 1rem;
+}
+
+.notification-modal {
+  background: #fff;
+  border-radius: 14px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+.notification-modal-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 1.25rem 1.5rem;
+  background: linear-gradient(135deg, #7A1117 0%, #5d0d12 100%);
+  color: #fff;
+}
+
+.notification-modal-icon {
+  font-size: 1.8rem;
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+.notification-modal-heading {
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-modal-type {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  padding: 2px 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.4rem;
+}
+
+.notification-modal-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.35;
+  word-wrap: break-word;
+}
+
+.notification-modal-close {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.15rem;
+  cursor: pointer;
+  opacity: 0.85;
+  line-height: 1;
+}
+.notification-modal-close:hover {
+  opacity: 1;
+}
+
+.notification-modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.notification-modal-message {
+  margin: 0;
+  font-size: 0.98rem;
+  color: #374151;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.notification-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.notification-modal-time {
+  font-size: 0.82rem;
+  color: #6b7280;
+}
+
+.notification-modal-goto {
+  background: none;
+  border: none;
+  color: #7A1117;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.notification-modal-goto:hover {
+  opacity: 0.75;
+}

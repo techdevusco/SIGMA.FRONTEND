@@ -4,7 +4,6 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || "https://api.modalidad.grad
 const API_URL = `${API_BASE_URL}/admin`;
 const MODALITY_URL = `${API_BASE_URL}/modalities`;
 const DOCUMENT_URL = `${API_BASE_URL}/required-documents`;
-const STUDENT_URL = `${API_BASE_URL}/students`;
 const FACULTY_URL = `${API_BASE_URL}/faculties`;
 const PROGRAM_URL = `${API_BASE_URL}/academic-programs`;
 const PROGRAM_DEGREE_URL = `${API_BASE_URL}/program-degree-modalities`;
@@ -101,10 +100,10 @@ export const getAllUsers = async (filters = {}) => {
   if (filters.role) params.append('role', filters.role);
   if (filters.facultyId) params.append('facultyId', filters.facultyId);
   if (filters.programId) params.append('programId', filters.programId);
+  if (filters.search) params.append('name', filters.search);
+  params.append('size', filters.size || 1000);
 
-  const url = params.toString()
-    ? `${API_URL}/getUsers?${params.toString()}`
-    : `${API_URL}/getUsers`;
+  const url = `${API_URL}/getUsers?${params.toString()}`;
 
   const response = await axios.get(url, {
     headers: { Authorization: `Bearer ${token}` },
@@ -388,11 +387,11 @@ export const createModalityRequirements = async (modalityId, requirements) => {
   return response.data;
 };
 
-export const updateModalityRequirements = async (modalityId, requirements) => {
+export const updateModalityRequirement = async (modalityId, requirementId, requirementData) => {
   const token = localStorage.getItem("token");
   const response = await axios.put(
-    `${MODALITY_URL}/requirements/${modalityId}/update`,
-    requirements,
+    `${MODALITY_URL}/requirements/${modalityId}/update/${requirementId}`,
+    requirementData,
     { headers: { Authorization: `Bearer ${token}` } }
   );
   return response.data;
@@ -462,83 +461,6 @@ export const deleteRequiredDocument = async (documentId) => {
   const response = await axios.put(`${DOCUMENT_URL}/delete/${documentId}`, {}, {
     headers: { Authorization: `Bearer ${token}` },
   });
-  return response.data;
-};
-
-export const updateModalityRequirement = async (modalityId, requirementId, requirementData) => {
-  const token = localStorage.getItem("token");
-  const response = await axios.put(
-    `${MODALITY_URL}/requirements/${modalityId}/update/${requirementId}`,
-    requirementData,
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
-  return response.data;
-};
-
-// ==================== STUDENT CANCELLATIONS ====================
-export const uploadCancellationDocument = async (formData) => {
-  const token = localStorage.getItem("token");
-  const response = await axios.post(
-    `${STUDENT_URL}/uploadCancellationDocument`,
-    formData,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "multipart/form-data",
-      },
-    }
-  );
-  return response.data;
-};
-
-export const requestCancellationModality = async () => {
-  const token = localStorage.getItem("token");
-  const response = await axios.post(
-    `${STUDENT_URL}/requestCancellation`,
-    {},
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
-  return response.data;
-};
-
-// ==================== COUNCIL CANCELLATIONS ====================
-export const getPendingCancellations = async () => {
-  const token = localStorage.getItem("token");
-  const response = await axios.get(`${MODALITY_URL}/pendingCancellations`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  return extractData(response);
-};
-
-export const viewCancellationDocument = async (studentModalityId) => {
-  const token = localStorage.getItem("token");
-  const response = await axios.get(
-    `${MODALITY_URL}/viewCancellationDocument/${studentModalityId}`,
-    {
-      headers: { Authorization: `Bearer ${token}` },
-      responseType: "blob",
-    }
-  );
-  return response.data;
-};
-
-export const approveCancellation = async (studentModalityId) => {
-  const token = localStorage.getItem("token");
-  const response = await axios.post(
-    `${MODALITY_URL}/approveCancellation/${studentModalityId}`,
-    {},
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
-  return response.data;
-};
-
-export const rejectCancellation = async (studentModalityId, reason) => {
-  const token = localStorage.getItem("token");
-  const response = await axios.post(
-    `${MODALITY_URL}/rejectCancellation/${studentModalityId}`,
-    { reason },
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
   return response.data;
 };
 

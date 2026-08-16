@@ -1,6 +1,7 @@
 import { useState } from "react";
 import api from "../api/axios";
 import { useNavigate } from "react-router-dom";
+import { getErrorMessage } from "../utils/errorUtils";
 import "../styles/resetpassword.css";
 
 export default function ResetPassword() {
@@ -33,7 +34,7 @@ export default function ResetPassword() {
       // El backend ya maneja estos mensajes:
       // - "El token es inválido o ya ha sido utilizado."
       // - "El token ha expirado. Por favor, solicita un nuevo restablecimiento de contraseña."
-      setError(err.response?.data || "Error al restablecer contraseña");
+      setError(getErrorMessage(err, "Error al restablecer contraseña"));
     }
   };
 

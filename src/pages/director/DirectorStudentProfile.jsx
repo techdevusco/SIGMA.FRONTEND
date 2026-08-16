@@ -221,14 +221,7 @@ export default function DirectorStudentProfile() {
         setTimeout(() => setMessage(""), 8000);
       } catch (err) {
         console.error("Error al notificar a jefatura de programa:", err);
-        const data = err.response?.data;
-        const msg =
-          (typeof data === "string" && data) ||
-          data?.message ||
-          data?.error ||
-          (typeof data === "object" && Object.keys(data).length > 0 && JSON.stringify(data)) ||
-          err.message ||
-          "Error desconocido";
+        const msg = getErrorMessage(err);
         setMessage("❌ " + msg);
         scrollToTopNotification();
         setTimeout(() => setMessage(""), 8000);

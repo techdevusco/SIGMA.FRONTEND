@@ -8,6 +8,7 @@ import {
   assignCommitteeMember,
   assignExaminer,
 } from "../../services/adminService";
+import { getErrorMessage } from "../../utils/errorUtils";
 import "../../styles/admin/Roles.css";
 
 const ASSIGNMENT_TYPES = [
@@ -81,7 +82,7 @@ export default function Assignments() {
       setFilteredPrograms(Array.isArray(programsData) ? programsData : []);
     } catch (err) {
       console.error("❌ Error loading data:", err);
-      setMessage("Error al cargar datos: " + (err.response?.data || err.message));
+      setMessage("Error al cargar datos: " + getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -111,7 +112,7 @@ export default function Assignments() {
       console.error("❌ Error fetching assignments:", err);
       setAssignedUsers([]);
       
-      const errorMsg = err.response?.data?.message || err.response?.data || err.message;
+      const errorMsg = getErrorMessage(err);
       setMessage("Error al cargar asignaciones: " + errorMsg);
       setTimeout(() => setMessage(""), 5000);
     } finally {
@@ -155,7 +156,7 @@ export default function Assignments() {
       setTimeout(() => setMessage(""), 3000);
     } catch (err) {
       console.error("❌ Error assigning user:", err);
-      const errorMsg = err.response?.data?.message || err.response?.data || "Error al asignar usuario";
+      const errorMsg = getErrorMessage(err, "Error al asignar usuario");
       setMessage("❌ " + errorMsg);
     }
   };

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getStudentsPendingModalities } from "../../services/programsheadService";
+import { getErrorMessage } from "../../utils/errorUtils";
 import "../../styles/programhead/studentpending.css";
 
 /* =========================
@@ -100,8 +101,7 @@ export default function StudentsPending() {
     } catch (err) {
       console.error(err);
       setMessage(
-        err.response?.data?.message ||
-          "Error al cargar estudiantes pendientes"
+        getErrorMessage(err, "Error al cargar estudiantes pendientes")
       );
     } finally {
       setLoading(false);

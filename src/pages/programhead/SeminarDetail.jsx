@@ -11,6 +11,7 @@ import {
   formatDate,
   getStatusLabel,
 } from "../../services/programsheadService";
+import { getErrorMessage } from "../../utils/errorUtils";
 import ConfirmModal from "../../components/ConfirmModal";
 import "../../styles/programhead/seminardetail.css";
 
@@ -45,7 +46,7 @@ export default function SeminarDetail() {
       }
     } catch (err) {
       console.error("❌ Error al cargar detalle:", err);
-      const errorMsg = err.response?.data?.error || "Error al cargar el diplomado";
+      const errorMsg = getErrorMessage(err, "Error al cargar el diplomado");
       setError(errorMsg);
     } finally {
       setLoading(false);
@@ -83,7 +84,7 @@ export default function SeminarDetail() {
       }
     } catch (err) {
       console.error("❌ Error al cancelar seminario:", err);
-      const errorMsg = err.response?.data?.error || "Error al cancelar el diplomado";
+      const errorMsg = getErrorMessage(err, "Error al cancelar el diplomado");
       setError(errorMsg);
     } finally {
       setActionLoading(false);
@@ -118,7 +119,7 @@ export default function SeminarDetail() {
         }
       } catch (err) {
         console.error("❌ Error al iniciar seminario:", err);
-        const errorMsg = err.response?.data?.error || "Error al iniciar el diplomado";
+        const errorMsg = getErrorMessage(err, "Error al iniciar el diplomado");
         setError(errorMsg);
       } finally {
         setActionLoading(false);
@@ -138,7 +139,7 @@ export default function SeminarDetail() {
         }
       } catch (err) {
         console.error("❌ Error al completar seminario:", err);
-        const errorMsg = err.response?.data?.error || "Error al completar el diplomado";
+        const errorMsg = getErrorMessage(err, "Error al completar el diplomado");
         setError(errorMsg);
       } finally {
         setActionLoading(false);

@@ -336,7 +336,7 @@
   background: white;
   border-radius: 12px;
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
-  overflow: hidden;
+  overflow-x: auto;
   animation: fadeIn 0.4s ease-out;
 }
 
@@ -390,6 +390,7 @@
   padding: 0.9rem 1rem;
   font-size: 0.9rem;
   color: #333;
+  overflow-wrap: anywhere;
 }
 
   font-weight: 600;
@@ -521,7 +522,9 @@
   .students-pending-table-container {
     overflow-x: auto;
   }
+}
 
+@media (min-width: 769px) and (max-width: 1024px) {
   .students-pending-table {
     min-width: 700px;
   }
@@ -557,6 +560,8 @@
     justify-content: space-between;
     padding: 0.5rem 0;
     border: none;
+    flex-wrap: wrap;
+    gap: 0.25rem;
   }
 
   .students-pending-table td::before {
@@ -566,7 +571,6 @@
   }
 
   .view-profile-button {
-    width: 100%;
     margin-top: 0.5rem;
   }
 }

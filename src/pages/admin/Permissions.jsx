@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getAllPermissions, createPermission } from "../../services/adminService";
+import { getErrorMessage } from "../../utils/errorUtils";
 import "../../styles/admin/Roles.css";
 
 export default function Permissions() {
@@ -35,7 +36,7 @@ export default function Permissions() {
       setFormData({ name: "" });
       fetchPermissions();
     } catch (err) {
-      setMessage(err.response?.data || "Error al crear permiso");
+      setMessage(getErrorMessage(err, "Error al crear permiso"));
     }
   };
 

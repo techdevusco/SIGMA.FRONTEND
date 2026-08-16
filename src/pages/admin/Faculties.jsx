@@ -6,6 +6,7 @@ import {
   updateFaculty,
   deactivateFaculty,
 } from "../../services/adminService";
+import { getErrorMessage } from "../../utils/errorUtils";
 import ConfirmModal from "../../components/ConfirmModal";
 import "../../styles/admin/Roles.css";
 
@@ -43,7 +44,7 @@ export default function Faculties() {
       }
     } catch (err) {
       console.error("Error fetching faculties:", err);
-      setMessage("Error al cargar facultades: " + (err.response?.data || err.message));
+      setMessage("Error al cargar facultades: " + getErrorMessage(err));
       setFaculties([]);
     } finally {
       setLoading(false);
@@ -86,7 +87,7 @@ export default function Faculties() {
       setTimeout(() => setMessage(""), 3000);
     } catch (err) {
       console.error("Error saving faculty:", err);
-      setMessage(err.response?.data || "Error al procesar la solicitud");
+      setMessage(getErrorMessage(err, "Error al procesar la solicitud"));
     }
   };
 
@@ -104,7 +105,7 @@ export default function Faculties() {
       setTimeout(() => setMessage(""), 3000);
     } catch (err) {
       console.error("Error deactivating faculty:", err);
-      setMessage("Error al desactivar facultad: " + (err.response?.data || err.message));
+      setMessage("Error al desactivar facultad: " + getErrorMessage(err));
     }
   };
 

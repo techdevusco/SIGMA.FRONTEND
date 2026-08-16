@@ -3,6 +3,7 @@ import {
   approveFinalModalityByCommittee,
   rejectFinalModalityByCommittee,
 } from "../../services/committeeService";
+import { getErrorMessage } from "../../utils/errorUtils";
 
 // Quita tildes/acentos para comparar sin importar variantes de escritura
 const stripAccents = (str) =>
@@ -40,7 +41,7 @@ export default function FinalDecisionModal({ studentModalityId, modalityName, st
       onSuccess(`✅ ${response.message || "Modalidad aprobada definitivamente"}`);
       onClose();
     } catch (err) {
-      setError(err.response?.data?.message || err.message || "Error al aprobar la modalidad");
+      setError(getErrorMessage(err, "Error al aprobar la modalidad"));
     } finally {
       setSubmitting(false);
     }
@@ -59,7 +60,7 @@ export default function FinalDecisionModal({ studentModalityId, modalityName, st
       onSuccess(`✅ ${response.message || "Modalidad rechazada definitivamente"}`);
       onClose();
     } catch (err) {
-      setError(err.response?.data?.message || err.message || "Error al rechazar la modalidad");
+      setError(getErrorMessage(err, "Error al rechazar la modalidad"));
     } finally {
       setSubmitting(false);
     }

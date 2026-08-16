@@ -1,6 +1,7 @@
 import { useState } from "react";
 import api from "../api/axios";
 import { useNavigate, Link } from "react-router-dom";
+import { getErrorMessage } from "../utils/errorUtils";
 import "../styles/forgotpassword.css";
 
 export default function ForgotPassword() {
@@ -25,7 +26,7 @@ export default function ForgotPassword() {
     } catch (err) {
       // El backend ya maneja este mensaje:
       // - "No se encontró un usuario con el correo proporcionado."
-      setMsg(err.response?.data || "Error al enviar el correo");
+      setMsg(getErrorMessage(err, "Error al enviar el correo"));
       setError(true);
     } finally {
       setIsLoading(false);

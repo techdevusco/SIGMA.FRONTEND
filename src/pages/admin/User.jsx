@@ -6,6 +6,7 @@ import {
   registerUserByAdmin,
   getAllAcademicPrograms,
 } from "../../services/adminService";
+import { getErrorMessage } from "../../utils/errorUtils";
 import "../../styles/admin/Roles.css";
 
 // Traducción de nombres de roles
@@ -33,7 +34,6 @@ const ROLES_REQUIRING_PROGRAM = [
 
 export default function Users() {
   const [users, setUsers] = useState([]);
-  const [allUsers, setAllUsers] = useState([]);
   const [roles, setRoles] = useState([]);
   const [programs, setPrograms] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -56,16 +56,12 @@ export default function Users() {
 
   useEffect(() => {
     fetchData();
-  }, []);
-
-  useEffect(() => {
-    filterUsers();
-  }, [searchName, allUsers]);
+  }, [searchName]);
 
   const fetchData = async () => {
     try {
       const [usersData, rolesData, programsData] = await Promise.all([
-        getAllUsers(),
+        getAllUsers({ search: searchName }),
         getAllRoles(),
         getAllAcademicPrograms(),
       ]);
@@ -79,33 +75,15 @@ export default function Users() {
         id: role.id || index + 1,
       }));
       
-      setAllUsers(Array.isArray(usersData) ? usersData : []);
       setUsers(Array.isArray(usersData) ? usersData : []);
       setRoles(enrichedRoles);
       setPrograms(Array.isArray(programsData) ? programsData : []);
     } catch (err) {
       console.error("Error al cargar datos:", err);
-      setMessage("Error al cargar datos: " + (err.response?.data || err.message));
+      setMessage("Error al cargar datos: " + getErrorMessage(err));
     } finally {
       setLoading(false);
     }
-  };
-
-  const filterUsers = () => {
-    if (!searchName.trim()) {
-      setUsers(allUsers);
-      return;
-    }
-
-    const searchLower = searchName.toLowerCase().trim();
-    const filtered = allUsers.filter((user) => {
-      const fullName = `${user.name || ''} ${user.firstName || ''} ${user.lastName || ''}`.toLowerCase();
-      const email = (user.email || '').toLowerCase();
-      
-      return fullName.includes(searchLower) || email.includes(searchLower);
-    });
-
-    setUsers(filtered);
   };
 
   const handleSearchSubmit = (e) => {
@@ -128,7 +106,7 @@ export default function Users() {
       setTimeout(() => setMessage(""), 5000);
     } catch (err) {
       console.error("Error al cambiar estado:", err);
-      setMessage("Error al cambiar estado del usuario: " + (err.response?.data || err.message));
+      setMessage("Error al cambiar estado del usuario: " + getErrorMessage(err));
     }
   };
 
@@ -204,7 +182,7 @@ export default function Users() {
       setTimeout(() => setMessage(""), 9000);
     } catch (err) {
       console.error("Error al crear usuario:", err);
-      const errorMsg = err.response?.data || err.message;
+      const errorMsg = getErrorMessage(err);
       setMessage("Error al crear usuario: " + errorMsg);
     }
   };

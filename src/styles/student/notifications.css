@@ -294,6 +294,28 @@
   background: #f0fdf4;
   transform: scale(1.1);
 }
+
+/* ========== BOTÓN VER PERFIL ========== */
+.btn-view-modality {
+  position: absolute;
+  bottom: 1.25rem;
+  right: 1.5rem;
+  border: none;
+  background: #7A1117;
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.45rem 1rem;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-view-modality:hover {
+  background: #5d0d12;
+}
+.notification-item:hover .btn-view-modality {
+  opacity: 1;
+}
 /* ========================================
    ✅ ESTILOS ADICIONALES PARA BOTONES DE INVITACIÓN
    AGREGAR AL FINAL DE notifications.css

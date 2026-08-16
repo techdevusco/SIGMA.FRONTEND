@@ -8,6 +8,7 @@ import {
   getModalidades,
   startModality,
 } from "../../services/studentService";
+import { getErrorMessage } from "../../utils/errorUtils";
 import '../../styles/student/seminars-modal.css';
 
 export default function SeminarSelection() {
@@ -92,7 +93,7 @@ export default function SeminarSelection() {
           setSeminars(response.seminars || []);
         }
       } catch (err) {
-        const errorMsg = err.response?.data?.error || err.response?.data?.message || "";
+        const errorMsg = getErrorMessage(err, "");
         if (errorMsg.toLowerCase().includes("ya estás inscrito") || errorMsg.toLowerCase().includes("already enrolled")) {
           setMessage("Ya estás inscrito en un diplomado. Puedes continuar con la carga de documentos.");
           setMessageType("success");
@@ -152,9 +153,7 @@ export default function SeminarSelection() {
           setModalityState("seminar");
         } catch (err) {
           const errorMsg =
-            err.response?.data?.message ||
-            err.response?.data?.error ||
-            "Error al iniciar la modalidad de diplomado";
+            getErrorMessage(err, "Error al iniciar la modalidad de diplomado");
           setMessage(errorMsg);
           setMessageType("error");
           setShowConfirmModal(false);
@@ -178,9 +177,7 @@ export default function SeminarSelection() {
     } catch (err) {
       console.error("❌ Error al inscribirse:", err);
       const errorMsg =
-        err.response?.data?.error ||
-        err.response?.data?.message ||
-        "Error al inscribirse en el diplomado";
+        getErrorMessage(err, "Error al inscribirse en el diplomado");
 
       // Si el backend dice que ya está inscrito, bloquear inscripciones futuras
       if (errorMsg.toLowerCase().includes("ya estás inscrito") || errorMsg.toLowerCase().includes("already enrolled")) {

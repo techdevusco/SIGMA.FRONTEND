@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { getProjectDirectors, assignProjectDirector } from "../../services/committeeService";
+import { getErrorMessage } from "../../utils/errorUtils";
 import "../../styles/council/modals.css";
 
 export default function AssignDirectorModal({ studentModalityId, onClose, onSuccess }) {
@@ -59,7 +60,7 @@ export default function AssignDirectorModal({ studentModalityId, onClose, onSucc
       }, 5500);
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.message || "Error al asignar director");
+      setError(getErrorMessage(err, "Error al asignar director"));
     } finally {
       setSubmitting(false);
     }

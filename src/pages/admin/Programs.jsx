@@ -6,6 +6,7 @@ import {
   createAcademicProgram,
   updateAcademicProgram,
 } from "../../services/adminService";
+import { getErrorMessage } from "../../utils/errorUtils";
 import "../../styles/admin/Roles.css";
 
 export default function Programs() {
@@ -47,7 +48,7 @@ export default function Programs() {
       setPrograms(programsData);
       setFaculties(facultiesData);
     } catch (err) {
-      setMessage("Error al cargar datos: " + (err.response?.data || err.message));
+      setMessage("Error al cargar datos: " + getErrorMessage(err));
     } finally {
       setLoading(false);
     }
@@ -100,9 +101,7 @@ export default function Programs() {
       
       setTimeout(() => setMessage(""), 3000);
     } catch (err) {
-      const errData = err.response?.data;
-      const errMsg = typeof errData === "object" ? (errData.error || JSON.stringify(errData)) : errData;
-      setMessage(errMsg || "Error al procesar la solicitud");
+      setMessage(getErrorMessage(err, "Error al procesar la solicitud"));
     }
   };
 

@@ -47,23 +47,6 @@ export const inviteStudent = async (studentModalityId, inviteeId) => {
 };
 
 /**
- * ✅ NUEVO: Obtener invitación pendiente por studentModalityId
- * Este endpoint permite al frontend obtener el invitationId
- * cuando el backend no lo incluye en la notificación
- */
-export const getMyPendingInvitation = async (studentModalityId) => {
-  console.log("🔍 Buscando invitación pendiente para modalidad:", studentModalityId);
-  
-  try {
-    const response = await api.get(`/modality-groups/my-pending-invitation/${studentModalityId}`);
-    return response.data;
-  } catch (err) {
-    console.error("❌ Error al buscar invitación:", err);
-    return null;
-  }
-};
-
-/**
  * Aceptar invitación a modalidad grupal
  * POST /modality-groups/invitations/{invitationId}/accept
  */

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   getMyNotifications,
   markNotificationAsRead,
@@ -6,7 +7,12 @@ import {
   getNotificationIcon,
   getRelativeTime,
   emitNotificationsUpdated,
+  NOTIFICATIONS_UPDATED_EVENT,
 } from "../../services/notificationService";
+import { getErrorMessage } from "../../utils/errorUtils";
+import NotificationDetailModal from "../../components/NotificationDetailModal";
+import { useAuth } from "../../context/AuthContext";
+import { getModalityRoute } from "../../utils/notificationUtils";
 import "../../styles/student/notifications.css";
 
 /**
@@ -14,13 +20,22 @@ import "../../styles/student/notifications.css";
  * Sin lógica de invitaciones grupales (exclusiva de estudiantes).
  */
 export default function NotificationsPage() {
+  const navigate = useNavigate();
+  const { role } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
   const [message, setMessage] = useState("");
+  const [detailNotification, setDetailNotification] = useState(null);
 
   useEffect(() => {
     fetchNotifications();
+  }, []);
+
+  useEffect(() => {
+    const handleUpdated = () => fetchNotifications();
+    window.addEventListener(NOTIFICATIONS_UPDATED_EVENT, handleUpdated);
+    return () => window.removeEventListener(NOTIFICATIONS_UPDATED_EVENT, handleUpdated);
   }, []);
 
   const fetchNotifications = async () => {
@@ -44,7 +59,7 @@ export default function NotificationsPage() {
       setMessage("✅ Marcada como leída");
       setTimeout(() => setMessage(""), 2000);
     } catch (err) {
-      const errorMsg = err.response?.data?.message || err.message || "Error al marcar como leída";
+      const errorMsg = getErrorMessage(err, "Error al marcar como leída");
       setMessage(`❌ ${errorMsg}`);
       setTimeout(() => setMessage(""), 5000);
     }
@@ -136,7 +151,10 @@ export default function NotificationsPage() {
                 key={notification.id}
                 className={`notification-item${!notification.read ? " unread" : ""}`}
               >
-                <div className="notification-main">
+                <div
+                  className="notification-main"
+                  onClick={() => setDetailNotification(notification)}
+                >
                   <div className="notification-icon-container">
                     <span className="notification-icon">
                       {getNotificationIcon(notification.type)}
@@ -168,11 +186,28 @@ export default function NotificationsPage() {
                     ✓
                   </button>
                 )}
+                {getModalityRoute(role, notification.studentModalityId) && (
+                  <button
+                    className="btn-view-modality"
+                    onClick={() =>
+                      navigate(
+                        getModalityRoute(role, notification.studentModalityId)
+                      )
+                    }
+                  >
+                    Ver perfil
+                  </button>
+                )}
               </div>
             ))}
           </div>
         )}
       </div>
+
+      <NotificationDetailModal
+        notification={detailNotification}
+        onClose={() => setDetailNotification(null)}
+      />
     </div>
   );
 }

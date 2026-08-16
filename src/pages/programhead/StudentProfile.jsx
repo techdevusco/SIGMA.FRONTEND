@@ -9,6 +9,7 @@ import {
   getStatusLabel,
   getStatusBadgeClass,
 } from "../../services/programsheadService";
+import { getErrorMessage } from "../../utils/errorUtils";
 import ConfirmModal from "../../components/ConfirmModal";
 import "../../styles/programhead/programheadprofile.css";
 
@@ -55,8 +56,7 @@ export default function StudentProfileProgramHead() {
     } catch (err) {
       console.error(err);
       setError(
-        err.response?.data?.message ||
-          "No se pudo cargar la información del estudiante"
+        getErrorMessage(err, "No se pudo cargar la información del estudiante")
       );
     } finally {
       setLoading(false);
@@ -81,7 +81,7 @@ export default function StudentProfileProgramHead() {
       }, 60000);
     } catch (err) {
       console.error("❌ Error al cargar documento:", err);
-      setError(err.response?.data?.message || "Error al cargar el documento");
+      setError(getErrorMessage(err, "Error al cargar el documento"));
       setTimeout(() => setError(""), 5000);
     } finally {
       setLoadingDoc(null);
@@ -119,7 +119,7 @@ export default function StudentProfileProgramHead() {
       setNotes("");
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.message || "Error al revisar el documento");
+      setError(getErrorMessage(err, "Error al revisar el documento"));
       setTimeout(() => setError(""), 5000);
     } finally {
       setSubmitting(false);
@@ -158,7 +158,7 @@ export default function StudentProfileProgramHead() {
       setTimeout(() => setSuccessMessage(""), 5000);
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.message || "Error al enviar al Comité");
+      setError(getErrorMessage(err, "Error al enviar al Comité"));
       setTimeout(() => setError(""), 5000);
     } finally {
       setSubmitting(false);
@@ -177,7 +177,7 @@ export default function StudentProfileProgramHead() {
       await fetchProfile();
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.message || "Error al notificar al jurado");
+      setError(getErrorMessage(err, "Error al notificar al jurado"));
       scrollToTopNotification();
       setTimeout(() => setError(""), 5000);
     } finally {
@@ -305,6 +305,8 @@ export default function StudentProfileProgramHead() {
 
   const mandatoryDocs = profile.documents.filter(d => d.documentType === "MANDATORY");
   const uploadedDocs = profile.documents.filter((d) => d.uploaded);
+  const activeReviewDoc = uploadedDocs.find((d) => d.studentDocumentId === reviewingDocId) || null;
+  const showReviewPanel = !!activeReviewDoc && canEditDocument(activeReviewDoc);
   const uploadedMandatory = mandatoryDocs.filter(d => d.uploaded);
   const allMandatoryAccepted = uploadedMandatory.every(
     (d) => d.status === "ACCEPTED_FOR_PROGRAM_HEAD_REVIEW"
@@ -680,86 +682,85 @@ export default function StudentProfileProgramHead() {
                             </span>
                           )}
                         </div>
-
-                        {reviewingDocId === doc.studentDocumentId && canEditDocument(doc) && (
-                          <div className="review-panel">
-                            <h4 className="review-panel-title">
-                              <span style={{
-                                color: '#7A1117',
-                                fontWeight: 900,
-                                fontSize: '1.25rem',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '0.5rem',
-                              }}>
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{verticalAlign:'middle'}}>
-                                  <circle cx="12" cy="12" r="12" fill="#7A1117"/>
-                                  <path d="M8 12.5L11 15.5L16 10.5" stroke="#D5CBA0" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-                                </svg>
-                                Revisión de documento
-                              </span>
-                            </h4>
-
-                            <div className="review-form-group">
-                              <label className="review-label" htmlFor="review-status-select">
-                                <span style={{color:'#7A1117', fontWeight:900}}>Nuevo estado:</span>
-                              </label>
-                              <select
-                                id="review-status-select"
-                                value={selectedStatus}
-                                onChange={(e) => setSelectedStatus(e.target.value)}
-                                className="review-select"
-                                style={{borderColor: '#7A1117', fontWeight:700, color:'#7A1117'}}
-                              >
-                                <option value="">Seleccionar estado</option>
-                                <option value="ACCEPTED_FOR_PROGRAM_HEAD_REVIEW">
-                                  ✅ Aceptado
-                                </option>
-                                <option value="CORRECTIONS_REQUESTED_BY_PROGRAM_HEAD">
-                                  🔄 Requiere correcciones
-                                </option>
-                              </select>
-                            </div>
-
-                            <div className="review-form-group">
-                              <label className="review-label" htmlFor="review-notes-textarea">
-                                <span style={{color:'#7A1117', fontWeight:900}}>Comentario:</span>
-                              </label>
-                              <textarea
-                                id="review-notes-textarea"
-                                value={notes}
-                                onChange={(e) => setNotes(e.target.value)}
-                                className="review-textarea"
-                                placeholder="Justifica tu decisión de manera clara y profesional..."
-                                rows={4}
-                                style={{borderColor:'#7A1117', fontWeight:600, color:'#1a1a2e'}}
-                              />
-                            </div>
-
-                            <button
-                              onClick={() => handleReviewDocument(doc.studentDocumentId)}
-                              disabled={submitting}
-                              className="review-submit-btn"
-                              style={{
-                                background: submitting ? '#9e9e9e' : 'linear-gradient(135deg, #7A1117 100%)',
-                                color: '#fff',
-                                fontWeight: 900,
-                                fontSize: '1.05rem',
-                                border: 'none',
-                                boxShadow: '0 3px 8px rgba(122,17,23,0.15)',
-                                letterSpacing: '0.5px',
-                              }}
-                            >
-                              {submitting ? "Guardando..." : "Guardar revisión"}
-                            </button>
-                          </div>
-                        )}
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
+
+            {showReviewPanel && (
+              <div className="review-panel">
+                <h4 className="review-panel-title">
+                  <span style={{
+                    color: '#7A1117',
+                    fontWeight: 900,
+                    fontSize: '1.25rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    flexWrap: 'wrap',
+                  }}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{verticalAlign:'middle', flexShrink: 0}}>
+                      <circle cx="12" cy="12" r="12" fill="#7A1117"/>
+                      <path d="M8 12.5L11 15.5L16 10.5" stroke="#D5CBA0" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                    <span>Revisión de documento — {activeReviewDoc.documentName}</span>
+                  </span>
+                </h4>
+
+                <div className="review-form-group">
+                  <label className="review-label">
+                    <span style={{color:'#7A1117', fontWeight:900}}>Nuevo estado:</span>
+                  </label>
+                  <select
+                    value={selectedStatus}
+                    onChange={(e) => setSelectedStatus(e.target.value)}
+                    className="review-select"
+                    style={{borderColor: '#7A1117', fontWeight:700, color:'#7A1117'}}
+                  >
+                    <option value="">Seleccionar estado</option>
+                    <option value="ACCEPTED_FOR_PROGRAM_HEAD_REVIEW">
+                      ✅ Aceptado
+                    </option>
+                    <option value="CORRECTIONS_REQUESTED_BY_PROGRAM_HEAD">
+                      🔄 Requiere correcciones
+                    </option>
+                  </select>
+                </div>
+
+                <div className="review-form-group">
+                  <label className="review-label">
+                    <span style={{color:'#7A1117', fontWeight:900}}>Comentario:</span>
+                  </label>
+                  <textarea
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    className="review-textarea"
+                    placeholder="Justifica tu decisión de manera clara y profesional..."
+                    rows={4}
+                    style={{borderColor:'#7A1117', fontWeight:600, color:'#1a1a2e'}}
+                  />
+                </div>
+
+                <button
+                  onClick={() => handleReviewDocument(activeReviewDoc.studentDocumentId)}
+                  disabled={submitting}
+                  className="review-submit-btn"
+                  style={{
+                    background: submitting ? '#9e9e9e' : 'linear-gradient(135deg, #7A1117 100%)',
+                    color: '#fff',
+                    fontWeight: 900,
+                    fontSize: '1.05rem',
+                    border: 'none',
+                    boxShadow: '0 3px 8px rgba(122,17,23,0.15)',
+                    letterSpacing: '0.5px',
+                  }}
+                >
+                  {submitting ? "Guardando..." : "Guardar revisión"}
+                </button>
+              </div>
+            )}
 
             {/* Approve All Section */}
             {canShowSendToCommitteeButton && (

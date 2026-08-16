@@ -4,6 +4,7 @@ import {
   requestCancellationModality,
   getCurrentModalityStatus,
 } from "../../services/studentService";
+import { getErrorMessage } from "../../utils/errorUtils";
 import "../../styles/student/cancellation.css";
 
 export default function StudentCancellation() {
@@ -34,7 +35,7 @@ export default function StudentCancellation() {
         }
       } catch (err) {
         console.error(" Error al obtener modalidad:", err);
-        setMessage(err.response?.data?.message || "Error al obtener información de la modalidad");
+        setMessage(getErrorMessage(err, "Error al obtener información de la modalidad"));
         setMessageType("error");
       } finally {
         setLoadingModalityId(false);
@@ -98,7 +99,7 @@ export default function StudentCancellation() {
       setStep(2);
     } catch (err) {
       console.error(" Error al subir documento:", err);
-      const errorMsg = err.response?.data?.message || err.response?.data || err.message || "Error al subir el documento";
+      const errorMsg = getErrorMessage(err, "Error al subir el documento");
       setMessage(errorMsg);
       setMessageType("error");
     } finally {
@@ -126,7 +127,7 @@ export default function StudentCancellation() {
       setStep(3);
     } catch (err) {
       console.error(" Error al solicitar cancelación:", err);
-      const errorMsg = err.response?.data?.message || err.response?.data || err.message || "Error al solicitar cancelación";
+      const errorMsg = getErrorMessage(err, "Error al solicitar cancelación");
       setMessage(errorMsg);
       setMessageType("error");
     } finally {

@@ -286,7 +286,7 @@ const fetchExaminerRole = async () => {
       await fetchProfile();
     } catch (err) {
       console.error("Error al votar solicitud:", err);
-      const errorMsg = err.response?.data?.message || "Error al registrar el voto";
+      const errorMsg = getErrorMessage(err, "Error al registrar el voto");
       setMessage(errorMsg);
       setMessageType("error");
     } finally {
@@ -1172,13 +1172,6 @@ const fetchExaminerRole = async () => {
             </div>
           )}
         </div>
-        {profile.modalityId && (
-          <div className="modality-details-btn-container">
-            <button onClick={handleViewModalityDetails} className="btn-view-modality-details">
-              📋 Ver Detalles Completos de la Modalidad
-            </button>
-          </div>
-        )}
       </div>
 
       {/* Examiner Role */}

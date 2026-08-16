@@ -106,45 +106,11 @@ export const approveCommittee = async (studentModalityId) => {
 };
 
 // ========================================
-// ❌ RECHAZAR MODALIDAD (COMITÉ)
-// ========================================
-export const rejectCommittee = async (studentModalityId, reason) => {
-  return (
-    await axios.post(
-      `/modalities/${studentModalityId}/reject-committee`,
-      { reason }
-    )
-  ).data;
-};
-
-// ========================================
 // 👨‍🏫 ASIGNAR DIRECTOR DE PROYECTO
 // ========================================
 export const assignProjectDirector = async (studentModalityId, directorId) => {
   const response = await axios.post(
     `/modalities/${studentModalityId}/assign-director/${directorId}`
-  );
-  return response.data;
-};
-
-// ========================================
-// 📅 PROGRAMAR SUSTENTACIÓN
-// ========================================
-export const scheduleDefense = async (studentModalityId, data) => {
-  const response = await axios.post(
-    `/modalities/${studentModalityId}/schedule-defense`,
-    data
-  );
-  return response.data;
-};
-
-// ========================================
-// 📊 EVALUACIÓN FINAL DEL JURADO
-// ========================================
-export const registerFinalEvaluation = async (studentModalityId, data) => {
-  const response = await axios.post(
-    `/modalities/${studentModalityId}/final-evaluation`,
-    data
   );
   return response.data;
 };
@@ -200,62 +166,21 @@ export const rejectCancellation = async (studentModalityId, reason) => {
 
 export const viewCancellationDocument = async (studentModalityId) => {
   try {
-    // Primero obtenemos la información del documento de cancelación
-    console.log("🔍 [1/2] Obteniendo ID del documento de cancelación para studentModalityId:", studentModalityId);
-    
-    const profileResponse = await axios.get(
-      `/modalities/students/${studentModalityId}/committee`
-    );
-    
-    console.log("📦 [1/2] Perfil recibido:", profileResponse.data);
-    
-    // Buscar el documento con nombre "Justificación de cancelación de modalidad de grado"
-    const cancellationDoc = profileResponse.data.documents?.find(
-      doc => doc.documentName === "Justificación de cancelación de modalidad de grado"
-    );
-    
-    if (!cancellationDoc) {
-      throw new Error("No se encontró el documento de justificación de cancelación");
-    }
-    
-    if (!cancellationDoc.uploaded) {
-      throw new Error("El estudiante aún no ha subido el documento de cancelación");
-    }
-    
-    const studentDocumentId = cancellationDoc.studentDocumentId;
-    console.log("✅ [1/2] Documento encontrado, ID:", studentDocumentId);
-    
-    // Ahora descargamos el documento usando el endpoint normal
-    console.log("🔍 [2/2] Descargando documento ID:", studentDocumentId);
-    
+    console.log("🔍 Descargando documento de cancelación para studentModalityId:", studentModalityId);
+
     const response = await axios.get(
-      `/modalities/student/${studentDocumentId}/view`,
+      `/modalities/cancellation/document/${studentModalityId}`,
       {
         responseType: "blob",
       }
     );
 
-    console.log("✅ [2/2] PDF recibido, tamaño:", response.data.size);
+    console.log("✅ PDF recibido, tamaño:", response.data.size);
     return response.data;
-    
   } catch (error) {
     console.error("❌ Error al ver documento de cancelación:", error);
     throw error;
   }
-};
-
-// ==========================================
-// 🆕 NUEVAS FUNCIONES PARA PROPUESTAS DE DEFENSA
-// ==========================================
-
-/**
- * Obtener propuestas de defensa pendientes de aprobación
- * @returns {Promise<Object>} Objeto con lista de propuestas
- */
-export const getPendingDefenseProposals = async () => {
-  console.log("📋 Obteniendo propuestas de defensa pendientes");
-  const response = await axios.get("/modalities/defense-proposals/pending");
-  return response.data;
 };
 
 // ==========================================
@@ -292,36 +217,6 @@ export const rejectDistinctionProposal = async (studentModalityId, reason) => {
   const response = await axios.post(
     `/modalities/${studentModalityId}/committee/reject-distinction`,
     { reason }
-  );
-  return response.data;
-};
-
-/**
- * Aprobar propuesta de defensa del director
- * @param {number} studentModalityId - ID de la modalidad del estudiante
- * @returns {Promise<Object>} Respuesta de confirmación
- */
-export const approveDefenseProposal = async (studentModalityId) => {
-  console.log("✅ Aprobando propuesta de defensa:", studentModalityId);
-  const response = await axios.post(
-    `/modalities/${studentModalityId}/defense-proposals/approve`
-  );
-  return response.data;
-};
-
-/**
- * Reprogramar defensa (rechazar propuesta y poner nueva fecha)
- * @param {number} studentModalityId - ID de la modalidad del estudiante
- * @param {Object} defenseData - Nueva fecha y lugar
- * @param {string} defenseData.defenseDate - Fecha en formato ISO
- * @param {string} defenseData.defenseLocation - Lugar de la sustentación
- * @returns {Promise<Object>} Respuesta de confirmación
- */
-export const rescheduleDefense = async (studentModalityId, defenseData) => {
-  console.log("📝 Reprogramando defensa:", { studentModalityId, defenseData });
-  const response = await axios.post(
-    `/modalities/${studentModalityId}/defense-proposals/reschedule`,
-    defenseData
   );
   return response.data;
 };

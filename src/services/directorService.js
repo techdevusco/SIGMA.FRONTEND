@@ -194,7 +194,7 @@ export const getDocumentBlobUrl = async (studentDocumentId) => {
 export const getDirectorCancellationRequests = async () => {
   console.log("📋 Obteniendo solicitudes de cancelación para director");
   
-  const response = await axios.get("/modalities/cancellation-request/director");
+  const response = await axios.get("/modalities/cancellation-request");
   return extractData(response.data);
 };
 
@@ -205,43 +205,17 @@ export const getDirectorCancellationRequests = async () => {
  */
 export const viewCancellationDocument = async (studentModalityId) => {
   try {
-    console.log("🔍 [1/2] Obteniendo detalle para studentModalityId:", studentModalityId);
-    
-    const profileResponse = await axios.get(
-      `/modalities/students/${studentModalityId}/director`
-    );
-    
-    console.log("📦 [1/2] Perfil recibido:", profileResponse.data);
-    
-    // Buscar el documento de cancelación
-    const cancellationDoc = profileResponse.data.documents?.find(
-      doc => doc.documentName === "Justificación de cancelación de modalidad de grado"
-    );
-    
-    if (!cancellationDoc) {
-      throw new Error("No se encontró el documento de justificación de cancelación");
-    }
-    
-    if (!cancellationDoc.uploaded) {
-      throw new Error("El estudiante aún no ha subido el documento de cancelación");
-    }
-    
-    const studentDocumentId = cancellationDoc.studentDocumentId;
-    console.log("✅ [1/2] Documento encontrado, ID:", studentDocumentId);
-    
-    // Descargar el documento
-    console.log("🔍 [2/2] Descargando documento ID:", studentDocumentId);
-    
+    console.log("🔍 Descargando documento de cancelación para studentModalityId:", studentModalityId);
+
     const response = await axios.get(
-      `/modalities/student/${studentDocumentId}/view`,
+      `/modalities/cancellation/document/${studentModalityId}`,
       {
         responseType: "blob",
       }
     );
 
-    console.log("✅ [2/2] PDF recibido, tamaño:", response.data.size);
+    console.log("✅ PDF recibido, tamaño:", response.data.size);
     return response.data;
-    
   } catch (error) {
     console.error("❌ Error al ver documento de cancelación:", error);
     throw error;
@@ -300,25 +274,11 @@ export const notifyReadyForDefense = async (studentModalityId) => {
 // ==================== UTILIDADES ====================
 
 /**
- * Obtener mensaje de error legible
+ * Obtener mensaje de error legible (definido en src/utils/errorUtils.js)
  * @param {Error} error - Error capturado
  * @returns {string} Mensaje de error formateado
  */
-export const getErrorMessage = (error) => {
-  if (error.response?.data) {
-    if (typeof error.response.data === 'string') {
-      return error.response.data;
-    }
-    if (error.response.data.message) {
-      return error.response.data.message;
-    }
-    return JSON.stringify(error.response.data);
-  }
-  if (error.message) {
-    return error.message;
-  }
-  return 'Error desconocido';
-};
+export { getErrorMessage } from "../utils/errorUtils";
 
 /**
  * Estados disponibles para filtrado

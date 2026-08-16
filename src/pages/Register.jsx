@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { register } from "../services/authService";
 import { useAuth } from "../context/AuthContext";
 import { jwtDecode } from "jwt-decode";
+import { getErrorMessage, getFieldErrors } from "../utils/errorUtils";
 import "../styles/register.css";
 
 
@@ -154,7 +155,12 @@ function Register() {
       }, 100);
     } catch (error) {
       console.error("Error al registrarse:", error);
-      const errorMessage = error.response?.data || "Error al registrarse";
+      const fieldErrors = getFieldErrors(error);
+      if (fieldErrors && Object.keys(fieldErrors).length) {
+        setErrors(fieldErrors);
+        return;
+      }
+      const errorMessage = getErrorMessage(error, "Error al registrarse");
       if (errorMessage.includes("correo") || errorMessage.includes("email")) {
         setErrors({ email: errorMessage });
       } else {

@@ -451,23 +451,9 @@ export const formatDate = (dateString) => {
 };
 
 /**
- * Obtener mensaje de error legible
+ * Obtener mensaje de error legible (definido en src/utils/errorUtils.js)
  */
-export const getErrorMessage = (error) => {
-  if (error.response?.data) {
-    if (typeof error.response.data === 'string') {
-      return error.response.data;
-    }
-    if (error.response.data.message) {
-      return error.response.data.message;
-    }
-    return JSON.stringify(error.response.data);
-  }
-  if (error.message) {
-    return error.message;
-  }
-  return 'Error desconocido';
-};
+export { getErrorMessage } from "../utils/errorUtils";
 
 /**
  * Validar consistencia entre calificación y decisión

@@ -8,6 +8,7 @@ import {
   deleteModalityRequirement,
   activateModalityRequirement,
 } from "../../services/adminService";
+import { getErrorMessage } from "../../utils/errorUtils";
 import ConfirmModal from "../../components/ConfirmModal";
 import "../../styles/admin/Roles.css";
 
@@ -71,7 +72,7 @@ export default function Requirements() {
       const data = await getModalityRequirements(selectedModalityId);
       setRequirements(data);
     } catch (err) {
-      setMessage("Error al cargar requerimientos: " + (err.response?.data?.message || err.message));
+      setMessage("Error al cargar requerimientos: " + getErrorMessage(err));
       setRequirements([]);
     } finally {
       setLoadingRequirements(false);
@@ -120,7 +121,7 @@ export default function Requirements() {
       setShowModal(false);
       await fetchRequirements();
     } catch (err) {
-      setMessage(err.response?.data || "Error al procesar la solicitud");
+      setMessage(getErrorMessage(err, "Error al procesar la solicitud"));
     }
   };
 

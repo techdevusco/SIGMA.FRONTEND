@@ -6,6 +6,7 @@ import {
   createProgramDegreeModality,
   updateProgramDegreeModality,
 } from "../../services/adminService";
+import { getErrorMessage } from "../../utils/errorUtils";
 import "../../styles/admin/Roles.css";
 
 export default function ProgramDegreeModalities() {
@@ -34,17 +35,6 @@ export default function ProgramDegreeModalities() {
   useEffect(() => {
     fetchConfigurations();
   }, [selectedProgramId]);
-
-  const getErrorMessage = (error) => {
-    if (typeof error === 'string') return error;
-    if (error?.response?.data) {
-      if (typeof error.response.data === 'string') return error.response.data;
-      if (error.response.data.message) return error.response.data.message;
-      return JSON.stringify(error.response.data);
-    }
-    if (error?.message) return error.message;
-    return 'Error desconocido';
-  };
 
   const fetchInitialData = async () => {
     try {

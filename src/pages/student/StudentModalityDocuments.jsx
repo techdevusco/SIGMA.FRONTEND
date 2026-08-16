@@ -244,6 +244,14 @@ export default function StudentModalityDocuments({ studentModalityId, modalityId
     const file = selectedFiles[requiredDocumentId];
     if (!file) return;
 
+    // ponytail: guard previo al envío — el backend limita a 20MB y Tomcat aborta la conexión
+    // (ERR_CONNECTION_RESET) con archivos mayores; aquí se corta con mensaje amigable.
+    if (file.size > 20 * 1024 * 1024) {
+      setMessage("El archivo supera el tamaño máximo permitido (20MB).");
+      setMessageType("error");
+      return;
+    }
+
     try {
       setSendingDocId(requiredDocumentId);
       setMessage("");
@@ -255,17 +263,15 @@ export default function StudentModalityDocuments({ studentModalityId, modalityId
       );
 
       // Actualización optimista para reflejar la subida inmediatamente en UI.
+      // UploadDocumentResponse solo trae {message, path, documentStatus, modalityStatus};
+      // el refetch posterior corrige el resto de campos.
       setDocuments((prev) =>
         prev.map((doc) =>
           Number(doc.requiredDocumentId) === Number(requiredDocumentId)
             ? {
                 ...doc,
                 uploaded: true,
-                studentDocumentId: res?.studentDocumentId ?? doc.studentDocumentId,
-                status: res?.status ?? doc.status ?? "PENDING",
-                notes: res?.notes ?? doc.notes,
-                uploadDate: res?.uploadDate ?? new Date().toISOString(),
-                lastUpdate: res?.lastUpdate ?? new Date().toISOString(),
+                status: res?.documentStatus ?? doc.status ?? "PENDING",
               }
             : doc
         )
@@ -371,7 +377,7 @@ export default function StudentModalityDocuments({ studentModalityId, modalityId
       await fetchDocumentsData();
     } catch (err) {
       console.error("❌ Error al solicitar edición:", err);
-      const errorMsg = err.response?.data?.message || err.message || "Error al solicitar edición del documento";
+      const errorMsg = getErrorMessage(err, "Error al solicitar edición del documento");
       setMessage(errorMsg);
       setMessageType("error");
     } finally {

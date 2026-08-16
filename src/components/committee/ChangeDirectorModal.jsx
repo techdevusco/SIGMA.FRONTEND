@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getProjectDirectors, changeProjectDirector } from "../../services/committeeService";
+import { getErrorMessage } from "../../utils/errorUtils";
 import "../../styles/council/modals.css";
 
 export default function ChangeDirectorModal({
@@ -54,7 +55,7 @@ export default function ChangeDirectorModal({
         onSuccess(response.message);
       }, 2000);
     } catch (err) {
-      setError(err.response?.data?.message || err.message);
+      setError(getErrorMessage(err));
     } finally {
       setSubmitting(false);
     }

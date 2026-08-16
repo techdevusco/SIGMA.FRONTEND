@@ -6,6 +6,7 @@ import {
   updateModality,
   getAllFaculties 
 } from "../../services/adminService";
+import { getErrorMessage } from "../../utils/errorUtils";
 import "../../styles/admin/Roles.css";
 
 const MODALITY_TYPES = [
@@ -59,7 +60,7 @@ export default function Modalities() {
       setFaculties(Array.isArray(facultiesData) ? facultiesData : []);
     } catch (err) {
       console.error("Error loading data:", err);
-      setMessage("Error al cargar datos: " + (err.response?.data || err.message));
+      setMessage("Error al cargar datos: " + getErrorMessage(err));
       setModalities([]);
       setFaculties([]);
     } finally {
@@ -107,7 +108,7 @@ export default function Modalities() {
       setTimeout(() => setMessage(""), 3000);
     } catch (err) {
       console.error("Error saving modality:", err);
-      setMessage(err.response?.data || "Error al procesar la solicitud");
+      setMessage(getErrorMessage(err, "Error al procesar la solicitud"));
     }
   };
 
@@ -123,7 +124,7 @@ export default function Modalities() {
       setTimeout(() => setMessage(""), 3000);
     } catch (err) {
       console.error("Error toggling status:", err);
-      setMessage("Error al cambiar estado: " + (err.response?.data || err.message));
+      setMessage("Error al cambiar estado: " + getErrorMessage(err));
     }
   };
 
